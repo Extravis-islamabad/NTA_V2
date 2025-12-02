@@ -28,27 +28,21 @@ jobs:
           sudo mkdir -p $APP_DIR
           sudo chown $USER:$USER $APP_DIR
 
+          # Copy latest code from checkout to app directory
+          echo "Syncing code to $APP_DIR..."
+          rsync -av --delete --exclude='.git' $GITHUB_WORKSPACE/ $APP_DIR/
+
           # Navigate to app directory
           cd $APP_DIR
 
-          # Clone or pull latest code
-          if [ -d ".git" ]; then
-            echo "Pulling latest changes..."
-            git fetch origin main
-            git reset --hard origin/main
-          else
-            echo "Cloning repository..."
-            git clone https://github.com/${{ github.repository }}.git .
-          fi
-
           # Stop existing containers
           echo "Stopping existing containers..."
-          docker compose down 2>/dev/null || true
+          sudo docker compose down 2>/dev/null || true
 
           # Build and start containers
           echo "Building and starting containers..."
-          docker compose build --no-cache
-          docker compose up -d
+          sudo docker compose build --no-cache
+          sudo docker compose up -d
 
           # Wait for containers to be ready
           echo "Waiting for containers to be healthy..."
@@ -56,14 +50,14 @@ jobs:
 
           # Check status
           echo "Container status:"
-          docker compose ps
+          sudo docker compose ps
 
           # Health check
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003 2>/dev/null || echo "000")
           if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
             echo "✓ Deployment successful! (HTTP $HTTP_CODE)"
           else
-            echo "⚠ Warning: HTTP $HTTP_CODE - Check logs with: docker-compose logs"
+            echo "⚠ Warning: HTTP $HTTP_CODE - Check logs with: sudo docker compose logs"
           fi
 
           echo "=========================================="

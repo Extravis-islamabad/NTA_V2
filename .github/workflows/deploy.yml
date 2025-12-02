@@ -43,12 +43,12 @@ jobs:
 
           # Stop existing containers
           echo "Stopping existing containers..."
-          docker-compose down 2>/dev/null || true
+          docker compose down 2>/dev/null || true
 
           # Build and start containers
           echo "Building and starting containers..."
-          docker-compose build --no-cache
-          docker-compose up -d
+          docker compose build --no-cache
+          docker compose up -d
 
           # Wait for containers to be ready
           echo "Waiting for containers to be healthy..."
@@ -56,7 +56,7 @@ jobs:
 
           # Check status
           echo "Container status:"
-          docker-compose ps
+          docker compose ps
 
           # Health check
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003 2>/dev/null || echo "000")

@@ -1,79 +1,72 @@
 name: Deploy NetFlow Analyzer
 
 on:
-  # Disabled auto-deploy - VM is on private network behind VPN
-  # push:
-  #   branches: [main]
-  workflow_dispatch:  # Manual trigger only
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     name: Build and Deploy
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          script: |
-            set -e
-            echo "=========================================="
-            echo "  Deploying NetFlow Analyzer"
-            echo "  $(date)"
-            echo "=========================================="
+      - name: Deploy Application
+        run: |
+          set -e
+          echo "=========================================="
+          echo "  Deploying NetFlow Analyzer"
+          echo "  $(date)"
+          echo "=========================================="
 
-            APP_DIR="/opt/netflow-analyzer"
+          APP_DIR="/opt/netflow-analyzer"
 
-            # Create directory if not exists
-            sudo mkdir -p $APP_DIR
-            sudo chown $USER:$USER $APP_DIR
+          # Create directory if not exists
+          sudo mkdir -p $APP_DIR
+          sudo chown $USER:$USER $APP_DIR
 
-            # Navigate to app directory
-            cd $APP_DIR
+          # Navigate to app directory
+          cd $APP_DIR
 
-            # Clone or pull latest code
-            if [ -d ".git" ]; then
-              echo "Pulling latest changes..."
-              git fetch origin main
-              git reset --hard origin/main
-            else
-              echo "Cloning repository..."
-              git clone https://github.com/${{ github.repository }}.git .
-            fi
+          # Clone or pull latest code
+          if [ -d ".git" ]; then
+            echo "Pulling latest changes..."
+            git fetch origin main
+            git reset --hard origin/main
+          else
+            echo "Cloning repository..."
+            git clone https://github.com/${{ github.repository }}.git .
+          fi
 
-            # Stop existing containers
-            echo "Stopping existing containers..."
-            docker-compose down 2>/dev/null || true
+          # Stop existing containers
+          echo "Stopping existing containers..."
+          docker-compose down 2>/dev/null || true
 
-            # Build and start containers
-            echo "Building and starting containers..."
-            docker-compose build --no-cache
-            docker-compose up -d
+          # Build and start containers
+          echo "Building and starting containers..."
+          docker-compose build --no-cache
+          docker-compose up -d
 
-            # Wait for containers to be ready
-            echo "Waiting for containers to be healthy..."
-            sleep 20
+          # Wait for containers to be ready
+          echo "Waiting for containers to be healthy..."
+          sleep 20
 
-            # Check status
-            echo "Container status:"
-            docker-compose ps
+          # Check status
+          echo "Container status:"
+          docker-compose ps
 
-            # Health check
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003 2>/dev/null || echo "000")
-            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
-              echo "✓ Deployment successful! (HTTP $HTTP_CODE)"
-            else
-              echo "⚠ Warning: HTTP $HTTP_CODE - Check logs with: docker-compose logs"
-            fi
+          # Health check
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003 2>/dev/null || echo "000")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+            echo "✓ Deployment successful! (HTTP $HTTP_CODE)"
+          else
+            echo "⚠ Warning: HTTP $HTTP_CODE - Check logs with: docker-compose logs"
+          fi
 
-            echo "=========================================="
-            echo "  Deployment Complete!"
-            echo "  URL: http://192.168.10.7:8003"
-            echo "=========================================="
+          echo "=========================================="
+          echo "  Deployment Complete!"
+          echo "  URL: http://192.168.10.7:8003"
+          echo "=========================================="

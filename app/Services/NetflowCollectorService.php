@@ -15,15 +15,20 @@ class NetflowCollectorService
     {
         try {
             $device = $this->getOrCreateDevice($data['exporter_ip']);
-            
+
             foreach ($data['flows'] as $flowData) {
                 $this->createFlow($device, $flowData);
             }
 
-            $device->update([
+            // Update device status to online and refresh last_seen_at
+            Device::where('ip_address', $data['exporter_ip'])->update([
                 'last_seen_at' => now(),
+                'status' => 'online',
                 'flow_count' => $device->flows()->count()
             ]);
+
+            // Clear cache so fresh data is loaded
+            Cache::forget("device:{$data['exporter_ip']}");
 
             $this->updateRealTimeStats($device);
         } catch (\Exception $e) {

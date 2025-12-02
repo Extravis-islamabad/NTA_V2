@@ -7,19 +7,21 @@
                     <span class="text-sm text-gray-600">Inbound Traffic</span>
                     <span class="text-sm font-medium">
                         @php
-                            $inbound = $summaryData['total_bytes'] * 0.6;
+                            $inbound = $trafficDistribution['inbound_bytes'] ?? 0;
                             if ($inbound >= 1073741824) {
                                 echo round($inbound / 1073741824, 2) . ' GB';
                             } elseif ($inbound >= 1048576) {
                                 echo round($inbound / 1048576, 2) . ' MB';
-                            } else {
+                            } elseif ($inbound >= 1024) {
                                 echo round($inbound / 1024, 2) . ' KB';
+                            } else {
+                                echo $inbound . ' B';
                             }
                         @endphp
                     </span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-blue-600 h-2 rounded-full" style="width: 60%"></div>
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $trafficDistribution['inbound_percent'] ?? 0 }}%"></div>
                 </div>
             </div>
             <div>
@@ -27,19 +29,21 @@
                     <span class="text-sm text-gray-600">Outbound Traffic</span>
                     <span class="text-sm font-medium">
                         @php
-                            $outbound = $summaryData['total_bytes'] * 0.4;
+                            $outbound = $trafficDistribution['outbound_bytes'] ?? 0;
                             if ($outbound >= 1073741824) {
                                 echo round($outbound / 1073741824, 2) . ' GB';
                             } elseif ($outbound >= 1048576) {
                                 echo round($outbound / 1048576, 2) . ' MB';
-                            } else {
+                            } elseif ($outbound >= 1024) {
                                 echo round($outbound / 1024, 2) . ' KB';
+                            } else {
+                                echo $outbound . ' B';
                             }
                         @endphp
                     </span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-green-600 h-2 rounded-full" style="width: 40%"></div>
+                    <div class="bg-green-600 h-2 rounded-full" style="width: {{ $trafficDistribution['outbound_percent'] ?? 0 }}%"></div>
                 </div>
             </div>
         </div>
@@ -57,8 +61,10 @@
                                 echo round($bytes / 1073741824, 2) . ' GB';
                             } elseif ($bytes >= 1048576) {
                                 echo round($bytes / 1048576, 2) . ' MB';
-                            } else {
+                            } elseif ($bytes >= 1024) {
                                 echo round($bytes / 1024, 2) . ' KB';
+                            } else {
+                                echo $bytes . ' B';
                             }
                         @endphp
                     </span>
@@ -86,49 +92,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('trafficTimeChart');
     if (!ctx) return;
 
-    // Generate realistic time-series data
-    const labels = [];
-    const data = [];
-    const now = new Date();
-    
-    for (let i = 23; i >= 0; i--) {
-        const time = new Date(now.getTime() - (i * 60 * 60 * 1000));
-        labels.push(time.getHours() + ':00');
-        data.push(Math.random() * 100 + 50);
+    // Destroy existing chart if it exists
+    if (window.trafficTimeChartInstance) {
+        window.trafficTimeChartInstance.destroy();
     }
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Traffic (MB)',
-                data: data,
-                borderColor: '#3B82F6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false, // Disable animation to prevent layout issues
-            plugins: {
-                legend: { display: false }
+    // Use real data from API
+    const timeSeriesData = @json($trafficTimeSeries ?? ['labels' => [], 'bytes' => []]);
+
+    if (timeSeriesData.labels && timeSeriesData.labels.length > 0) {
+        window.trafficTimeChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timeSeriesData.labels,
+                datasets: [{
+                    label: 'Traffic',
+                    data: timeSeriesData.bytes,
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
             },
-            scales: {
-                y: { 
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toFixed(0) + ' MB';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1073741824) {
+                                    return (value / 1073741824).toFixed(1) + ' GB';
+                                } else if (value >= 1048576) {
+                                    return (value / 1048576).toFixed(1) + ' MB';
+                                } else if (value >= 1024) {
+                                    return (value / 1024).toFixed(1) + ' KB';
+                                }
+                                return value + ' B';
+                            }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    } else {
+        ctx.parentElement.innerHTML = '<div class="flex items-center justify-center h-full"><p class="text-gray-500">No traffic data available for this time range</p></div>';
+    }
 });
 </script>
 @endpush

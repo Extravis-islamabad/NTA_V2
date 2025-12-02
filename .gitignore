@@ -1,17 +1,32 @@
+# Dependencies
 /node_modules
+/vendor
+
+# Laravel
 /public/hot
 /public/storage
 /storage/*.key
-/vendor
 .env
 .env.backup
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
+.env.local
+
+# Logs
+*.log
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Cache
+/bootstrap/cache/*.php
+
+# IDE
 /.idea
 /.vscode
-*.log
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Build (optional - can be committed for faster deploys)
+# /public/build

@@ -43,12 +43,13 @@ class DeviceController extends Controller
         }]);
 
         // Summary Data
-        $summaryData = [
-            'total_flows' => $device->flows()->count(),
-            'total_bytes' => $device->flows()->sum('bytes'),
-            'total_packets' => $device->flows()->sum('packets'),
-            'avg_bandwidth' => $device->flows()->avg('bytes'),
-        ];
+        $summaryData = $this->trafficService->getDeviceSummary($device, $timeRange);
+
+        // Traffic Distribution (inbound vs outbound)
+        $trafficDistribution = $this->trafficService->getTrafficDistribution($device, $timeRange);
+
+        // Traffic Time Series for charts
+        $trafficTimeSeries = $this->trafficService->getTrafficTimeSeries($device, $timeRange);
 
         // Flow Details
         $flowDetails = $device->flows()
@@ -203,6 +204,8 @@ class DeviceController extends Controller
             'tab',
             'timeRange',
             'summaryData',
+            'trafficDistribution',
+            'trafficTimeSeries',
             'flowDetails',
             'trafficByApp',
             'trafficByProtocol',

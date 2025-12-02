@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  netflow-db:
+    image: postgres:16
+    container_name: netflow_analyzer_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: netflow_traffic_analyzer
+      POSTGRES_USER: netflow_user
+      POSTGRES_PASSWORD: NetFlow@Secure#2024!
+    volumes:
+      - netflow_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - netflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U netflow_user -d netflow_traffic_analyzer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NetFlow Analyzer Application
+  netflow-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: netflow_analyzer_app
+    restart: unless-stopped
+    depends_on:
+      netflow-db:
+        condition: service_healthy
+    environment:
+      - APP_NAME=NetFlow Analyzer
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://192.168.10.7:8003
+      - DB_CONNECTION=pgsql
+      - DB_HOST=netflow-db
+      - DB_PORT=5432
+      - DB_DATABASE=netflow_traffic_analyzer
+      - DB_USERNAME=netflow_user
+      - DB_PASSWORD=NetFlow@Secure#2024!
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=database
+      - NETFLOW_PORT=2055
+    ports:
+      - "8003:80"
+      - "2055:2055/udp"
+    volumes:
+      - netflow_storage:/var/www/html/storage
+      - netflow_logs:/var/www/html/storage/logs
+    networks:
+      - netflow-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  netflow-network:
+    driver: bridge
+    name: netflow_analyzer_network
+
+volumes:
+  netflow_db_data:
+    name: netflow_analyzer_db_data
+  netflow_storage:
+    name: netflow_analyzer_storage
+  netflow_logs:
+    name: netflow_analyzer_logs

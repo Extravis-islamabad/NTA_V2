@@ -1,9 +1,10 @@
 name: Deploy NetFlow Analyzer
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  # Disabled auto-deploy - VM is on private network behind VPN
+  # push:
+  #   branches: [main]
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   deploy:

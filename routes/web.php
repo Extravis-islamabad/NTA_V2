@@ -5,6 +5,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\TrafficController;
 use App\Http\Controllers\AlarmController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,14 +15,19 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Device Management
-Route::get('/devices/create', [App\Http\Controllers\DeviceController::class, 'create'])->name('devices.create');
-Route::post('/devices', [App\Http\Controllers\DeviceController::class, 'store'])->name('devices.store');
-Route::resource('devices', App\Http\Controllers\DeviceController::class)->except(['create', 'store']);
-
-// Devices
 Route::prefix('devices')->name('devices.')->group(function () {
     Route::get('/', [DeviceController::class, 'index'])->name('index');
+    Route::get('/create', [DeviceController::class, 'create'])->name('create');
+    Route::post('/', [DeviceController::class, 'store'])->name('store');
     Route::get('/{device}', [DeviceController::class, 'show'])->name('show');
+    Route::get('/{device}/edit', [DeviceController::class, 'edit'])->name('edit');
+    Route::put('/{device}', [DeviceController::class, 'update'])->name('update');
+    Route::delete('/{device}', [DeviceController::class, 'destroy'])->name('destroy');
+
+    // SSH Routes
+    Route::post('/{device}/ssh/test', [DeviceController::class, 'testSshConnection'])->name('ssh.test');
+    Route::post('/{device}/ssh/push-config', [DeviceController::class, 'pushNetFlowConfig'])->name('ssh.push');
+    Route::get('/{device}/ssh/config', [DeviceController::class, 'getNetFlowConfig'])->name('ssh.config');
 });
 
 // Traffic
@@ -43,11 +49,12 @@ Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('index');
     Route::get('/traffic', [ReportController::class, 'trafficReport'])->name('traffic');
     Route::get('/devices', [ReportController::class, 'deviceReport'])->name('devices');
+    Route::get('/talkers', [ReportController::class, 'talkersReport'])->name('talkers');
     Route::get('/export', [ReportController::class, 'exportReport'])->name('export');
 });
 
 // Settings
 Route::prefix('settings')->name('settings.')->group(function () {
-    Route::get('/', [App\Http\Controllers\SettingsController::class, 'index'])->name('index');
-    Route::put('/', [App\Http\Controllers\SettingsController::class, 'update'])->name('update');
+    Route::get('/', [SettingsController::class, 'index'])->name('index');
+    Route::put('/', [SettingsController::class, 'update'])->name('update');
 });

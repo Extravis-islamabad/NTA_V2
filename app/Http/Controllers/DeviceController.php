@@ -7,6 +7,7 @@ use App\Models\DeviceInterface;
 use App\Services\TrafficAnalysisService;
 use App\Services\CloudProviderService;
 use App\Services\ASLookupService;
+use App\Services\SSHService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,15 +16,18 @@ class DeviceController extends Controller
     protected TrafficAnalysisService $trafficService;
     protected CloudProviderService $cloudService;
     protected ASLookupService $asService;
+    protected SSHService $sshService;
 
     public function __construct(
         TrafficAnalysisService $trafficService,
         CloudProviderService $cloudService,
-        ASLookupService $asService
+        ASLookupService $asService,
+        SSHService $sshService
     ) {
         $this->trafficService = $trafficService;
         $this->cloudService = $cloudService;
         $this->asService = $asService;
+        $this->sshService = $sshService;
     }
 
     public function index()
@@ -36,7 +40,7 @@ class DeviceController extends Controller
     {
         $tab = $request->get('tab', 'summary');
         $timeRange = $request->get('range', '1hour');
-        
+
         $device->load(['interfaces', 'flows' => function($query) use ($timeRange) {
             $start = $this->getTimeRangeStart($timeRange);
             $query->where('created_at', '>=', $start)->latest()->limit(100);
@@ -124,7 +128,6 @@ class DeviceController extends Controller
             ->get();
 
         foreach ($allFlows as $flow) {
-            // Check destination IP for cloud providers
             $cloudProvider = $this->cloudService->identifyProvider($flow->destination_ip);
             if ($cloudProvider) {
                 $key = $cloudProvider['provider'];
@@ -142,7 +145,6 @@ class DeviceController extends Controller
             }
         }
 
-        // Convert to collection and add unique IP count
         $cloudTraffic = collect($cloudTraffic)->map(function($item) {
             $item['unique_ips'] = count($item['ips']);
             unset($item['ips']);
@@ -152,11 +154,9 @@ class DeviceController extends Controller
         // AS View Data
         $asTraffic = [];
         foreach ($allFlows as $flow) {
-            // Lookup AS for source and destination
             $sourceAS = $this->asService->lookupAS($flow->source_ip);
             $destAS = $this->asService->lookupAS($flow->destination_ip);
 
-            // Track source AS
             if ($sourceAS) {
                 $sourceKey = $sourceAS['asn'];
                 if (!isset($asTraffic[$sourceKey])) {
@@ -173,7 +173,6 @@ class DeviceController extends Controller
                 $asTraffic[$sourceKey]['flows']++;
             }
 
-            // Track destination AS
             if ($destAS) {
                 $destKey = $destAS['asn'];
                 if (!isset($asTraffic[$destKey])) {
@@ -190,7 +189,6 @@ class DeviceController extends Controller
             }
         }
 
-        // Convert to collection and calculate totals
         $asTraffic = collect($asTraffic)
             ->map(function($item) {
                 $item['total_bytes'] = $item['bytes_sent'] + $item['bytes_received'];
@@ -198,6 +196,11 @@ class DeviceController extends Controller
             })
             ->sortByDesc('total_bytes')
             ->values();
+
+        // Get NetFlow config template for SSH tab
+        $collectorIp = request()->server('SERVER_ADDR') ?: '192.168.10.7';
+        $collectorPort = config('netflow.port', 2055);
+        $netflowConfig = $this->sshService->getNetFlowConfigTemplate($device->type, $collectorIp, $collectorPort);
 
         return view('devices.show', compact(
             'device',
@@ -214,72 +217,143 @@ class DeviceController extends Controller
             'qosData',
             'conversations',
             'cloudTraffic',
-            'asTraffic'
+            'asTraffic',
+            'netflowConfig'
         ));
     }
 
     public function create()
-{
-    return view('devices.create');
-}
-    public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'ip_address' => 'required|ip|unique:devices',
-        'type' => 'required|in:router,switch,firewall,wireless_controller,checkpoint,palo_alto,fortigate,cisco_router',
-        'location' => 'nullable|string|max:255',
-        'device_group' => 'nullable|string|max:255',
-    ]);
-
-    $validated['status'] = 'offline';
-
-    $device = Device::create($validated);
-
-    if ($request->expectsJson()) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Device created successfully',
-            'data' => $device
-        ], 201);
+    {
+        return view('devices.create');
     }
 
-    return redirect()->route('devices.index')
-        ->with('success', 'Device added successfully! Configure NetFlow/sFlow on the device to start receiving data.');
-}
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'ip_address' => 'required|ip|unique:devices',
+            'type' => 'required|in:router,switch,firewall,wireless_controller,checkpoint,palo_alto,fortigate,cisco_router',
+            'location' => 'nullable|string|max:255',
+            'device_group' => 'nullable|string|max:255',
+            // SSH fields
+            'ssh_enabled' => 'nullable|boolean',
+            'ssh_host' => 'nullable|string|max:255',
+            'ssh_port' => 'nullable|integer|min:1|max:65535',
+            'ssh_username' => 'nullable|string|max:255',
+            'ssh_password' => 'nullable|string',
+            'ssh_private_key' => 'nullable|string',
+        ]);
+
+        $validated['status'] = 'offline';
+        $validated['ssh_enabled'] = $request->has('ssh_enabled');
+
+        $device = Device::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Device created successfully',
+                'data' => $device
+            ], 201);
+        }
+
+        return redirect()->route('devices.show', $device)
+            ->with('success', 'Device added successfully!');
+    }
+
+    public function edit(Device $device)
+    {
+        return view('devices.edit', compact('device'));
+    }
 
     public function update(Request $request, Device $device)
-{
-    $validated = $request->validate([
-        'name' => 'sometimes|string|max:255',
-        'ip_address' => 'sometimes|ip|unique:devices,ip_address,' . $device->id,
-        'type' => 'sometimes|in:router,switch,firewall,wireless_controller,checkpoint,palo_alto,fortigate,cisco_router',
-        'location' => 'nullable|string|max:255',
-        'device_group' => 'nullable|string|max:255',
-        'status' => 'sometimes|in:online,offline,warning',
-    ]);
-
-    $device->update($validated);
-
-    if ($request->expectsJson()) {
-        return response()->json([
-            'success' => true,
-            'message' => 'Device updated successfully',
-            'data' => $device
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'ip_address' => 'sometimes|ip|unique:devices,ip_address,' . $device->id,
+            'type' => 'sometimes|in:router,switch,firewall,wireless_controller,checkpoint,palo_alto,fortigate,cisco_router',
+            'location' => 'nullable|string|max:255',
+            'device_group' => 'nullable|string|max:255',
+            'status' => 'sometimes|in:online,offline,warning',
+            // SSH fields
+            'ssh_enabled' => 'nullable|boolean',
+            'ssh_host' => 'nullable|string|max:255',
+            'ssh_port' => 'nullable|integer|min:1|max:65535',
+            'ssh_username' => 'nullable|string|max:255',
+            'ssh_password' => 'nullable|string',
+            'ssh_private_key' => 'nullable|string',
         ]);
-    }
 
-    return redirect()->route('devices.index')
-        ->with('success', 'Device updated successfully!');
-}
+        if ($request->has('ssh_enabled')) {
+            $validated['ssh_enabled'] = (bool) $request->ssh_enabled;
+        }
+
+        // Don't overwrite password if not provided
+        if (empty($validated['ssh_password'])) {
+            unset($validated['ssh_password']);
+        }
+        if (empty($validated['ssh_private_key'])) {
+            unset($validated['ssh_private_key']);
+        }
+
+        $device->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Device updated successfully',
+                'data' => $device
+            ]);
+        }
+
+        return redirect()->route('devices.show', $device)
+            ->with('success', 'Device updated successfully!');
+    }
 
     public function destroy(Device $device)
     {
         $device->delete();
 
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Device deleted successfully'
+            ]);
+        }
+
+        return redirect()->route('devices.index')
+            ->with('success', 'Device deleted successfully');
+    }
+
+    public function testSshConnection(Device $device)
+    {
+        $result = $this->sshService->testConnection($device);
+
+        return response()->json($result);
+    }
+
+    public function pushNetFlowConfig(Request $request, Device $device)
+    {
+        $collectorIp = $request->input('collector_ip', request()->server('SERVER_ADDR'));
+        $collectorPort = $request->input('collector_port', config('netflow.port', 2055));
+
+        $result = $this->sshService->pushNetFlowConfig($device, $collectorIp, $collectorPort);
+
+        return response()->json($result);
+    }
+
+    public function getNetFlowConfig(Device $device)
+    {
+        $collectorIp = request()->server('SERVER_ADDR') ?: '192.168.10.7';
+        $collectorPort = config('netflow.port', 2055);
+
+        $config = $this->sshService->getNetFlowConfigTemplate($device->type, $collectorIp, $collectorPort);
+
         return response()->json([
             'success' => true,
-            'message' => 'Device deleted successfully'
+            'config' => $config,
+            'collector_ip' => $collectorIp,
+            'collector_port' => $collectorPort
         ]);
     }
 

@@ -5,18 +5,41 @@ namespace App\Http\Controllers;
 use App\Models\Device;
 use App\Models\Flow;
 use App\Models\TrafficStatistic;
+use App\Services\TrafficAnalysisService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    protected TrafficAnalysisService $trafficService;
+
+    public function __construct(TrafficAnalysisService $trafficService)
+    {
+        $this->trafficService = $trafficService;
+    }
+
     public function index()
     {
-        return view('reports.index');
+        $stats = [
+            'total_devices' => Device::count(),
+            'online_devices' => Device::where('status', 'online')->count(),
+            'total_flows' => Flow::count(),
+            'total_bytes' => Flow::sum('bytes'),
+        ];
+
+        return view('reports.index', compact('stats'));
     }
 
     public function trafficReport(Request $request)
     {
+        $devices = Device::all();
+
+        // Handle initial page load without date parameters
+        if (!$request->has('start_date')) {
+            return view('reports.traffic', compact('devices'));
+        }
+
         $validated = $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
@@ -36,28 +59,39 @@ class ReportController extends Controller
         $totalPackets = $query->sum('packets');
         $totalFlows = $query->count();
 
+        // Calculate average bandwidth
+        $durationSeconds = $end->diffInSeconds($start);
+        $avgBandwidth = $durationSeconds > 0 ? ($totalBytes * 8 / $durationSeconds) : 0;
+
         $topApplications = (clone $query)
             ->whereNotNull('application')
-            ->selectRaw('application, SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->selectRaw('application, SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
             ->groupBy('application')
             ->orderByDesc('total_bytes')
             ->limit(10)
             ->get();
 
         $topProtocols = (clone $query)
-            ->selectRaw('protocol, SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->selectRaw('protocol, SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
             ->groupBy('protocol')
             ->orderByDesc('total_bytes')
             ->get();
 
-        $devices = Device::all();
+        // Time series data for traffic chart
+        $trafficTimeSeries = (clone $query)
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as time_bucket, SUM(bytes) as total_bytes")
+            ->groupBy('time_bucket')
+            ->orderBy('time_bucket')
+            ->get();
 
         return view('reports.traffic', compact(
             'totalBytes',
             'totalPackets',
             'totalFlows',
+            'avgBandwidth',
             'topApplications',
             'topProtocols',
+            'trafficTimeSeries',
             'start',
             'end',
             'devices'
@@ -70,16 +104,98 @@ class ReportController extends Controller
             ->with('interfaces')
             ->get();
 
-        return view('reports.devices', compact('devices'));
+        $devicesByType = $devices->groupBy('type')->map->count();
+        $devicesByStatus = $devices->groupBy('status')->map->count();
+
+        return view('reports.devices', compact('devices', 'devicesByType', 'devicesByStatus'));
+    }
+
+    public function talkersReport(Request $request)
+    {
+        $devices = Device::all();
+
+        // Handle initial page load without date parameters
+        if (!$request->has('start_date')) {
+            return view('reports.talkers', compact('devices'));
+        }
+
+        $validated = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'device_id' => 'nullable|exists:devices,id',
+        ]);
+
+        $start = Carbon::parse($validated['start_date']);
+        $end = Carbon::parse($validated['end_date']);
+
+        $query = Flow::whereBetween('created_at', [$start, $end]);
+
+        if (!empty($validated['device_id'])) {
+            $query->where('device_id', $validated['device_id']);
+        }
+
+        $totalBytes = $query->sum('bytes');
+        $totalFlows = $query->count();
+
+        // Top Sources
+        $topSources = (clone $query)
+            ->select('source_ip')
+            ->selectRaw('SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
+            ->selectRaw('COUNT(DISTINCT destination_ip) as unique_destinations')
+            ->groupBy('source_ip')
+            ->orderByDesc('total_bytes')
+            ->limit(20)
+            ->get();
+
+        // Top Destinations
+        $topDestinations = (clone $query)
+            ->select('destination_ip')
+            ->selectRaw('SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
+            ->selectRaw('COUNT(DISTINCT source_ip) as unique_sources')
+            ->groupBy('destination_ip')
+            ->orderByDesc('total_bytes')
+            ->limit(20)
+            ->get();
+
+        // Top Conversations
+        $topConversations = (clone $query)
+            ->select('source_ip', 'destination_ip', 'protocol')
+            ->selectRaw('SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
+            ->groupBy('source_ip', 'destination_ip', 'protocol')
+            ->orderByDesc('total_bytes')
+            ->limit(25)
+            ->get();
+
+        // Top Source-Destination Pairs
+        $topPairs = (clone $query)
+            ->select('source_ip', 'destination_ip')
+            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->groupBy('source_ip', 'destination_ip')
+            ->orderByDesc('total_bytes')
+            ->limit(15)
+            ->get();
+
+        return view('reports.talkers', compact(
+            'topSources',
+            'topDestinations',
+            'topConversations',
+            'topPairs',
+            'totalBytes',
+            'totalFlows',
+            'start',
+            'end',
+            'devices'
+        ));
     }
 
     public function exportReport(Request $request)
     {
-        // Will implement CSV export
         $type = $request->get('type', 'traffic');
-        
+
         if ($type === 'traffic') {
             return $this->exportTrafficReport($request);
+        } elseif ($type === 'talkers') {
+            return $this->exportTalkersReport($request);
         }
 
         return $this->exportDeviceReport($request);
@@ -87,11 +203,12 @@ class ReportController extends Controller
 
     private function exportTrafficReport(Request $request)
     {
-        $start = Carbon::parse($request->start_date);
-        $end = Carbon::parse($request->end_date);
+        $start = Carbon::parse($request->start_date ?? now()->subDay());
+        $end = Carbon::parse($request->end_date ?? now());
 
         $flows = Flow::whereBetween('created_at', [$start, $end])
             ->with('device')
+            ->limit(10000)
             ->get();
 
         $filename = 'traffic_report_' . now()->format('Y-m-d_His') . '.csv';
@@ -102,18 +219,59 @@ class ReportController extends Controller
 
         $callback = function() use ($flows) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Device', 'Source IP', 'Destination IP', 'Protocol', 'Bytes', 'Packets', 'Application', 'Timestamp']);
+            fputcsv($file, ['Device', 'Source IP', 'Destination IP', 'Source Port', 'Destination Port', 'Protocol', 'Bytes', 'Packets', 'Application', 'DSCP', 'Timestamp']);
 
             foreach ($flows as $flow) {
                 fputcsv($file, [
-                    $flow->device->name,
+                    $flow->device->name ?? 'Unknown',
                     $flow->source_ip,
                     $flow->destination_ip,
+                    $flow->source_port,
+                    $flow->destination_port,
                     $flow->protocol,
                     $flow->bytes,
                     $flow->packets,
                     $flow->application ?? 'N/A',
+                    $flow->dscp ?? 'N/A',
                     $flow->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    private function exportTalkersReport(Request $request)
+    {
+        $start = Carbon::parse($request->start_date ?? now()->subDay());
+        $end = Carbon::parse($request->end_date ?? now());
+
+        $topSources = Flow::whereBetween('created_at', [$start, $end])
+            ->select('source_ip')
+            ->selectRaw('SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
+            ->groupBy('source_ip')
+            ->orderByDesc('total_bytes')
+            ->limit(100)
+            ->get();
+
+        $filename = 'top_talkers_report_' . now()->format('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($topSources) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['IP Address', 'Total Bytes', 'Total Packets', 'Flow Count']);
+
+            foreach ($topSources as $source) {
+                fputcsv($file, [
+                    $source->source_ip,
+                    $source->total_bytes,
+                    $source->total_packets,
+                    $source->flow_count,
                 ]);
             }
 
@@ -135,7 +293,7 @@ class ReportController extends Controller
 
         $callback = function() use ($devices) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Device Name', 'IP Address', 'Type', 'Status', 'Interfaces', 'Total Flows', 'Location']);
+            fputcsv($file, ['Device Name', 'IP Address', 'Type', 'Status', 'Interfaces', 'Total Flows', 'Location', 'Group', 'Last Seen']);
 
             foreach ($devices as $device) {
                 fputcsv($file, [
@@ -146,6 +304,8 @@ class ReportController extends Controller
                     $device->interface_count,
                     $device->flow_count,
                     $device->location ?? 'N/A',
+                    $device->device_group ?? 'N/A',
+                    $device->last_seen_at ? $device->last_seen_at->format('Y-m-d H:i:s') : 'Never',
                 ]);
             }
 

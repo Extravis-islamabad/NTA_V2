@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd SSH device config, update UI with MonetX branding, and add Top Talkers report\n\n- Apply new color scheme (#5548F5, #C843F3, #E4F2FF, #F2C7FF, #9619B5)\n- Add MonetX logo to headers and footer\n- Create SSHService for device configuration via SSH\n- Add SSH fields to Device model and migration\n- Enhance Settings page with comprehensive NetFlow/sFlow/IPFIX configuration\n- Create new Top Talkers report with source/destination/conversation analysis\n- Beautify all reports with charts and detailed tables\n- Add CSV export for all report types\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

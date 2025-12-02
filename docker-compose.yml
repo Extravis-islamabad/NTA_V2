@@ -46,10 +46,10 @@ services:
       - CACHE_DRIVER=file
       - SESSION_DRIVER=file
       - QUEUE_CONNECTION=database
-      - NETFLOW_PORT=2055
+      - NETFLOW_PORT=9995
     ports:
       - "8003:80"
-      - "2055:2055/udp"
+      - "9995:9995/udp"
     volumes:
       - netflow_storage:/var/www/html/storage
       - netflow_logs:/var/www/html/storage/logs

@@ -56,7 +56,7 @@ RUN mkdir -p /var/log/supervisor \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Expose ports (Web: 80, NetFlow: 2055/UDP)
-EXPOSE 80 2055/udp
+# Expose ports (Web: 80, NetFlow: 9995/UDP)
+EXPOSE 80 9995/udp
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

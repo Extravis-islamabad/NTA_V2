@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <title>Top Talkers Report</title>
     <style>
+        @page {
+            margin: 0;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -15,214 +18,170 @@
             line-height: 1.4;
             color: #1f2937;
             background: #fff;
+            margin: 0;
+            padding: 0;
         }
         .header {
-            background: #5548F5;
+            background-color: #5548F5;
             color: white;
-            padding: 25px 30px;
-            margin-bottom: 25px;
-            position: relative;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #C843F3;
         }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: #C843F3;
-        }
-        .logo-section {
-            margin-bottom: 5px;
+        .logo-img {
+            height: 40px;
+            width: auto;
         }
         .logo-text {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
             letter-spacing: 2px;
             color: #ffffff;
         }
         .logo-sub {
-            font-size: 10px;
-            opacity: 0.9;
+            font-size: 9px;
+            color: #E4F2FF;
             margin-top: 2px;
             letter-spacing: 1px;
         }
         .report-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         .report-subtitle {
-            font-size: 10px;
-            opacity: 0.9;
+            font-size: 9px;
+            color: #E4F2FF;
         }
         .content {
-            padding: 0 30px 30px;
+            padding: 0 25px 60px;
         }
         .section {
-            margin-bottom: 25px;
+            margin-bottom: 18px;
         }
         .section-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             color: #5548F5;
-            border-bottom: 3px solid #5548F5;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            border-bottom: 2px solid #5548F5;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-        .stats-grid {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 15px 0;
-            margin-bottom: 20px;
         }
         .stat-box {
-            background: linear-gradient(135deg, #E4F2FF 0%, #F2C7FF 100%);
-            padding: 18px;
+            background-color: #E4F2FF;
+            padding: 15px 10px;
             text-align: center;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #d1d5db;
         }
         .stat-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #5548F5;
-            display: block;
-            margin-bottom: 5px;
         }
-        .stat-value.pink { color: #C843F3; }
-        .stat-value.purple { color: #9619B5; }
+        .stat-value-pink { color: #C843F3; }
+        .stat-value-purple { color: #9619B5; }
         .stat-label {
-            font-size: 9px;
+            font-size: 8px;
             color: #6b7280;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-top: 4px;
         }
 
-        /* Chart Styles */
-        .chart-container {
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #e5e7eb;
-        }
-        .chart-title {
-            font-size: 11px;
-            font-weight: bold;
-            color: #374151;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .chart-row {
-            margin-bottom: 8px;
-            display: table;
+        /* Simple Chart Bar - DomPDF Compatible */
+        .chart-table {
             width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
         }
-        .chart-label {
-            display: table-cell;
-            width: 130px;
-            font-size: 9px;
-            color: #374151;
+        .chart-table td {
+            padding: 3px 0;
             vertical-align: middle;
-            padding-right: 10px;
+        }
+        .chart-label-cell {
+            width: 100px;
+            font-size: 7px;
+            color: #374151;
+            padding-right: 5px;
             font-family: 'DejaVu Sans Mono', monospace;
         }
-        .chart-bar-wrapper {
-            display: table-cell;
-            width: 220px;
-            vertical-align: middle;
+        .chart-bar-cell {
+            width: 120px;
         }
         .chart-bar-bg {
+            background-color: #e5e7eb;
+            height: 10px;
             width: 100%;
-            height: 16px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
         }
         .chart-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #5548F5 0%, #C843F3 100%);
-            border-radius: 4px;
-            min-width: 3px;
+            background-color: #5548F5;
+            height: 10px;
         }
-        .chart-bar-fill.alt {
-            background: linear-gradient(90deg, #C843F3 0%, #9619B5 100%);
+        .chart-bar-fill-alt {
+            background-color: #C843F3;
+            height: 10px;
         }
-        .chart-value {
-            display: table-cell;
-            width: 80px;
-            font-size: 9px;
+        .chart-value-cell {
+            width: 55px;
+            font-size: 7px;
             color: #5548F5;
             font-weight: bold;
             text-align: right;
-            vertical-align: middle;
-            padding-left: 10px;
+            padding-left: 5px;
         }
-        .chart-value.alt {
+        .chart-value-alt {
             color: #9619B5;
         }
 
-        /* Table Styles */
-        table.data-table {
+        /* Data Table */
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 9px;
+            font-size: 8px;
         }
-        table.data-table th {
-            background: linear-gradient(135deg, #5548F5 0%, #9619B5 100%);
+        .data-table th {
+            background-color: #5548F5;
             color: white;
-            padding: 10px 8px;
+            padding: 8px 5px;
             text-align: left;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
-        table.data-table th.text-right {
+        .data-table th.text-right {
             text-align: right;
         }
-        table.data-table td {
-            padding: 8px;
+        .data-table td {
+            padding: 6px 5px;
             border-bottom: 1px solid #e5e7eb;
         }
-        table.data-table tr:nth-child(even) {
-            background: #f9fafb;
-        }
-        table.data-table tr:hover {
-            background: #E4F2FF;
+        .data-table tr:nth-child(even) td {
+            background-color: #f9fafb;
         }
         .text-right {
             text-align: right;
         }
 
         /* Progress bar in tables */
-        .progress-bar {
+        .progress-bg {
+            background-color: #e5e7eb;
+            height: 6px;
+            width: 50px;
             display: inline-block;
-            width: 60px;
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            margin-right: 8px;
             vertical-align: middle;
-            overflow: hidden;
+            margin-right: 5px;
         }
         .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #5548F5, #C843F3);
-            border-radius: 4px;
+            background-color: #5548F5;
+            height: 6px;
         }
 
-        code {
+        .ip-code {
             font-family: 'DejaVu Sans Mono', monospace;
-            background: #f3f4f6;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 8px;
+            background-color: #f3f4f6;
+            padding: 1px 4px;
+            font-size: 7px;
             color: #5548F5;
         }
 
@@ -231,10 +190,10 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 15px 30px;
-            background: #f8fafc;
+            padding: 10px 25px;
+            background-color: #f8fafc;
             border-top: 2px solid #5548F5;
-            font-size: 8px;
+            font-size: 7px;
             color: #6b7280;
         }
         .footer-brand {
@@ -246,39 +205,46 @@
             page-break-before: always;
         }
 
-        .two-col-charts {
-            width: 100%;
+        .chart-container {
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            margin-bottom: 10px;
         }
-        .two-col-charts td {
-            width: 50%;
-            vertical-align: top;
-            padding: 0 8px;
-        }
-        .two-col-charts td:first-child {
-            padding-left: 0;
-        }
-        .two-col-charts td:last-child {
-            padding-right: 0;
+        .chart-heading {
+            font-size: 10px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e5e7eb;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <table width="100%">
+        <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-                <td width="50%" style="vertical-align: top;">
-                    <div class="logo-section">
+                <td width="50%" style="vertical-align: middle;">
+                    @php
+                        $logoPath = public_path('images/logo.png');
+                        $logoExists = file_exists($logoPath);
+                        $logoBase64 = $logoExists ? base64_encode(file_get_contents($logoPath)) : '';
+                    @endphp
+                    @if($logoExists)
+                        <img src="data:image/png;base64,{{ $logoBase64 }}" class="logo-img" alt="MonetX">
+                    @else
                         <div class="logo-text">MonetX</div>
                         <div class="logo-sub">NETWORK TRAFFIC ANALYZER</div>
-                    </div>
+                    @endif
                 </td>
-                <td width="50%" style="text-align: right; vertical-align: top;">
+                <td width="50%" style="text-align: right; vertical-align: middle;">
                     <div class="report-title">Top Talkers Report</div>
                     <div class="report-subtitle">
                         {{ $start->format('M d, Y H:i') }} - {{ $end->format('M d, Y H:i') }}
                     </div>
                     @if($selectedDevice)
-                        <div class="report-subtitle" style="margin-top: 3px;">Device: {{ $selectedDevice->name }}</div>
+                        <div class="report-subtitle">Device: {{ $selectedDevice->name }}</div>
                     @endif
                 </td>
             </tr>
@@ -289,17 +255,17 @@
         <!-- Summary Statistics -->
         <div class="section">
             <div class="section-title">Executive Summary</div>
-            <table class="stats-grid">
+            <table width="100%" cellpadding="0" cellspacing="10">
                 <tr>
-                    <td width="50%" style="padding: 0 8px 0 0;">
+                    <td width="50%">
                         <div class="stat-box">
-                            <span class="stat-value">{{ number_format($totalFlows) }}</span>
-                            <span class="stat-label">Total Flows Analyzed</span>
+                            <div class="stat-value">{{ number_format($totalFlows) }}</div>
+                            <div class="stat-label">Total Flows Analyzed</div>
                         </div>
                     </td>
-                    <td width="50%" style="padding: 0 0 0 8px;">
+                    <td width="50%">
                         <div class="stat-box">
-                            <span class="stat-value pink">
+                            <div class="stat-value stat-value-pink">
                                 @php
                                     if ($totalBytes >= 1099511627776) {
                                         echo round($totalBytes / 1099511627776, 2) . ' TB';
@@ -311,8 +277,8 @@
                                         echo round($totalBytes / 1024, 2) . ' KB';
                                     }
                                 @endphp
-                            </span>
-                            <span class="stat-label">Total Traffic Volume</span>
+                            </div>
+                            <div class="stat-label">Total Traffic Volume</div>
                         </div>
                     </td>
                 </tr>
@@ -320,65 +286,70 @@
         </div>
 
         <!-- Visual Charts - Side by Side -->
-        <table class="two-col-charts" style="margin-bottom: 20px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
-                <td>
+                <td width="48%" style="vertical-align: top;">
                     @if($topSources->isNotEmpty())
                     <div class="chart-container">
-                        <div class="chart-title">Top Sources by Traffic Volume</div>
+                        <div class="chart-heading">Top Sources</div>
                         @php $maxSrcBytes = $topSources->max('total_bytes'); @endphp
-                        @foreach($topSources->take(8) as $source)
-                        <div class="chart-row">
-                            <span class="chart-label">{{ $source->source_ip }}</span>
-                            <span class="chart-bar-wrapper">
-                                <div class="chart-bar-bg">
-                                    <div class="chart-bar-fill" style="width: {{ $maxSrcBytes > 0 ? max(($source->total_bytes / $maxSrcBytes) * 100, 2) : 2 }}%"></div>
-                                </div>
-                            </span>
-                            <span class="chart-value">
-                                @php
-                                    $bytes = $source->total_bytes;
-                                    if ($bytes >= 1073741824) {
-                                        echo round($bytes / 1073741824, 1) . ' GB';
-                                    } elseif ($bytes >= 1048576) {
-                                        echo round($bytes / 1048576, 1) . ' MB';
-                                    } else {
-                                        echo round($bytes / 1024, 1) . ' KB';
-                                    }
-                                @endphp
-                            </span>
-                        </div>
-                        @endforeach
+                        <table class="chart-table">
+                            @foreach($topSources->take(7) as $source)
+                            <tr>
+                                <td class="chart-label-cell">{{ $source->source_ip }}</td>
+                                <td class="chart-bar-cell">
+                                    <div class="chart-bar-bg">
+                                        <div class="chart-bar-fill" style="width: {{ $maxSrcBytes > 0 ? max(($source->total_bytes / $maxSrcBytes) * 100, 3) : 3 }}%;"></div>
+                                    </div>
+                                </td>
+                                <td class="chart-value-cell">
+                                    @php
+                                        $bytes = $source->total_bytes;
+                                        if ($bytes >= 1073741824) {
+                                            echo round($bytes / 1073741824, 1) . 'G';
+                                        } elseif ($bytes >= 1048576) {
+                                            echo round($bytes / 1048576, 1) . 'M';
+                                        } else {
+                                            echo round($bytes / 1024, 1) . 'K';
+                                        }
+                                    @endphp
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
                     </div>
                     @endif
                 </td>
-                <td>
+                <td width="4%"></td>
+                <td width="48%" style="vertical-align: top;">
                     @if($topDestinations->isNotEmpty())
                     <div class="chart-container">
-                        <div class="chart-title">Top Destinations by Traffic Volume</div>
+                        <div class="chart-heading">Top Destinations</div>
                         @php $maxDstBytes = $topDestinations->max('total_bytes'); @endphp
-                        @foreach($topDestinations->take(8) as $dest)
-                        <div class="chart-row">
-                            <span class="chart-label">{{ $dest->destination_ip }}</span>
-                            <span class="chart-bar-wrapper">
-                                <div class="chart-bar-bg">
-                                    <div class="chart-bar-fill alt" style="width: {{ $maxDstBytes > 0 ? max(($dest->total_bytes / $maxDstBytes) * 100, 2) : 2 }}%"></div>
-                                </div>
-                            </span>
-                            <span class="chart-value alt">
-                                @php
-                                    $bytes = $dest->total_bytes;
-                                    if ($bytes >= 1073741824) {
-                                        echo round($bytes / 1073741824, 1) . ' GB';
-                                    } elseif ($bytes >= 1048576) {
-                                        echo round($bytes / 1048576, 1) . ' MB';
-                                    } else {
-                                        echo round($bytes / 1024, 1) . ' KB';
-                                    }
-                                @endphp
-                            </span>
-                        </div>
-                        @endforeach
+                        <table class="chart-table">
+                            @foreach($topDestinations->take(7) as $dest)
+                            <tr>
+                                <td class="chart-label-cell">{{ $dest->destination_ip }}</td>
+                                <td class="chart-bar-cell">
+                                    <div class="chart-bar-bg">
+                                        <div class="chart-bar-fill-alt" style="width: {{ $maxDstBytes > 0 ? max(($dest->total_bytes / $maxDstBytes) * 100, 3) : 3 }}%;"></div>
+                                    </div>
+                                </td>
+                                <td class="chart-value-cell chart-value-alt">
+                                    @php
+                                        $bytes = $dest->total_bytes;
+                                        if ($bytes >= 1073741824) {
+                                            echo round($bytes / 1073741824, 1) . 'G';
+                                        } elseif ($bytes >= 1048576) {
+                                            echo round($bytes / 1048576, 1) . 'M';
+                                        } else {
+                                            echo round($bytes / 1024, 1) . 'K';
+                                        }
+                                    @endphp
+                                </td>
+                            </tr>
+                            @endforeach
+                        </table>
                     </div>
                     @endif
                 </td>
@@ -387,24 +358,24 @@
 
         <!-- Top Sources Table -->
         <div class="section">
-            <div class="section-title">Top Source IP Addresses (Top Talkers)</div>
+            <div class="section-title">Top Source IP Addresses</div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th style="width: 4%;">#</th>
-                        <th style="width: 20%;">Source IP</th>
+                        <th style="width: 22%;">Source IP</th>
                         <th style="width: 10%;" class="text-right">Flows</th>
                         <th style="width: 12%;" class="text-right">Packets</th>
                         <th style="width: 14%;" class="text-right">Traffic</th>
                         <th style="width: 10%;" class="text-right">Dest</th>
-                        <th style="width: 30%;">Share</th>
+                        <th style="width: 28%;">Share</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($topSources as $index => $source)
                     <tr>
                         <td><strong>{{ $index + 1 }}</strong></td>
-                        <td><code>{{ $source->source_ip }}</code></td>
+                        <td><span class="ip-code">{{ $source->source_ip }}</span></td>
                         <td class="text-right">{{ number_format($source->flow_count) }}</td>
                         <td class="text-right">{{ number_format($source->total_packets) }}</td>
                         <td class="text-right">
@@ -422,9 +393,7 @@
                         <td class="text-right">{{ number_format($source->unique_destinations) }}</td>
                         <td>
                             @php $percent = $totalBytes > 0 ? ($source->total_bytes / $totalBytes) * 100 : 0; @endphp
-                            <span class="progress-bar">
-                                <span class="progress-fill" style="width: {{ min($percent, 100) }}%"></span>
-                            </span>
+                            <div class="progress-bg"><div class="progress-fill" style="width: {{ min($percent, 100) }}%;"></div></div>
                             <strong>{{ number_format($percent, 1) }}%</strong>
                         </td>
                     </tr>
@@ -440,19 +409,19 @@
                 <thead>
                     <tr>
                         <th style="width: 4%;">#</th>
-                        <th style="width: 20%;">Destination IP</th>
+                        <th style="width: 22%;">Destination IP</th>
                         <th style="width: 10%;" class="text-right">Flows</th>
                         <th style="width: 12%;" class="text-right">Packets</th>
                         <th style="width: 14%;" class="text-right">Traffic</th>
                         <th style="width: 10%;" class="text-right">Src</th>
-                        <th style="width: 30%;">Share</th>
+                        <th style="width: 28%;">Share</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($topDestinations as $index => $dest)
                     <tr>
                         <td><strong>{{ $index + 1 }}</strong></td>
-                        <td><code>{{ $dest->destination_ip }}</code></td>
+                        <td><span class="ip-code">{{ $dest->destination_ip }}</span></td>
                         <td class="text-right">{{ number_format($dest->flow_count) }}</td>
                         <td class="text-right">{{ number_format($dest->total_packets) }}</td>
                         <td class="text-right">
@@ -470,9 +439,7 @@
                         <td class="text-right">{{ number_format($dest->unique_sources) }}</td>
                         <td>
                             @php $percent = $totalBytes > 0 ? ($dest->total_bytes / $totalBytes) * 100 : 0; @endphp
-                            <span class="progress-bar">
-                                <span class="progress-fill" style="width: {{ min($percent, 100) }}%"></span>
-                            </span>
+                            <div class="progress-bg"><div class="progress-fill" style="width: {{ min($percent, 100) }}%;"></div></div>
                             <strong>{{ number_format($percent, 1) }}%</strong>
                         </td>
                     </tr>
@@ -481,30 +448,30 @@
             </table>
         </div>
 
-        <!-- Page Break for Conversations -->
+        <!-- Page Break -->
         <div class="page-break"></div>
 
         <!-- Top Conversations -->
-        <div class="section" style="margin-top: 25px;">
-            <div class="section-title">Top Conversations (Source to Destination Pairs)</div>
+        <div class="section" style="margin-top: 20px;">
+            <div class="section-title">Top Conversations</div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th style="width: 4%;">#</th>
-                        <th style="width: 18%;">Source IP</th>
-                        <th style="width: 18%;">Destination IP</th>
+                        <th style="width: 20%;">Source IP</th>
+                        <th style="width: 20%;">Destination IP</th>
                         <th style="width: 10%;">Protocol</th>
                         <th style="width: 10%;" class="text-right">Flows</th>
                         <th style="width: 14%;" class="text-right">Traffic</th>
-                        <th style="width: 26%;">Share</th>
+                        <th style="width: 22%;">Share</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($topConversations as $index => $conv)
                     <tr>
                         <td><strong>{{ $index + 1 }}</strong></td>
-                        <td><code>{{ $conv->source_ip }}</code></td>
-                        <td><code>{{ $conv->destination_ip }}</code></td>
+                        <td><span class="ip-code">{{ $conv->source_ip }}</span></td>
+                        <td><span class="ip-code">{{ $conv->destination_ip }}</span></td>
                         <td><strong>{{ strtoupper($conv->protocol) }}</strong></td>
                         <td class="text-right">{{ number_format($conv->flow_count) }}</td>
                         <td class="text-right">
@@ -521,9 +488,7 @@
                         </td>
                         <td>
                             @php $percent = $totalBytes > 0 ? ($conv->total_bytes / $totalBytes) * 100 : 0; @endphp
-                            <span class="progress-bar">
-                                <span class="progress-fill" style="width: {{ min($percent, 100) }}%"></span>
-                            </span>
+                            <div class="progress-bg"><div class="progress-fill" style="width: {{ min($percent, 100) }}%;"></div></div>
                             <strong>{{ number_format($percent, 1) }}%</strong>
                         </td>
                     </tr>
@@ -534,7 +499,7 @@
     </div>
 
     <div class="footer">
-        <table width="100%">
+        <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td width="33%">
                     <span class="footer-brand">MonetX</span> Network Traffic Analyzer

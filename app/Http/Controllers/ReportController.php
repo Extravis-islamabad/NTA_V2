@@ -78,9 +78,9 @@ class ReportController extends Controller
             ->orderByDesc('total_bytes')
             ->get();
 
-        // Time series data for traffic chart
+        // Time series data for traffic chart (PostgreSQL compatible)
         $trafficTimeSeries = (clone $query)
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m-%d %H:00:00') as time_bucket, SUM(bytes) as total_bytes")
+            ->selectRaw("TO_CHAR(created_at, 'YYYY-MM-DD HH24:00:00') as time_bucket, SUM(bytes) as total_bytes")
             ->groupBy('time_bucket')
             ->orderBy('time_bucket')
             ->get();

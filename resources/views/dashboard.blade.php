@@ -7,12 +7,14 @@
         <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
         <div class="flex items-center gap-4">
             <span class="text-sm text-gray-600">Time Range:</span>
-            <select id="globalTimeRange" onchange="updateAllWidgets()" class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="1hour">Last Hour</option>
-                <option value="6hours">Last 6 Hours</option>
-                <option value="24hours">Last 24 Hours</option>
-                <option value="7days">Last 7 Days</option>
-            </select>
+            <form method="GET" id="timeRangeForm">
+                <select id="globalTimeRange" name="range" onchange="document.getElementById('timeRangeForm').submit()" class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="1hour" {{ $timeRange === '1hour' ? 'selected' : '' }}>Last Hour</option>
+                    <option value="6hours" {{ $timeRange === '6hours' ? 'selected' : '' }}>Last 6 Hours</option>
+                    <option value="24hours" {{ $timeRange === '24hours' ? 'selected' : '' }}>Last 24 Hours</option>
+                    <option value="7days" {{ $timeRange === '7days' ? 'selected' : '' }}>Last 7 Days</option>
+                </select>
+            </form>
             <button onclick="refreshAllData()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -97,19 +99,53 @@
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Top Applications Chart -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Top Applications</h3>
-                <select id="appTimeRange" onchange="updateApplicationChart()" class="text-sm border-gray-300 rounded-md">
-                    <option value="1hour">Last Hour</option>
-                    <option value="6hours">Last 6 Hours</option>
-                    <option value="24hours">Last 24 Hours</option>
-                    <option value="7days">Last 7 Days</option>
-                </select>
+        <!-- Top Applications Widget - Modernized -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-500 to-purple-600">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                        Top Applications
+                    </h3>
+                    <span class="text-xs text-white/80">{{ $topApplications->count() }} Apps</span>
+                </div>
             </div>
-            <div style="position: relative; height: 300px;">
-                <canvas id="applicationsChart"></canvas>
+            <div class="p-4">
+                @if($topApplications->isEmpty())
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-500">No application data available</p>
+                    </div>
+                @else
+                    <div class="space-y-3 max-h-72 overflow-y-auto">
+                        @php $totalBytes = $topApplications->sum('bytes'); @endphp
+                        @foreach($topApplications as $index => $app)
+                        <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-md" style="background-color: {{ $app['color'] }}">
+                                {{ strtoupper(substr($app['name'], 0, 2)) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-900 truncate">{{ $app['name'] }}</span>
+                                    <span class="text-sm font-semibold text-gray-700">{{ $app['formatted_bytes'] }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <div class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        @php $percent = $totalBytes > 0 ? ($app['bytes'] / $totalBytes) * 100 : 0; @endphp
+                                        <div class="h-full rounded-full transition-all duration-500" style="width: {{ min($percent, 100) }}%; background-color: {{ $app['color'] }}"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-500 w-10 text-right">{{ number_format($percent, 1) }}%</span>
+                                </div>
+                                <span class="text-xs text-gray-400">{{ $app['category'] }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -212,7 +248,15 @@
         <!-- Top QoS -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Top N QoS</h3>
-            <p class="text-xs text-gray-500 mb-4">Last hour</p>
+            <p class="text-xs text-gray-500 mb-4">
+                {{ match($timeRange) {
+                    '1hour' => 'Last hour',
+                    '6hours' => 'Last 6 hours',
+                    '24hours' => 'Last 24 hours',
+                    '7days' => 'Last 7 days',
+                    default => 'Last hour'
+                } }}
+            </p>
             
             @if($topQoS->isEmpty())
                 <div class="text-center py-8">
@@ -239,7 +283,15 @@
         <!-- Top Conversations -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Top N Conversation</h3>
-            <p class="text-xs text-gray-500 mb-4">Last hour</p>
+            <p class="text-xs text-gray-500 mb-4">
+                {{ match($timeRange) {
+                    '1hour' => 'Last hour',
+                    '6hours' => 'Last 6 hours',
+                    '24hours' => 'Last 24 hours',
+                    '7days' => 'Last 7 days',
+                    default => 'Last hour'
+                } }}
+            </p>
             
             @if($topConversations->isEmpty())
                 <div class="text-center py-8">

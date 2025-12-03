@@ -51,6 +51,10 @@ Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('/devices', [ReportController::class, 'deviceReport'])->name('devices');
     Route::get('/talkers', [ReportController::class, 'talkersReport'])->name('talkers');
     Route::get('/export', [ReportController::class, 'exportReport'])->name('export');
+    // PDF exports
+    Route::get('/traffic/pdf', [ReportController::class, 'trafficReportPdf'])->name('traffic.pdf');
+    Route::get('/devices/pdf', [ReportController::class, 'deviceReportPdf'])->name('devices.pdf');
+    Route::get('/talkers/pdf', [ReportController::class, 'talkersReportPdf'])->name('talkers.pdf');
 });
 
 // Settings

@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Device;
 use App\Models\Alarm;
 use App\Models\Flow;
+use App\Services\ApplicationIdentificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    protected ApplicationIdentificationService $appService;
+
+    public function __construct(ApplicationIdentificationService $appService)
     {
+        $this->appService = $appService;
+    }
+
+    public function index(Request $request)
+    {
+        $timeRange = $request->get('range', '1hour');
+        $timeStart = $this->getTimeRangeStart($timeRange);
         $stats = [
             'total_devices' => Device::count(),
             'online_devices' => Device::where('status', 'online')->count(),
@@ -36,7 +46,7 @@ class DashboardController extends Controller
         ];
 
         // Top QoS Data
-        $topQoS = Flow::where('created_at', '>=', now()->subHour())
+        $topQoS = Flow::where('created_at', '>=', $timeStart)
             ->whereNotNull('dscp')
             ->select('dscp')
             ->selectRaw('SUM(bytes) as total_bytes')
@@ -52,33 +62,96 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Top Conversations
-        $topConversations = Flow::where('created_at', '>=', now()->subHour())
-            ->select('source_ip', 'destination_ip', 'application', 'dscp')
+        // Top Conversations with Application Identification
+        $topConversations = Flow::where('created_at', '>=', $timeStart)
+            ->select('source_ip', 'destination_ip', 'destination_port', 'application', 'dscp')
             ->selectRaw('SUM(bytes) as total_bytes')
-            ->groupBy('source_ip', 'destination_ip', 'application', 'dscp')
+            ->groupBy('source_ip', 'destination_ip', 'destination_port', 'application', 'dscp')
             ->orderByDesc('total_bytes')
             ->limit(10)
             ->get()
             ->map(function ($item) {
+                // Use ApplicationIdentificationService to identify the app
+                $appInfo = $this->appService->analyzeFlow(
+                    $item->source_ip,
+                    $item->destination_ip,
+                    $item->destination_port ?? 0,
+                    $item->application
+                );
+
                 return [
                     'source' => $item->source_ip,
                     'destination' => $item->destination_ip,
-                    'application' => $item->application ?? 'Unknown',
+                    'application' => $appInfo['name'],
+                    'app_icon' => $appInfo['icon'],
+                    'app_color' => $appInfo['color'],
+                    'app_category' => $appInfo['category'],
                     'dscp' => $item->dscp ? str_pad($item->dscp, 6, '0', STR_PAD_LEFT) : '000000',
                     'bytes' => $item->total_bytes,
                     'formatted_bytes' => $this->formatBytes($item->total_bytes)
                 ];
             });
 
+        // Top Applications with enhanced identification
+        $topApplications = Flow::where('created_at', '>=', $timeStart)
+            ->select('source_ip', 'destination_ip', 'destination_port', 'application')
+            ->selectRaw('SUM(bytes) as total_bytes')
+            ->groupBy('source_ip', 'destination_ip', 'destination_port', 'application')
+            ->orderByDesc('total_bytes')
+            ->limit(100)
+            ->get()
+            ->map(function ($item) {
+                $appInfo = $this->appService->analyzeFlow(
+                    $item->source_ip,
+                    $item->destination_ip,
+                    $item->destination_port ?? 0,
+                    $item->application
+                );
+                return [
+                    'name' => $appInfo['name'],
+                    'icon' => $appInfo['icon'],
+                    'color' => $appInfo['color'],
+                    'category' => $appInfo['category'],
+                    'bytes' => $item->total_bytes,
+                ];
+            })
+            ->groupBy('name')
+            ->map(function ($group, $name) {
+                $first = $group->first();
+                return [
+                    'name' => $name,
+                    'icon' => $first['icon'],
+                    'color' => $first['color'],
+                    'category' => $first['category'],
+                    'bytes' => $group->sum('bytes'),
+                    'formatted_bytes' => $this->formatBytes($group->sum('bytes')),
+                ];
+            })
+            ->sortByDesc('bytes')
+            ->take(10)
+            ->values();
+
         return view('dashboard', compact(
-            'stats', 
-            'devices', 
+            'stats',
+            'devices',
             'recentAlarms',
             'heatMapData',
             'topQoS',
-            'topConversations'
+            'topConversations',
+            'topApplications',
+            'timeRange'
         ));
+    }
+
+    private function getTimeRangeStart(string $timeRange)
+    {
+        return match($timeRange) {
+            '1hour' => now()->subHour(),
+            '6hours' => now()->subHours(6),
+            '24hours' => now()->subDay(),
+            '7days' => now()->subDays(7),
+            default => now()->subHour(),
+        };
     }
 
     private function formatBytes($bytes)

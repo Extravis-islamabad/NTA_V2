@@ -57,29 +57,31 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <button type="submit" class="flex-1 px-4 py-2.5 btn-monetx text-white rounded-lg font-medium flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Generate
-                        </button>
-                        <a href="{{ route('reports.export') }}?type=traffic&start_date={{ request('start_date') }}&end_date={{ request('end_date') }}&device_id={{ request('device_id') }}"
-                           class="px-4 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                            </svg>
-                            CSV
-                        </a>
-                        @if(isset($totalBytes))
-                        <a href="{{ route('reports.traffic.pdf') }}?start_date={{ request('start_date') }}&end_date={{ request('end_date') }}&device_id={{ request('device_id') }}"
-                           class="px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                            PDF
-                        </a>
-                        @endif
+                    <div class="flex items-end">
+                        <div class="flex flex-wrap gap-2 w-full">
+                            <button type="submit" class="flex-1 min-w-[120px] px-4 py-2.5 bg-[#5548F5] hover:bg-[#4338ca] text-white rounded-lg font-medium flex items-center justify-center gap-2 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Generate
+                            </button>
+                            <a href="{{ route('reports.export') }}?type=traffic&start_date={{ request('start_date') }}&end_date={{ request('end_date') }}&device_id={{ request('device_id') }}"
+                               class="px-4 py-2.5 bg-[#9619B5] hover:bg-[#7c1497] text-white rounded-lg font-medium flex items-center gap-2 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                CSV
+                            </a>
+                            @if(isset($totalBytes))
+                            <a href="{{ route('reports.traffic.pdf') }}?start_date={{ request('start_date') }}&end_date={{ request('end_date') }}&device_id={{ request('device_id') }}"
+                               class="px-4 py-2.5 bg-[#C843F3] hover:bg-[#a835cc] text-white rounded-lg font-medium flex items-center gap-2 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                                PDF
+                            </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </form>
@@ -162,18 +164,18 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Top Applications Chart -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden monetx-shadow">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-6 py-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                     </svg>
                     Top Applications
                 </h3>
-                <span class="px-3 py-1 bg-[#E4F2FF] text-[#5548F5] text-xs font-semibold rounded-full">
+                <span class="px-2 py-0.5 bg-[#E4F2FF] text-[#5548F5] text-xs font-semibold rounded-full">
                     {{ $topApplications->count() }} Apps
                 </span>
             </div>
-            <div class="p-6">
+            <div class="p-4">
                 @if($topApplications->isEmpty())
                     <div class="text-center py-12">
                         <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +184,7 @@
                         <p class="mt-2 text-sm text-gray-500">No application data available</p>
                     </div>
                 @else
-                    <div style="height: 280px;">
+                    <div style="height: 180px;">
                         <canvas id="applicationsChart"></canvas>
                     </div>
                 @endif
@@ -191,27 +193,27 @@
 
         <!-- Top Protocols Chart -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden monetx-shadow">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-6 py-3 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
                     </svg>
                     Protocol Distribution
                 </h3>
-                <span class="px-3 py-1 bg-[#F2C7FF] text-[#9619B5] text-xs font-semibold rounded-full">
+                <span class="px-2 py-0.5 bg-[#F2C7FF] text-[#9619B5] text-xs font-semibold rounded-full">
                     {{ $topProtocols->count() }} Protocols
                 </span>
             </div>
-            <div class="p-6">
+            <div class="p-4">
                 @if($topProtocols->isEmpty())
-                    <div class="text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
                         <p class="mt-2 text-sm text-gray-500">No protocol data available</p>
                     </div>
                 @else
-                    <div style="height: 280px;">
+                    <div style="height: 180px;">
                         <canvas id="protocolsChart"></canvas>
                     </div>
                 @endif

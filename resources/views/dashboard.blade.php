@@ -2,6 +2,26 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Global Time Range Filter -->
+    <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-600">Time Range:</span>
+            <select id="globalTimeRange" onchange="updateAllWidgets()" class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="1hour">Last Hour</option>
+                <option value="6hours">Last 6 Hours</option>
+                <option value="24hours">Last 24 Hours</option>
+                <option value="7days">Last 7 Days</option>
+            </select>
+            <button onclick="refreshAllData()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+            </button>
+        </div>
+    </div>
+
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div class="bg-white rounded-lg shadow p-6 transform hover:scale-105 transition-transform duration-200">
@@ -85,6 +105,7 @@
                     <option value="1hour">Last Hour</option>
                     <option value="6hours">Last 6 Hours</option>
                     <option value="24hours">Last 24 Hours</option>
+                    <option value="7days">Last 7 Days</option>
                 </select>
             </div>
             <div style="position: relative; height: 300px;">
@@ -101,6 +122,7 @@
                     <option value="1hour">Last Hour</option>
                     <option value="6hours">Last 6 Hours</option>
                     <option value="24hours">Last 24 Hours</option>
+                    <option value="7days">Last 7 Days</option>
                 </select>
             </div>
             <div style="position: relative; height: 300px;">
@@ -238,11 +260,11 @@
                         <tbody class="divide-y divide-gray-200">
                             @foreach($topConversations as $conv)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-2 py-1 text-gray-900 truncate" style="max-width: 100px;" title="{{ $conv['source'] }}">
-                                    {{ Str::limit($conv['source'], 12, '') }}
+                                <td class="px-2 py-1 text-gray-900 whitespace-nowrap font-mono text-xs">
+                                    {{ $conv['source'] }}
                                 </td>
-                                <td class="px-2 py-1 text-gray-900 truncate" style="max-width: 100px;" title="{{ $conv['destination'] }}">
-                                    {{ Str::limit($conv['destination'], 12, '') }}
+                                <td class="px-2 py-1 text-gray-900 whitespace-nowrap font-mono text-xs">
+                                    {{ $conv['destination'] }}
                                 </td>
                                 <td class="px-2 py-1 text-gray-600">{{ $conv['application'] }}</td>
                                 <td class="px-2 py-1 text-gray-600">{{ $conv['dscp'] }}</td>
@@ -359,33 +381,40 @@ console.log('Dashboard script loaded');
 
 let applicationsChart = null;
 let protocolsChart = null;
+let qosChart = null;
 let isInitializing = false;
 
-// Initialize charts when page loads
-window.addEventListener('load', function() {
-    console.log('Window loaded, checking for Chart.js...');
-    
+// Get time range label
+function getTimeRangeLabel(range) {
+    const labels = {
+        '1hour': 'Last hour',
+        '6hours': 'Last 6 hours',
+        '24hours': 'Last 24 hours',
+        '7days': 'Last 7 days'
+    };
+    return labels[range] || 'Last hour';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
     if (typeof Chart === 'undefined') {
         console.error('Chart.js is not loaded!');
         return;
     }
-    
-    console.log('Chart.js is loaded, fetching data...');
-    
-    // Only initialize once
+
     if (!isInitializing) {
         isInitializing = true;
         initializeCharts();
+        createQoSChart();
     }
 });
 
 async function initializeCharts() {
+    const range = document.getElementById('globalTimeRange')?.value || '1hour';
     try {
-        const response = await fetch('/api/flows/statistics?range=1hour');
+        const response = await fetch(`/api/flows/statistics?range=${range}`);
         const result = await response.json();
-        
-        console.log('Statistics received:', result);
-        
+
         if (result.success && result.data) {
             createApplicationChart(result.data.applications || []);
             createProtocolChart(result.data.protocols || []);
@@ -395,18 +424,70 @@ async function initializeCharts() {
     }
 }
 
+// Update all widgets when global time range changes
+async function updateAllWidgets() {
+    const range = document.getElementById('globalTimeRange').value;
+
+    // Sync individual dropdowns
+    const appTimeRange = document.getElementById('appTimeRange');
+    const protocolTimeRange = document.getElementById('protocolTimeRange');
+    if (appTimeRange) appTimeRange.value = range;
+    if (protocolTimeRange) protocolTimeRange.value = range;
+
+    // Update all
+    await Promise.all([
+        updateApplicationChartWithRange(range),
+        updateProtocolChartWithRange(range)
+    ]);
+}
+
+async function refreshAllData() {
+    const btn = document.querySelector('button[onclick="refreshAllData()"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Refreshing...';
+    }
+    await updateAllWidgets();
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Refresh';
+    }
+}
+
+async function updateApplicationChartWithRange(range) {
+    try {
+        const response = await fetch(`/api/flows/statistics?range=${range}`);
+        const result = await response.json();
+        if (result.success && result.data) {
+            createApplicationChart(result.data.applications || []);
+        }
+    } catch (error) {
+        console.error('Error updating application chart:', error);
+    }
+}
+
+async function updateProtocolChartWithRange(range) {
+    try {
+        const response = await fetch(`/api/flows/statistics?range=${range}`);
+        const result = await response.json();
+        if (result.success && result.data) {
+            createProtocolChart(result.data.protocols || []);
+        }
+    } catch (error) {
+        console.error('Error updating protocol chart:', error);
+    }
+}
+
 // Create QoS Chart
 function createQoSChart() {
     const ctx = document.getElementById('qosChart');
     if (!ctx) return;
-    
+
     const qosData = @json($topQoS);
-    
-    if (qosData.length === 0) {
-        return;
-    }
-    
-    new Chart(ctx, {
+
+    if (qosData.length === 0) return;
+
+    qosChart = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: qosData.map(item => item.dscp),
@@ -429,24 +510,6 @@ function createQoSChart() {
         }
     });
 }
-
-// Add to initialization
-window.addEventListener('load', function() {
-    console.log('Window loaded, checking for Chart.js...');
-    
-    if (typeof Chart === 'undefined') {
-        console.error('Chart.js is not loaded!');
-        return;
-    }
-    
-    console.log('Chart.js is loaded, fetching data...');
-    
-    if (!isInitializing) {
-        isInitializing = true;
-        initializeCharts();
-        createQoSChart(); // Add this line
-    }
-});
 
 function createApplicationChart(applications) {
     const ctx = document.getElementById('applicationsChart');
@@ -563,12 +626,14 @@ function createProtocolChart(protocols) {
 
 async function updateApplicationChart() {
     const range = document.getElementById('appTimeRange').value;
-    console.log('Updating application chart with range:', range);
-    
+    // Sync global filter
+    const globalRange = document.getElementById('globalTimeRange');
+    if (globalRange) globalRange.value = range;
+
     try {
         const response = await fetch(`/api/flows/statistics?range=${range}`);
         const result = await response.json();
-        
+
         if (result.success && result.data) {
             createApplicationChart(result.data.applications || []);
         }
@@ -579,12 +644,14 @@ async function updateApplicationChart() {
 
 async function updateProtocolChart() {
     const range = document.getElementById('protocolTimeRange').value;
-    console.log('Updating protocol chart with range:', range);
-    
+    // Sync global filter
+    const globalRange = document.getElementById('globalTimeRange');
+    if (globalRange) globalRange.value = range;
+
     try {
         const response = await fetch(`/api/flows/statistics?range=${range}`);
         const result = await response.json();
-        
+
         if (result.success && result.data) {
             createProtocolChart(result.data.protocols || []);
         }

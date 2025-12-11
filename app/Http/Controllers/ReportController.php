@@ -78,9 +78,9 @@ class ReportController extends Controller
             ->orderByDesc('total_bytes')
             ->get();
 
-        // Time series data for traffic chart (PostgreSQL compatible)
+        // Time series data for traffic chart (PostgreSQL syntax)
         $trafficTimeSeries = (clone $query)
-            ->selectRaw("TO_CHAR(created_at, 'YYYY-MM-DD HH24:00:00') as time_bucket, SUM(bytes) as total_bytes")
+            ->selectRaw("date_trunc('hour', created_at) as time_bucket, SUM(bytes) as total_bytes")
             ->groupBy('time_bucket')
             ->orderBy('time_bucket')
             ->get();
@@ -207,8 +207,13 @@ class ReportController extends Controller
         $start = Carbon::parse($request->start_date ?? now()->subDay());
         $end = Carbon::parse($request->end_date ?? now());
 
-        $flows = Flow::whereBetween('created_at', [$start, $end])
-            ->with('device')
+        $query = Flow::whereBetween('created_at', [$start, $end]);
+
+        if ($request->device_id) {
+            $query->where('device_id', $request->device_id);
+        }
+
+        $flows = $query->with('device')
             ->limit(10000)
             ->get();
 
@@ -249,7 +254,13 @@ class ReportController extends Controller
         $start = Carbon::parse($request->start_date ?? now()->subDay());
         $end = Carbon::parse($request->end_date ?? now());
 
-        $topSources = Flow::whereBetween('created_at', [$start, $end])
+        $query = Flow::whereBetween('created_at', [$start, $end]);
+
+        if ($request->device_id) {
+            $query->where('device_id', $request->device_id);
+        }
+
+        $topSources = (clone $query)
             ->select('source_ip')
             ->selectRaw('SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
             ->groupBy('source_ip')

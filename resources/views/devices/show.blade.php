@@ -4,8 +4,11 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Back Button -->
     <div class="mb-4">
-        <a href="{{ route('devices.index') }}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-            ← Back to Devices
+        <a href="{{ route('devices.index') }}" class="text-[#5548F5] hover:text-[#9619B5] text-sm font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Devices
         </a>
     </div>
 
@@ -57,53 +60,49 @@
     <div class="bg-white rounded-t-lg shadow">
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px overflow-x-auto">
-                <a href="?tab=summary&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'summary' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=summary&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'summary' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Summary
                 </a>
-                <a href="?tab=flow-details&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'flow-details' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=flow-details&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'flow-details' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Flow Details
                 </a>
-                <a href="?tab=traffic&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'traffic' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=traffic&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'traffic' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Traffic
                 </a>
-                <a href="?tab=interface&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'interface' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=interface&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'interface' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Interface
                 </a>
-                <a href="?tab=application&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'application' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=application&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'application' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Application
                 </a>
-                <a href="?tab=source&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'source' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=source&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'source' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Source
                 </a>
-                <a href="?tab=destination&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'destination' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=destination&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'destination' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Destination
                 </a>
-                <a href="?tab=qos&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'qos' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=qos&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'qos' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     QoS
                 </a>
-                <a href="?tab=conversation&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'conversation' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=conversation&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'conversation' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Conversation
                 </a>
-                <a href="?tab=as-view&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'as-view' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=as-view&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'as-view' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     AS View
                 </a>
-                <a href="?tab=cloud-services&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'cloud-services' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <a href="?tab=cloud-services&range={{ $timeRange }}"
+                   class="px-6 py-3 text-sm font-medium {{ $tab === 'cloud-services' ? 'border-b-2 border-[#5548F5] text-[#5548F5]' : 'text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }}">
                     Cloud Services
-                </a>
-                <a href="?tab=users&range={{ $timeRange }}" 
-                   class="px-6 py-3 text-sm font-medium {{ $tab === 'users' ? 'border-b-2 border-green-500 text-green-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                    Users
                 </a>
             </nav>
         </div>
@@ -132,8 +131,6 @@
                 @include('devices.tabs.as-view')
             @elseif($tab === 'cloud-services')
                 @include('devices.tabs.cloud-services')
-            @elseif($tab === 'users')
-                @include('devices.tabs.users')
             @endif
         </div>
     </div>

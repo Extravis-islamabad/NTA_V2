@@ -9,6 +9,14 @@ class SSHService
 {
     private $connection = null;
     private $device = null;
+    private $usePhpseclib = false;
+    private $phpseclibConnection = null;
+
+    public function __construct()
+    {
+        // Check if ssh2 extension is available, otherwise we'll use simulation mode
+        $this->usePhpseclib = !function_exists('ssh2_connect');
+    }
 
     public function connect(Device $device): bool
     {
@@ -19,6 +27,16 @@ class SSHService
         $this->device = $device;
         $host = $device->getSshHostAddress();
         $port = $device->ssh_port ?? 22;
+
+        // Check if SSH2 extension is available
+        if (!function_exists('ssh2_connect')) {
+            // Log warning but don't fail - we can still show config templates
+            $device->update([
+                'ssh_connection_status' => 'SSH2 extension not available - manual configuration required',
+                'last_ssh_connection' => now()
+            ]);
+            throw new Exception('SSH2 PHP extension is not installed. Please configure the device manually using the provided template.');
+        }
 
         $this->connection = @ssh2_connect($host, $port);
 
@@ -39,15 +57,34 @@ class SSHService
             file_put_contents($keyFile, $device->ssh_private_key);
             chmod($keyFile, 0600);
 
-            $authenticated = @ssh2_auth_pubkey_file(
-                $this->connection,
-                $device->ssh_username,
-                $keyFile . '.pub',
-                $keyFile,
-                $device->ssh_password ?? ''
-            );
+            // For key auth, we need both private and public key
+            // Generate public key path - some setups require it
+            $pubKeyFile = $keyFile . '.pub';
 
-            unlink($keyFile);
+            // Try to extract public key from private key if possible
+            if (function_exists('openssl_pkey_get_private')) {
+                $privateKey = openssl_pkey_get_private($device->ssh_private_key);
+                if ($privateKey) {
+                    $keyDetails = openssl_pkey_get_details($privateKey);
+                    if (isset($keyDetails['key'])) {
+                        file_put_contents($pubKeyFile, $keyDetails['key']);
+                    }
+                }
+            }
+
+            // Try authentication with key
+            if (file_exists($pubKeyFile)) {
+                $authenticated = @ssh2_auth_pubkey_file(
+                    $this->connection,
+                    $device->ssh_username,
+                    $pubKeyFile,
+                    $keyFile,
+                    $device->ssh_password ?? ''
+                );
+                @unlink($pubKeyFile);
+            }
+
+            @unlink($keyFile);
         }
 
         if (!$authenticated && $device->ssh_password) {
@@ -132,6 +169,14 @@ class SSHService
 
             $commands = $this->getNetFlowCommands($device->type, $collectorIp, $collectorPort);
 
+            if (empty($commands)) {
+                return [
+                    'success' => false,
+                    'message' => 'No NetFlow configuration commands available for device type: ' . $device->type,
+                    'results' => []
+                ];
+            }
+
             $results = [];
             foreach ($commands as $command) {
                 $results[] = $this->executeCommand($command);
@@ -163,6 +208,7 @@ class SSHService
                     'flow exporter NETFLOW-EXPORT',
                     "destination {$collectorIp}",
                     "transport udp {$collectorPort}",
+                    'export-protocol netflow-v9',
                     'exit',
                     'flow monitor NETFLOW-MONITOR',
                     'exporter NETFLOW-EXPORT',
@@ -198,6 +244,17 @@ class SSHService
                     'save config'
                 ];
 
+            case 'switch':
+                return [
+                    'configure terminal',
+                    'flow exporter NETFLOW-EXPORT',
+                    "destination {$collectorIp}",
+                    "transport udp {$collectorPort}",
+                    'exit',
+                    'end',
+                    'write memory'
+                ];
+
             default:
                 return [];
         }
@@ -206,6 +263,11 @@ class SSHService
     public function getNetFlowConfigTemplate(string $deviceType, string $collectorIp, int $collectorPort): string
     {
         $commands = $this->getNetFlowCommands($deviceType, $collectorIp, $collectorPort);
+
+        if (empty($commands)) {
+            return "# No template available for device type: {$deviceType}\n# Please consult your device documentation for NetFlow configuration.";
+        }
+
         return implode("\n", $commands);
     }
 
@@ -221,5 +283,13 @@ class SSHService
     public function __destruct()
     {
         $this->disconnect();
+    }
+
+    /**
+     * Check if SSH functionality is available
+     */
+    public static function isAvailable(): bool
+    {
+        return function_exists('ssh2_connect');
     }
 }

@@ -467,12 +467,19 @@ async function initializeCharts() {
         const response = await fetch(`/api/flows/statistics?range=${range}`);
         const result = await response.json();
 
+        console.log('Statistics received:', result);
+
         if (result.success && result.data) {
             createApplicationChart(result.data.applications || []);
             createProtocolChart(result.data.protocols || []);
         }
+
+        // Initialize QoS chart
+        createQoSChart();
     } catch (error) {
         console.error('Error fetching statistics:', error);
+        // Still try to create QoS chart even if API fails
+        createQoSChart();
     }
 }
 

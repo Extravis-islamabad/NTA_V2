@@ -160,6 +160,28 @@
         </div>
     </div>
 
+    <!-- Traffic Time Series Chart -->
+    @if(isset($trafficTimeSeries) && $trafficTimeSeries->isNotEmpty())
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden monetx-shadow mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                </svg>
+                Traffic Over Time
+            </h3>
+            <span class="px-3 py-1 bg-[#E4F2FF] text-[#5548F5] text-xs font-semibold rounded-full">
+                {{ $trafficTimeSeries->count() }} Data Points
+            </span>
+        </div>
+        <div class="p-6">
+            <div style="height: 300px;">
+                <canvas id="trafficTimeSeriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Top Applications Chart -->
@@ -365,6 +387,78 @@
 
 @push('scripts')
 <script>
+@if(isset($trafficTimeSeries) && $trafficTimeSeries->isNotEmpty())
+// Traffic Time Series Chart
+const timeSeriesCtx = document.getElementById('trafficTimeSeriesChart');
+if (timeSeriesCtx) {
+    const timeSeriesData = @json($trafficTimeSeries);
+    new Chart(timeSeriesCtx, {
+        type: 'line',
+        data: {
+            labels: timeSeriesData.map(item => {
+                const date = new Date(item.time_bucket);
+                return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }),
+            datasets: [{
+                label: 'Traffic',
+                data: timeSeriesData.map(item => item.total_bytes),
+                borderColor: '#5548F5',
+                backgroundColor: 'rgba(85, 72, 245, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: '#5548F5',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const bytes = context.raw;
+                            let size;
+                            if (bytes >= 1073741824) {
+                                size = (bytes / 1073741824).toFixed(2) + ' GB';
+                            } else if (bytes >= 1048576) {
+                                size = (bytes / 1048576).toFixed(2) + ' MB';
+                            } else {
+                                size = (bytes / 1024).toFixed(2) + ' KB';
+                            }
+                            return 'Traffic: ' + size;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f3f4f6' },
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1073741824) return (value / 1073741824).toFixed(1) + ' GB';
+                            if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB';
+                            if (value >= 1024) return (value / 1024).toFixed(1) + ' KB';
+                            return value + ' B';
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+}
+@endif
+
 @if(isset($topApplications) && $topApplications->isNotEmpty())
 // Applications Chart
 const appCtx = document.getElementById('applicationsChart');

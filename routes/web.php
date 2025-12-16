@@ -33,6 +33,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{device}/ssh/test', [DeviceController::class, 'testSshConnection'])->name('ssh.test');
         Route::post('/{device}/ssh/push-config', [DeviceController::class, 'pushNetFlowConfig'])->name('ssh.push');
         Route::get('/{device}/ssh/config', [DeviceController::class, 'getNetFlowConfig'])->name('ssh.config');
+
+        // SNMP Routes
+        Route::post('/{device}/snmp/test', [DeviceController::class, 'testSnmpConnection'])->name('snmp.test');
+        Route::post('/{device}/snmp/poll', [DeviceController::class, 'pollSnmpDevice'])->name('snmp.poll');
+        Route::post('/{device}/snmp/poll-system', [DeviceController::class, 'pollSnmpSystemInfo'])->name('snmp.poll-system');
+        Route::post('/{device}/snmp/poll-interfaces', [DeviceController::class, 'pollSnmpInterfaces'])->name('snmp.poll-interfaces');
+        Route::get('/{device}/snmp/status', [DeviceController::class, 'getSnmpStatus'])->name('snmp.status');
     });
 
     // Traffic

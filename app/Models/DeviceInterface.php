@@ -14,21 +14,47 @@ class DeviceInterface extends Model
 
     protected $fillable = [
         'device_id',
+        'if_index',
         'name',
         'description',
         'type',
         'status',
+        'admin_status',
+        'oper_status',
+        'speed',
         'speed_bps',
         'utilization_percent',
         'in_octets',
-        'out_octets'
+        'out_octets',
+        'in_errors',
+        'out_errors',
+        'last_polled',
+        'prev_in_octets',
+        'prev_out_octets',
+        'prev_poll_time',
+        'in_bps',
+        'out_bps',
+        'in_utilization',
+        'out_utilization'
     ];
 
     protected $casts = [
+        'if_index' => 'integer',
+        'speed' => 'integer',
         'speed_bps' => 'integer',
         'utilization_percent' => 'decimal:2',
         'in_octets' => 'integer',
         'out_octets' => 'integer',
+        'in_errors' => 'integer',
+        'out_errors' => 'integer',
+        'prev_in_octets' => 'integer',
+        'prev_out_octets' => 'integer',
+        'in_bps' => 'integer',
+        'out_bps' => 'integer',
+        'in_utilization' => 'decimal:2',
+        'out_utilization' => 'decimal:2',
+        'last_polled' => 'datetime',
+        'prev_poll_time' => 'datetime',
     ];
 
     public function device(): BelongsTo

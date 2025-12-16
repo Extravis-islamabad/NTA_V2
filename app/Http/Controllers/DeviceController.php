@@ -9,6 +9,7 @@ use App\Services\TrafficAnalysisService;
 use App\Services\CloudProviderService;
 use App\Services\ASLookupService;
 use App\Services\SSHService;
+use App\Services\SNMPService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,17 +19,20 @@ class DeviceController extends Controller
     protected CloudProviderService $cloudService;
     protected ASLookupService $asService;
     protected SSHService $sshService;
+    protected SNMPService $snmpService;
 
     public function __construct(
         TrafficAnalysisService $trafficService,
         CloudProviderService $cloudService,
         ASLookupService $asService,
-        SSHService $sshService
+        SSHService $sshService,
+        SNMPService $snmpService
     ) {
         $this->trafficService = $trafficService;
         $this->cloudService = $cloudService;
         $this->asService = $asService;
         $this->sshService = $sshService;
+        $this->snmpService = $snmpService;
     }
 
     public function index()
@@ -245,10 +249,23 @@ class DeviceController extends Controller
             'ssh_username' => 'nullable|string|max:255',
             'ssh_password' => 'nullable|string',
             'ssh_private_key' => 'nullable|string',
+            // SNMP fields
+            'snmp_enabled' => 'nullable|boolean',
+            'snmp_version' => 'nullable|in:v1,v2c,v3',
+            'snmp_port' => 'nullable|integer|min:1|max:65535',
+            'snmp_community' => 'nullable|string|max:255',
+            'snmp_username' => 'nullable|string|max:255',
+            'snmp_security_level' => 'nullable|in:noAuthNoPriv,authNoPriv,authPriv',
+            'snmp_auth_protocol' => 'nullable|in:MD5,SHA,SHA256,SHA512',
+            'snmp_auth_password' => 'nullable|string',
+            'snmp_priv_protocol' => 'nullable|in:DES,AES,AES192,AES256',
+            'snmp_priv_password' => 'nullable|string',
+            'snmp_poll_interval' => 'nullable|integer|min:60|max:3600',
         ]);
 
         $validated['status'] = 'offline';
         $validated['ssh_enabled'] = $request->has('ssh_enabled');
+        $validated['snmp_enabled'] = $request->has('snmp_enabled');
 
         $device = Device::create($validated);
 
@@ -285,18 +302,42 @@ class DeviceController extends Controller
             'ssh_username' => 'nullable|string|max:255',
             'ssh_password' => 'nullable|string',
             'ssh_private_key' => 'nullable|string',
+            // SNMP fields
+            'snmp_enabled' => 'nullable|boolean',
+            'snmp_version' => 'nullable|in:v1,v2c,v3',
+            'snmp_port' => 'nullable|integer|min:1|max:65535',
+            'snmp_community' => 'nullable|string|max:255',
+            'snmp_username' => 'nullable|string|max:255',
+            'snmp_security_level' => 'nullable|in:noAuthNoPriv,authNoPriv,authPriv',
+            'snmp_auth_protocol' => 'nullable|in:MD5,SHA,SHA256,SHA512',
+            'snmp_auth_password' => 'nullable|string',
+            'snmp_priv_protocol' => 'nullable|in:DES,AES,AES192,AES256',
+            'snmp_priv_password' => 'nullable|string',
+            'snmp_poll_interval' => 'nullable|integer|min:60|max:3600',
         ]);
 
         if ($request->has('ssh_enabled')) {
             $validated['ssh_enabled'] = (bool) $request->ssh_enabled;
         }
+        if ($request->has('snmp_enabled')) {
+            $validated['snmp_enabled'] = (bool) $request->snmp_enabled;
+        }
 
-        // Don't overwrite password if not provided
+        // Don't overwrite passwords if not provided
         if (empty($validated['ssh_password'])) {
             unset($validated['ssh_password']);
         }
         if (empty($validated['ssh_private_key'])) {
             unset($validated['ssh_private_key']);
+        }
+        if (empty($validated['snmp_community'])) {
+            unset($validated['snmp_community']);
+        }
+        if (empty($validated['snmp_auth_password'])) {
+            unset($validated['snmp_auth_password']);
+        }
+        if (empty($validated['snmp_priv_password'])) {
+            unset($validated['snmp_priv_password']);
         }
 
         $device->update($validated);
@@ -374,6 +415,70 @@ class DeviceController extends Controller
             'config' => $config,
             'collector_ip' => $collectorIp,
             'collector_port' => $collectorPort
+        ]);
+    }
+
+    // SNMP Methods
+    public function testSnmpConnection(Device $device)
+    {
+        $result = $this->snmpService->testConnection($device);
+        return response()->json($result);
+    }
+
+    public function pollSnmpDevice(Device $device)
+    {
+        try {
+            $result = $this->snmpService->pollDevice($device);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function pollSnmpSystemInfo(Device $device)
+    {
+        try {
+            $result = $this->snmpService->pollSystemInfo($device);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function pollSnmpInterfaces(Device $device)
+    {
+        try {
+            $result = $this->snmpService->pollInterfaces($device);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getSnmpStatus(Device $device)
+    {
+        return response()->json([
+            'success' => true,
+            'snmp_available' => SNMPService::isAvailable(),
+            'snmp_enabled' => $device->snmp_enabled,
+            'snmp_version' => $device->snmp_version,
+            'has_credentials' => $device->hasSnmpCredentials(),
+            'last_poll' => $device->last_snmp_poll?->toIso8601String(),
+            'connection_status' => $device->snmp_connection_status,
+            'sys_name' => $device->snmp_sys_name,
+            'sys_descr' => $device->snmp_sys_descr,
+            'sys_uptime' => $device->formatted_uptime,
+            'sys_location' => $device->snmp_sys_location,
+            'sys_contact' => $device->snmp_sys_contact
         ]);
     }
 

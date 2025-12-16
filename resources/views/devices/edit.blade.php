@@ -3,11 +3,11 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
-        <a href="{{ route('devices.index') }}" class="text-[#5548F5] hover:text-[#9619B5] flex items-center gap-2 text-sm font-medium transition">
+        <a href="{{ route('devices.show', $device) }}" class="text-[#5548F5] hover:text-[#9619B5] flex items-center gap-2 text-sm font-medium transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Back to Devices
+            Back to Device
         </a>
     </div>
 
@@ -15,16 +15,16 @@
     <div class="flex items-center gap-4 mb-6">
         <div class="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center shadow-lg">
             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
         </div>
         <div>
             <div class="flex items-center gap-3">
                 <img src="{{ asset('MonetX_black@4x-8.png') }}" alt="MonetX" class="h-7 w-auto">
                 <span class="text-gray-300 text-xl">|</span>
-                <h2 class="text-2xl font-bold text-gray-900">Add New Device</h2>
+                <h2 class="text-2xl font-bold text-gray-900">Edit Device</h2>
             </div>
-            <p class="text-gray-600 mt-1">Configure a network device to send NetFlow data</p>
+            <p class="text-gray-600 mt-1">Update device configuration for {{ $device->name }}</p>
         </div>
     </div>
 
@@ -36,7 +36,7 @@
                 </svg>
                 Device Configuration
             </h3>
-            <p class="text-white/80 text-sm mt-1">Fill in the device details and optionally enable SSH for automatic configuration</p>
+            <p class="text-white/80 text-sm mt-1">Update device details, SSH, and SNMP settings</p>
         </div>
 
         @if($errors->any())
@@ -49,8 +49,9 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('devices.store') }}" class="p-6 space-y-6">
+        <form method="POST" action="{{ route('devices.update', $device) }}" class="p-6 space-y-6">
             @csrf
+            @method('PUT')
 
             <!-- Basic Information -->
             <div class="border-b border-gray-200 pb-6">
@@ -66,43 +67,42 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Device Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" value="{{ old('name') }}"
+                        <input type="text" name="name" value="{{ old('name', $device->name) }}"
                                class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                placeholder="e.g., Core-Router-01" required>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">IP Address <span class="text-red-500">*</span></label>
-                        <input type="text" name="ip_address" value="{{ old('ip_address') }}"
+                        <input type="text" name="ip_address" value="{{ old('ip_address', $device->ip_address) }}"
                                class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                placeholder="e.g., 192.168.1.1" required>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Device Type <span class="text-red-500">*</span></label>
-                        <select name="type" id="deviceType" class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]" required onchange="showConfig()">
-                            <option value="">Select device type...</option>
-                            <option value="cisco_router" {{ old('type') == 'cisco_router' ? 'selected' : '' }}>Cisco Router</option>
-                            <option value="router" {{ old('type') == 'router' ? 'selected' : '' }}>Generic Router</option>
-                            <option value="switch" {{ old('type') == 'switch' ? 'selected' : '' }}>Switch</option>
-                            <option value="firewall" {{ old('type') == 'firewall' ? 'selected' : '' }}>Firewall</option>
-                            <option value="fortigate" {{ old('type') == 'fortigate' ? 'selected' : '' }}>FortiGate</option>
-                            <option value="palo_alto" {{ old('type') == 'palo_alto' ? 'selected' : '' }}>Palo Alto</option>
-                            <option value="checkpoint" {{ old('type') == 'checkpoint' ? 'selected' : '' }}>Check Point</option>
-                            <option value="wireless_controller" {{ old('type') == 'wireless_controller' ? 'selected' : '' }}>Wireless Controller</option>
+                        <select name="type" class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]" required>
+                            <option value="cisco_router" {{ old('type', $device->type) == 'cisco_router' ? 'selected' : '' }}>Cisco Router</option>
+                            <option value="router" {{ old('type', $device->type) == 'router' ? 'selected' : '' }}>Generic Router</option>
+                            <option value="switch" {{ old('type', $device->type) == 'switch' ? 'selected' : '' }}>Switch</option>
+                            <option value="firewall" {{ old('type', $device->type) == 'firewall' ? 'selected' : '' }}>Firewall</option>
+                            <option value="fortigate" {{ old('type', $device->type) == 'fortigate' ? 'selected' : '' }}>FortiGate</option>
+                            <option value="palo_alto" {{ old('type', $device->type) == 'palo_alto' ? 'selected' : '' }}>Palo Alto</option>
+                            <option value="checkpoint" {{ old('type', $device->type) == 'checkpoint' ? 'selected' : '' }}>Check Point</option>
+                            <option value="wireless_controller" {{ old('type', $device->type) == 'wireless_controller' ? 'selected' : '' }}>Wireless Controller</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                        <input type="text" name="location" value="{{ old('location') }}"
+                        <input type="text" name="location" value="{{ old('location', $device->location) }}"
                                class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                placeholder="e.g., Data Center A">
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Device Group</label>
-                        <input type="text" name="device_group" value="{{ old('device_group') }}"
+                        <input type="text" name="device_group" value="{{ old('device_group', $device->device_group) }}"
                                class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                placeholder="e.g., Core Network">
                     </div>
@@ -123,37 +123,37 @@
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" name="ssh_enabled" id="ssh_enabled" value="1"
                                class="rounded border-gray-300 text-[#5548F5] focus:ring-[#5548F5]"
-                               {{ old('ssh_enabled') ? 'checked' : '' }}
+                               {{ old('ssh_enabled', $device->ssh_enabled) ? 'checked' : '' }}
                                onchange="toggleSshFields()">
                         <span class="ml-2 text-sm text-gray-600">Enable SSH</span>
                     </label>
                 </div>
 
-                <div id="ssh_fields" class="hidden space-y-4">
+                <div id="ssh_fields" class="{{ old('ssh_enabled', $device->ssh_enabled) ? '' : 'hidden' }} space-y-4">
                     <div class="bg-[#E4F2FF] border border-[#5548F5]/20 rounded-lg p-4">
                         <p class="text-sm text-[#5548F5]">
-                            <strong>Note:</strong> SSH credentials are encrypted and stored securely. Enable SSH to allow automatic NetFlow configuration push to this device.
+                            <strong>Note:</strong> SSH credentials are encrypted. Leave password fields empty to keep current values.
                         </p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">SSH Host</label>
-                            <input type="text" name="ssh_host" value="{{ old('ssh_host') }}"
+                            <input type="text" name="ssh_host" value="{{ old('ssh_host', $device->ssh_host) }}"
                                    class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                    placeholder="Leave empty to use device IP">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">SSH Port</label>
-                            <input type="number" name="ssh_port" value="{{ old('ssh_port', 22) }}"
+                            <input type="number" name="ssh_port" value="{{ old('ssh_port', $device->ssh_port ?? 22) }}"
                                    class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                    min="1" max="65535">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                            <input type="text" name="ssh_username" value="{{ old('ssh_username') }}"
+                            <input type="text" name="ssh_username" value="{{ old('ssh_username', $device->ssh_username) }}"
                                    class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                    placeholder="admin">
                         </div>
@@ -162,15 +162,14 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                             <input type="password" name="ssh_password"
                                    class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
-                                   placeholder="••••••••">
+                                   placeholder="Leave empty to keep current">
                         </div>
 
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Private Key (Optional)</label>
                             <textarea name="ssh_private_key" rows="4"
                                       class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5] font-mono text-sm"
-                                      placeholder="-----BEGIN OPENSSH PRIVATE KEY-----">{{ old('ssh_private_key') }}</textarea>
-                            <p class="mt-1 text-xs text-gray-500">Paste your SSH private key for key-based authentication</p>
+                                      placeholder="Leave empty to keep current key">{{ old('ssh_private_key') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -190,18 +189,50 @@
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" name="snmp_enabled" id="snmp_enabled" value="1"
                                class="rounded border-gray-300 text-[#5548F5] focus:ring-[#5548F5]"
-                               {{ old('snmp_enabled') ? 'checked' : '' }}
+                               {{ old('snmp_enabled', $device->snmp_enabled) ? 'checked' : '' }}
                                onchange="toggleSnmpFields()">
                         <span class="ml-2 text-sm text-gray-600">Enable SNMP</span>
                     </label>
                 </div>
 
-                <div id="snmp_fields" class="hidden space-y-4">
+                <div id="snmp_fields" class="{{ old('snmp_enabled', $device->snmp_enabled) ? '' : 'hidden' }} space-y-4">
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <p class="text-sm text-green-700">
-                            <strong>Note:</strong> SNMP credentials are encrypted and stored securely. Enable SNMP to poll interface statistics, bandwidth utilization, and device health.
+                            <strong>Note:</strong> SNMP credentials are encrypted. Leave password fields empty to keep current values.
                         </p>
                     </div>
+
+                    @if($device->snmp_sys_name || $device->snmp_sys_uptime)
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">Last SNMP Poll Results</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            @if($device->snmp_sys_name)
+                            <div>
+                                <span class="text-gray-500">System Name:</span>
+                                <span class="font-medium ml-1">{{ $device->snmp_sys_name }}</span>
+                            </div>
+                            @endif
+                            @if($device->formatted_uptime)
+                            <div>
+                                <span class="text-gray-500">Uptime:</span>
+                                <span class="font-medium ml-1">{{ $device->formatted_uptime }}</span>
+                            </div>
+                            @endif
+                            @if($device->last_snmp_poll)
+                            <div>
+                                <span class="text-gray-500">Last Poll:</span>
+                                <span class="font-medium ml-1">{{ $device->last_snmp_poll->diffForHumans() }}</span>
+                            </div>
+                            @endif
+                            @if($device->snmp_connection_status)
+                            <div>
+                                <span class="text-gray-500">Status:</span>
+                                <span class="font-medium ml-1">{{ $device->snmp_connection_status }}</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -209,42 +240,42 @@
                             <select name="snmp_version" id="snmp_version"
                                     class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                     onchange="toggleSnmpVersion()">
-                                <option value="v2c" {{ old('snmp_version', 'v2c') === 'v2c' ? 'selected' : '' }}>SNMPv2c</option>
-                                <option value="v1" {{ old('snmp_version') === 'v1' ? 'selected' : '' }}>SNMPv1</option>
-                                <option value="v3" {{ old('snmp_version') === 'v3' ? 'selected' : '' }}>SNMPv3</option>
+                                <option value="v2c" {{ old('snmp_version', $device->snmp_version) === 'v2c' ? 'selected' : '' }}>SNMPv2c</option>
+                                <option value="v1" {{ old('snmp_version', $device->snmp_version) === 'v1' ? 'selected' : '' }}>SNMPv1</option>
+                                <option value="v3" {{ old('snmp_version', $device->snmp_version) === 'v3' ? 'selected' : '' }}>SNMPv3</option>
                             </select>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">SNMP Port</label>
-                            <input type="number" name="snmp_port" value="{{ old('snmp_port', 161) }}"
+                            <input type="number" name="snmp_port" value="{{ old('snmp_port', $device->snmp_port ?? 161) }}"
                                    class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                    min="1" max="65535">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Poll Interval (seconds)</label>
-                            <input type="number" name="snmp_poll_interval" value="{{ old('snmp_poll_interval', 300) }}"
+                            <input type="number" name="snmp_poll_interval" value="{{ old('snmp_poll_interval', $device->snmp_poll_interval ?? 300) }}"
                                    class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                    min="60" max="3600">
                         </div>
                     </div>
 
                     <!-- SNMPv1/v2c Community String -->
-                    <div id="snmp_community_fields">
+                    <div id="snmp_community_fields" class="{{ old('snmp_version', $device->snmp_version) === 'v3' ? 'hidden' : '' }}">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Community String</label>
-                        <input type="password" name="snmp_community" value="{{ old('snmp_community') }}"
+                        <input type="password" name="snmp_community"
                                class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
-                               placeholder="public">
+                               placeholder="Leave empty to keep current">
                         <p class="mt-1 text-xs text-gray-500">Read-only community string for polling</p>
                     </div>
 
                     <!-- SNMPv3 Security Settings -->
-                    <div id="snmp_v3_fields" class="hidden space-y-4">
+                    <div id="snmp_v3_fields" class="{{ old('snmp_version', $device->snmp_version) === 'v3' ? '' : 'hidden' }} space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                                <input type="text" name="snmp_username" value="{{ old('snmp_username') }}"
+                                <input type="text" name="snmp_username" value="{{ old('snmp_username', $device->snmp_username) }}"
                                        class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
                                        placeholder="snmpuser">
                             </div>
@@ -253,9 +284,9 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Security Level</label>
                                 <select name="snmp_security_level"
                                         class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]">
-                                    <option value="authPriv" {{ old('snmp_security_level', 'authPriv') === 'authPriv' ? 'selected' : '' }}>authPriv (Auth + Encryption)</option>
-                                    <option value="authNoPriv" {{ old('snmp_security_level') === 'authNoPriv' ? 'selected' : '' }}>authNoPriv (Auth only)</option>
-                                    <option value="noAuthNoPriv" {{ old('snmp_security_level') === 'noAuthNoPriv' ? 'selected' : '' }}>noAuthNoPriv (No security)</option>
+                                    <option value="authPriv" {{ old('snmp_security_level', $device->snmp_security_level) === 'authPriv' ? 'selected' : '' }}>authPriv (Auth + Encryption)</option>
+                                    <option value="authNoPriv" {{ old('snmp_security_level', $device->snmp_security_level) === 'authNoPriv' ? 'selected' : '' }}>authNoPriv (Auth only)</option>
+                                    <option value="noAuthNoPriv" {{ old('snmp_security_level', $device->snmp_security_level) === 'noAuthNoPriv' ? 'selected' : '' }}>noAuthNoPriv (No security)</option>
                                 </select>
                             </div>
 
@@ -263,10 +294,10 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Auth Protocol</label>
                                 <select name="snmp_auth_protocol"
                                         class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]">
-                                    <option value="SHA" {{ old('snmp_auth_protocol', 'SHA') === 'SHA' ? 'selected' : '' }}>SHA</option>
-                                    <option value="SHA256" {{ old('snmp_auth_protocol') === 'SHA256' ? 'selected' : '' }}>SHA-256</option>
-                                    <option value="SHA512" {{ old('snmp_auth_protocol') === 'SHA512' ? 'selected' : '' }}>SHA-512</option>
-                                    <option value="MD5" {{ old('snmp_auth_protocol') === 'MD5' ? 'selected' : '' }}>MD5</option>
+                                    <option value="SHA" {{ old('snmp_auth_protocol', $device->snmp_auth_protocol) === 'SHA' ? 'selected' : '' }}>SHA</option>
+                                    <option value="SHA256" {{ old('snmp_auth_protocol', $device->snmp_auth_protocol) === 'SHA256' ? 'selected' : '' }}>SHA-256</option>
+                                    <option value="SHA512" {{ old('snmp_auth_protocol', $device->snmp_auth_protocol) === 'SHA512' ? 'selected' : '' }}>SHA-512</option>
+                                    <option value="MD5" {{ old('snmp_auth_protocol', $device->snmp_auth_protocol) === 'MD5' ? 'selected' : '' }}>MD5</option>
                                 </select>
                             </div>
 
@@ -274,17 +305,17 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Auth Password</label>
                                 <input type="password" name="snmp_auth_password"
                                        class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
-                                       placeholder="••••••••">
+                                       placeholder="Leave empty to keep current">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Privacy Protocol</label>
                                 <select name="snmp_priv_protocol"
                                         class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]">
-                                    <option value="AES" {{ old('snmp_priv_protocol', 'AES') === 'AES' ? 'selected' : '' }}>AES-128</option>
-                                    <option value="AES192" {{ old('snmp_priv_protocol') === 'AES192' ? 'selected' : '' }}>AES-192</option>
-                                    <option value="AES256" {{ old('snmp_priv_protocol') === 'AES256' ? 'selected' : '' }}>AES-256</option>
-                                    <option value="DES" {{ old('snmp_priv_protocol') === 'DES' ? 'selected' : '' }}>DES</option>
+                                    <option value="AES" {{ old('snmp_priv_protocol', $device->snmp_priv_protocol) === 'AES' ? 'selected' : '' }}>AES-128</option>
+                                    <option value="AES192" {{ old('snmp_priv_protocol', $device->snmp_priv_protocol) === 'AES192' ? 'selected' : '' }}>AES-192</option>
+                                    <option value="AES256" {{ old('snmp_priv_protocol', $device->snmp_priv_protocol) === 'AES256' ? 'selected' : '' }}>AES-256</option>
+                                    <option value="DES" {{ old('snmp_priv_protocol', $device->snmp_priv_protocol) === 'DES' ? 'selected' : '' }}>DES</option>
                                 </select>
                             </div>
 
@@ -292,93 +323,35 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Privacy Password</label>
                                 <input type="password" name="snmp_priv_password"
                                        class="w-full border-gray-300 rounded-lg focus:ring-[#5548F5] focus:border-[#5548F5]"
-                                       placeholder="••••••••">
+                                       placeholder="Leave empty to keep current">
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            @php
-                $collectorIp = \App\Models\Setting::get('collector_ip') ?: 'Not Configured';
-                $netflowPort = \App\Models\Setting::get('netflow_port') ?: 'Not Configured';
-            @endphp
-
-            <!-- NetFlow Configuration Info -->
-            <div id="configInstructions" class="bg-gradient-to-r from-[#E4F2FF] to-[#F2C7FF] rounded-xl p-6" style="display: none;">
-                <h3 class="text-lg font-semibold text-gray-900 mb-3">NetFlow Configuration</h3>
-                <div class="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span class="text-gray-500">Collector IP:</span>
-                            <span class="font-mono font-medium text-[#5548F5] ml-2">{{ $collectorIp }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500">Collector Port:</span>
-                            <span class="font-mono font-medium text-[#5548F5] ml-2">{{ $netflowPort }} (UDP)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cisco Config -->
-                <div id="ciscoConfig" class="hidden">
-                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">flow exporter NETFLOW-EXPORTER
- destination {{ $collectorIp }}
- transport udp {{ $netflowPort }}
-
-flow monitor NETFLOW-MONITOR
- exporter NETFLOW-EXPORTER
- record netflow ipv4 original-input
-
-interface GigabitEthernet0/0
- ip flow monitor NETFLOW-MONITOR input
- ip flow monitor NETFLOW-MONITOR output</pre>
-                </div>
-
-                <!-- FortiGate Config -->
-                <div id="fortiConfig" class="hidden">
-                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">config system netflow
-    set collector-ip {{ $collectorIp }}
-    set collector-port {{ $netflowPort }}
-end
-
-config system interface
-    edit "port1"
-        set netflow-sampler both
-    next
-end</pre>
-                </div>
-
-                <!-- Palo Alto Config -->
-                <div id="paloConfig" class="hidden">
-                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">set deviceconfig system netflow exporter-1 server {{ $collectorIp }}
-set deviceconfig system netflow exporter-1 port {{ $netflowPort }}
-commit</pre>
-                </div>
-
-                <!-- Generic Config -->
-                <div id="genericConfig" class="hidden">
-                    <div class="bg-white rounded-lg p-4 text-sm">
-                        <p class="font-medium mb-2">Configure your device with:</p>
-                        <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li>Collector IP: <code class="bg-gray-100 px-1 rounded">{{ $collectorIp }}</code></li>
-                            <li>Port: <code class="bg-gray-100 px-1 rounded">{{ $netflowPort }}</code></li>
-                            <li>Protocol: <code class="bg-gray-100 px-1 rounded">UDP</code></li>
-                            <li>Version: <code class="bg-gray-100 px-1 rounded">NetFlow v5 or v9</code></li>
-                        </ul>
+                    <!-- SNMP Test Button -->
+                    <div class="flex items-center gap-4">
+                        <button type="button" onclick="testSnmpConnection()"
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium text-sm">
+                            Test SNMP Connection
+                        </button>
+                        <button type="button" onclick="pollSnmpDevice()"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm">
+                            Poll Device Now
+                        </button>
+                        <span id="snmp_test_result" class="text-sm"></span>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end gap-4 pt-4">
-                <a href="{{ route('devices.index') }}"
+                <a href="{{ route('devices.show', $device) }}"
                    class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">
                     Cancel
                 </a>
                 <button type="submit"
                         class="px-6 py-2.5 bg-gradient-to-r from-[#5548F5] to-[#C843F3] text-white rounded-lg hover:opacity-90 transition shadow-lg font-medium">
-                    Add Device
+                    Save Changes
                 </button>
             </div>
         </form>
@@ -415,36 +388,67 @@ function toggleSnmpVersion() {
     }
 }
 
-function showConfig() {
-    const deviceType = document.getElementById('deviceType').value;
-    const configDiv = document.getElementById('configInstructions');
+async function testSnmpConnection() {
+    const resultEl = document.getElementById('snmp_test_result');
+    resultEl.innerHTML = '<span class="text-blue-600">Testing...</span>';
 
-    document.getElementById('ciscoConfig').classList.add('hidden');
-    document.getElementById('fortiConfig').classList.add('hidden');
-    document.getElementById('paloConfig').classList.add('hidden');
-    document.getElementById('genericConfig').classList.add('hidden');
+    try {
+        const response = await fetch('{{ route("devices.snmp.test", $device) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        const data = await response.json();
 
-    if (deviceType) {
-        configDiv.style.display = 'block';
-
-        if (deviceType === 'cisco_router' || deviceType === 'router' || deviceType === 'switch') {
-            document.getElementById('ciscoConfig').classList.remove('hidden');
-        } else if (deviceType === 'fortigate') {
-            document.getElementById('fortiConfig').classList.remove('hidden');
-        } else if (deviceType === 'palo_alto') {
-            document.getElementById('paloConfig').classList.remove('hidden');
+        if (data.success) {
+            resultEl.innerHTML = '<span class="text-green-600">Connection successful! ' + (data.data?.sysName || '') + '</span>';
         } else {
-            document.getElementById('genericConfig').classList.remove('hidden');
+            resultEl.innerHTML = '<span class="text-red-600">' + data.message + '</span>';
         }
-    } else {
-        configDiv.style.display = 'none';
+    } catch (e) {
+        resultEl.innerHTML = '<span class="text-red-600">Error: ' + e.message + '</span>';
+    }
+}
+
+async function pollSnmpDevice() {
+    const resultEl = document.getElementById('snmp_test_result');
+    resultEl.innerHTML = '<span class="text-blue-600">Polling device...</span>';
+
+    try {
+        const response = await fetch('{{ route("devices.snmp.poll", $device) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            resultEl.innerHTML = '<span class="text-green-600">Poll successful! Refreshing page...</span>';
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            resultEl.innerHTML = '<span class="text-red-600">' + data.message + '</span>';
+        }
+    } catch (e) {
+        resultEl.innerHTML = '<span class="text-red-600">Error: ' + e.message + '</span>';
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    toggleSshFields();
-    toggleSnmpFields();
-    showConfig();
+    // Initialize visibility based on current values
+    const sshCheckbox = document.getElementById('ssh_enabled');
+    const snmpCheckbox = document.getElementById('snmp_enabled');
+
+    if (sshCheckbox.checked) {
+        document.getElementById('ssh_fields').classList.remove('hidden');
+    }
+    if (snmpCheckbox.checked) {
+        document.getElementById('snmp_fields').classList.remove('hidden');
+        toggleSnmpVersion();
+    }
 });
 </script>
 @endsection

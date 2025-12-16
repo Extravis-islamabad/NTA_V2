@@ -12,12 +12,15 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libpq-dev \
     libzip-dev \
+    libsnmp-dev \
+    snmp \
+    snmp-mibs-downloader \
     zip \
     unzip \
     supervisor \
     nginx \
     cron \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip sockets \
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip sockets snmp \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

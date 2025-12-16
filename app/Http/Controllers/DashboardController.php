@@ -144,6 +144,24 @@ class DashboardController extends Controller
             ->take(10)
             ->values();
 
+        // Protocol Distribution (for dashboard chart - no API call needed)
+        $topProtocols = Flow::where('created_at', '>=', $timeStart)
+            ->select('protocol')
+            ->selectRaw('SUM(bytes) as total_bytes')
+            ->selectRaw('COUNT(*) as flow_count')
+            ->groupBy('protocol')
+            ->orderByDesc('total_bytes')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'protocol' => $item->protocol ?? 'Unknown',
+                    'bytes' => $item->total_bytes,
+                    'flows' => $item->flow_count,
+                    'formatted_bytes' => $this->formatBytes($item->total_bytes)
+                ];
+            });
+
         // Traffic by Country for World Map
         $trafficByCountry = Flow::where('created_at', '>=', $timeStart)
             ->whereNotNull('dst_country_code')
@@ -230,6 +248,7 @@ class DashboardController extends Controller
             'recentAlarms',
             'heatMapData',
             'topQoS',
+            'topProtocols',
             'topConversations',
             'topApplications',
             'trafficByCountry',

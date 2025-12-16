@@ -80,10 +80,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Total Flows</p>
-                    <p class="text-3xl font-bold text-[#5548F5] mt-1">{{ number_format($stats['total_flows']) }}</p>
+                    <p class="text-3xl font-bold text-blue-600 mt-1">{{ number_format($stats['total_flows']) }}</p>
                 </div>
-                <div class="w-12 h-12 bg-[#E4F2FF] rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
@@ -110,7 +110,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <!-- World Traffic Map -->
         <div class="lg:col-span-2 bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 gradient-primary">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-500 to-blue-600">
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -119,15 +119,15 @@
                 </h3>
             </div>
             <div class="p-4">
-                <div id="trafficMap" class="traffic-map"></div>
+                <div id="trafficMap" class="traffic-map" style="height: 350px; min-height: 300px;"></div>
                 <div class="mt-4 flex justify-between items-center text-sm">
                     <div class="flex items-center gap-4">
                         <span class="flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-[#5548F5]"></span>
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
                             <span class="text-gray-600">Traffic Origin</span>
                         </span>
                         <span class="flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-[#C843F3]"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
                             <span class="text-gray-600">Traffic Destination</span>
                         </span>
                     </div>
@@ -138,7 +138,7 @@
 
         <!-- Top Applications Donut Chart -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 gradient-secondary">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-500 to-teal-500">
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
@@ -167,7 +167,7 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
                     Protocol Distribution
@@ -182,7 +182,7 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
                     </svg>
@@ -207,7 +207,7 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                     </svg>
                     Device Health
@@ -264,7 +264,7 @@
                                     <span class="text-xs text-gray-500">({{ $source['country_code'] }})</span>
                                 @endif
                             </div>
-                            <span class="text-sm font-semibold text-[#5548F5]">{{ $source['formatted_bytes'] }}</span>
+                            <span class="text-sm font-semibold text-blue-600">{{ $source['formatted_bytes'] }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -276,7 +276,7 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
                     Top Destinations
@@ -295,7 +295,7 @@
                                     <span class="text-xs text-gray-500">({{ $dest['country_code'] }})</span>
                                 @endif
                             </div>
-                            <span class="text-sm font-semibold text-[#C843F3]">{{ $dest['formatted_bytes'] }}</span>
+                            <span class="text-sm font-semibold text-emerald-600">{{ $dest['formatted_bytes'] }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -310,12 +310,12 @@
         <div class="lg:col-span-2 bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
                     </svg>
                     Device Bandwidth
                 </h3>
-                <button onclick="refreshDeviceTable()" class="text-sm text-[#5548F5] hover:text-[#4840D4]">
+                <button onclick="refreshDeviceTable()" class="text-sm text-blue-600 hover:text-[#4840D4]">
                     <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
@@ -337,7 +337,7 @@
                         @foreach($devices as $device)
                         <tr class="table-row-hover transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('devices.show', $device) }}" class="text-[#5548F5] hover:text-[#4840D4] font-medium">
+                                <a href="{{ route('devices.show', $device) }}" class="text-blue-600 hover:text-[#4840D4] font-medium">
                                     {{ $device->name }}
                                 </a>
                             </td>
@@ -374,7 +374,7 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#9619B5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                     </svg>
                     Top Conversations
@@ -394,7 +394,7 @@
                                     </div>
                                     <span class="text-sm font-medium text-gray-900">{{ $conv['application'] }}</span>
                                 </div>
-                                <span class="text-sm font-semibold text-[#5548F5]">{{ $conv['formatted_bytes'] }}</span>
+                                <span class="text-sm font-semibold text-blue-600">{{ $conv['formatted_bytes'] }}</span>
                             </div>
                             <div class="flex items-center text-xs text-gray-500 gap-1">
                                 <span class="font-mono truncate max-w-[100px]">{{ $conv['source'] }}</span>
@@ -420,7 +420,7 @@
                 </svg>
                 Recent Alarms
             </h3>
-            <a href="{{ route('alarms.index') }}" class="text-sm text-[#5548F5] hover:text-[#4840D4]">View All</a>
+            <a href="{{ route('alarms.index') }}" class="text-sm text-blue-600 hover:text-[#4840D4]">View All</a>
         </div>
         <div class="p-6" id="alarmsContainer">
             @if($recentAlarms->isEmpty())
@@ -459,6 +459,7 @@
 const dashboardData = {
     topApplications: @json($topApplications),
     topQoS: @json($topQoS),
+    topProtocols: @json($topProtocols),
     trafficByCountry: @json($trafficByCountry),
     deviceBandwidth: @json($deviceBandwidth),
     heatMapData: @json($heatMapData)
@@ -486,12 +487,17 @@ function initializeCharts() {
     createDeviceHealthChart();
 }
 
-// Applications Donut Chart
+// Applications Donut Chart - improved styling
 function createApplicationsChart() {
-    if (dashboardData.topApplications.length === 0) return;
+    if (dashboardData.topApplications.length === 0) {
+        document.getElementById('applicationsChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No application data</p></div>';
+        return;
+    }
+
+    // Use diverse colors instead of app-defined colors
+    const chartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'];
 
     const options = {
-        ...window.apexDefaultOptions,
         chart: {
             type: 'donut',
             height: 280,
@@ -499,16 +505,24 @@ function createApplicationsChart() {
         },
         series: dashboardData.topApplications.map(app => app.bytes),
         labels: dashboardData.topApplications.map(app => app.name),
-        colors: dashboardData.topApplications.map(app => app.color),
+        colors: chartColors,
         plotOptions: {
             pie: {
                 donut: {
-                    size: '65%',
+                    size: '55%',
                     labels: {
                         show: true,
+                        name: { fontSize: '12px' },
+                        value: {
+                            fontSize: '14px',
+                            formatter: function(val) {
+                                return formatBytes(parseInt(val));
+                            }
+                        },
                         total: {
                             show: true,
-                            label: 'Total Traffic',
+                            label: 'Total',
+                            fontSize: '11px',
                             formatter: function(w) {
                                 const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                                 return formatBytes(total);
@@ -520,104 +534,118 @@ function createApplicationsChart() {
         },
         legend: {
             position: 'bottom',
-            fontSize: '11px'
+            fontSize: '10px',
+            horizontalAlign: 'center',
+            offsetY: 5,
+            itemMargin: { horizontal: 8, vertical: 2 },
+            formatter: function(seriesName, opts) {
+                // Truncate long names
+                return seriesName.length > 12 ? seriesName.substring(0, 12) + '...' : seriesName;
+            }
         },
+        dataLabels: { enabled: false },
         tooltip: {
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
                 }
             }
-        }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                legend: { fontSize: '9px' }
+            }
+        }]
     };
 
     applicationsChart = new ApexCharts(document.querySelector("#applicationsChart"), options);
     applicationsChart.render();
 }
 
-// Protocols Bar Chart
+// Protocols Bar Chart - using server-side data
 function createProtocolsChart() {
-    fetch(`/api/flows/statistics?range=${document.getElementById('globalTimeRange').value}`)
-        .then(response => response.json())
-        .then(result => {
-            if (result.success && result.data && result.data.protocols) {
-                const protocols = result.data.protocols;
-
-                const options = {
-                    ...window.apexDefaultOptions,
-                    chart: {
-                        type: 'bar',
-                        height: 300,
-                        fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
-                        toolbar: { show: true }
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            borderRadius: 4,
-                            columnWidth: '60%'
-                        }
-                    },
-                    fill: {
-                        type: 'gradient',
-                        gradient: {
-                            shade: 'light',
-                            type: 'vertical',
-                            shadeIntensity: 0.25,
-                            gradientToColors: [window.monetxColors.secondary],
-                            stops: [0, 100]
-                        }
-                    },
-                    colors: [window.monetxColors.primary],
-                    series: [{
-                        name: 'Traffic',
-                        data: protocols.map(p => p.bytes)
-                    }],
-                    xaxis: {
-                        categories: protocols.map(p => p.protocol),
-                        labels: {
-                            style: {
-                                colors: '#6b7280',
-                                fontSize: '11px'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        labels: {
-                            formatter: function(val) {
-                                return formatBytes(val);
-                            },
-                            style: {
-                                colors: '#6b7280',
-                                fontSize: '11px'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function(val) {
-                                return formatBytes(val);
-                            }
-                        }
-                    }
-                };
-
-                if (protocolsChart) {
-                    protocolsChart.destroy();
-                }
-                protocolsChart = new ApexCharts(document.querySelector("#protocolsChart"), options);
-                protocolsChart.render();
-            }
-        })
-        .catch(console.error);
-}
-
-// QoS Pie Chart
-function createQoSChart() {
-    if (dashboardData.topQoS.length === 0) return;
+    const protocols = dashboardData.topProtocols;
+    if (!protocols || protocols.length === 0) {
+        document.getElementById('protocolsChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No protocol data available</p></div>';
+        return;
+    }
 
     const options = {
-        ...window.apexDefaultOptions,
+        chart: {
+            type: 'bar',
+            height: 300,
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+            toolbar: { show: true }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                borderRadius: 6,
+                columnWidth: '55%',
+                distributed: true
+            }
+        },
+        colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'],
+        series: [{
+            name: 'Traffic',
+            data: protocols.map(p => p.bytes)
+        }],
+        xaxis: {
+            categories: protocols.map(p => p.protocol),
+            labels: {
+                style: {
+                    colors: '#6b7280',
+                    fontSize: '11px'
+                }
+            }
+        },
+        yaxis: {
+            labels: {
+                formatter: function(val) {
+                    return formatBytes(val);
+                },
+                style: {
+                    colors: '#6b7280',
+                    fontSize: '11px'
+                }
+            }
+        },
+        legend: { show: false },
+        dataLabels: { enabled: false },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return formatBytes(val);
+                }
+            }
+        },
+        grid: {
+            borderColor: '#e5e7eb',
+            strokeDashArray: 4
+        }
+    };
+
+    if (protocolsChart) {
+        protocolsChart.destroy();
+    }
+    protocolsChart = new ApexCharts(document.querySelector("#protocolsChart"), options);
+    protocolsChart.render();
+}
+
+// QoS Pie Chart - improved
+function createQoSChart() {
+    if (!dashboardData.topQoS || dashboardData.topQoS.length === 0) {
+        const qosContainer = document.getElementById('qosChart');
+        if (qosContainer) {
+            qosContainer.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No QoS data available</p></div>';
+        }
+        return;
+    }
+
+    const chartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'];
+
+    const options = {
         chart: {
             type: 'pie',
             height: 300,
@@ -625,29 +653,27 @@ function createQoSChart() {
         },
         series: dashboardData.topQoS.map(q => parseInt(q.bytes)),
         labels: dashboardData.topQoS.map(q => q.dscp),
-        colors: [
-            window.monetxColors.primary,
-            window.monetxColors.secondary,
-            window.monetxColors.tertiary,
-            window.monetxColors.success,
-            window.monetxColors.warning,
-            window.monetxColors.info,
-            window.monetxColors.danger,
-            '#14B8A6',
-            '#F97316',
-            '#84CC16'
-        ],
+        colors: chartColors,
         legend: {
             position: 'bottom',
-            fontSize: '11px'
+            fontSize: '10px',
+            horizontalAlign: 'center',
+            itemMargin: { horizontal: 6, vertical: 2 }
         },
+        dataLabels: { enabled: false },
         tooltip: {
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
                 }
             }
-        }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                legend: { fontSize: '9px' }
+            }
+        }]
     };
 
     qosChart = new ApexCharts(document.querySelector("#qosChart"), options);
@@ -734,7 +760,7 @@ function initializeMap() {
 
             marker.bindPopup(`
                 <div class="text-sm">
-                    <strong class="text-[#5548F5]">${country.country_name}</strong><br>
+                    <strong class="text-blue-600">${country.country_name}</strong><br>
                     <span class="text-gray-600">Traffic: ${country.formatted_bytes}</span><br>
                     <span class="text-gray-500">Flows: ${country.flows.toLocaleString()}</span>
                 </div>

@@ -356,17 +356,36 @@ class DeviceController extends Controller
 
     public function destroy(Device $device)
     {
-        $device->delete();
+        // Delete all related data first (cascade delete)
+        DB::transaction(function () use ($device) {
+            // Delete all flows associated with this device
+            $device->flows()->delete();
+
+            // Delete all traffic statistics
+            $device->trafficStatistics()->delete();
+
+            // Delete all alarms
+            $device->alarms()->delete();
+
+            // Delete all interfaces
+            $device->interfaces()->delete();
+
+            // Delete bandwidth samples
+            \App\Models\BandwidthSample::where('device_id', $device->id)->delete();
+
+            // Finally delete the device
+            $device->forceDelete();
+        });
 
         if (request()->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Device deleted successfully'
+                'message' => 'Device and all related data deleted successfully'
             ]);
         }
 
         return redirect()->route('devices.index')
-            ->with('success', 'Device deleted successfully');
+            ->with('success', 'Device and all related data deleted successfully');
     }
 
     public function testSshConnection(Device $device)

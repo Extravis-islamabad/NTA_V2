@@ -188,9 +188,7 @@
                         <p class="mt-2 text-sm text-gray-500">No source data available</p>
                     </div>
                 @else
-                    <div style="height: 300px;">
-                        <canvas id="sourcesChart"></canvas>
-                    </div>
+                    <div id="sourcesChart" style="height: 300px;"></div>
                 @endif
             </div>
         </div>
@@ -217,9 +215,7 @@
                         <p class="mt-2 text-sm text-gray-500">No destination data available</p>
                     </div>
                 @else
-                    <div style="height: 300px;">
-                        <canvas id="destinationsChart"></canvas>
-                    </div>
+                    <div id="destinationsChart" style="height: 300px;"></div>
                 @endif
             </div>
         </div>
@@ -470,116 +466,85 @@
 
 @push('scripts')
 <script>
-@if(isset($topSources) && $topSources->isNotEmpty())
-// Sources Chart
-const sourcesCtx = document.getElementById('sourcesChart');
-if (sourcesCtx) {
-    new Chart(sourcesCtx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($topSources->take(10)->pluck('source_ip')->toArray()) !!},
-            datasets: [{
-                label: 'Traffic',
-                data: {!! json_encode($topSources->take(10)->pluck('total_bytes')->toArray()) !!},
-                backgroundColor: '#5548F5',
-                borderRadius: 8,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const bytes = context.raw;
-                            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
-                            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
-                            return (bytes / 1024).toFixed(2) + ' KB';
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6' },
-                    ticks: {
-                        callback: function(value) {
-                            if (value >= 1073741824) return (value / 1073741824).toFixed(1) + ' GB';
-                            if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB';
-                            if (value >= 1024) return (value / 1024).toFixed(1) + ' KB';
-                            return value + ' B';
-                        }
-                    }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { font: { family: 'monospace', size: 10 } }
-                }
-            }
-        }
-    });
-}
-@endif
+document.addEventListener('DOMContentLoaded', function() {
+    function formatBytes(bytes) {
+        if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+        if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+        if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        return bytes + ' B';
+    }
 
-@if(isset($topDestinations) && $topDestinations->isNotEmpty())
-// Destinations Chart
-const destCtx = document.getElementById('destinationsChart');
-if (destCtx) {
-    new Chart(destCtx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($topDestinations->take(10)->pluck('destination_ip')->toArray()) !!},
-            datasets: [{
-                label: 'Traffic',
-                data: {!! json_encode($topDestinations->take(10)->pluck('total_bytes')->toArray()) !!},
-                backgroundColor: '#C843F3',
-                borderRadius: 8,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const bytes = context.raw;
-                            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
-                            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
-                            return (bytes / 1024).toFixed(2) + ' KB';
-                        }
-                    }
+    @if(isset($topSources) && $topSources->isNotEmpty())
+    // Sources Chart
+    const sourcesEl = document.getElementById('sourcesChart');
+    if (sourcesEl) {
+        new ApexCharts(sourcesEl, {
+            chart: {
+                type: 'bar',
+                height: 300,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: { show: false }
+            },
+            series: [{
+                name: 'Traffic',
+                data: {!! json_encode($topSources->take(10)->pluck('total_bytes')->toArray()) !!}
+            }],
+            plotOptions: {
+                bar: { horizontal: true, borderRadius: 4, barHeight: '70%' }
+            },
+            xaxis: {
+                labels: {
+                    formatter: formatBytes,
+                    style: { fontSize: '10px', colors: '#6b7280' }
                 }
             },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6' },
-                    ticks: {
-                        callback: function(value) {
-                            if (value >= 1073741824) return (value / 1073741824).toFixed(1) + ' GB';
-                            if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB';
-                            if (value >= 1024) return (value / 1024).toFixed(1) + ' KB';
-                            return value + ' B';
-                        }
-                    }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { font: { family: 'monospace', size: 10 } }
+            yaxis: {
+                categories: {!! json_encode($topSources->take(10)->pluck('source_ip')->toArray()) !!},
+                labels: { style: { fontSize: '10px', fontFamily: 'monospace', colors: '#374151' } }
+            },
+            colors: ['#3B82F6'],
+            dataLabels: { enabled: false },
+            tooltip: { y: { formatter: formatBytes } },
+            grid: { borderColor: '#e5e7eb', xaxis: { lines: { show: true } } }
+        }).render();
+    }
+    @endif
+
+    @if(isset($topDestinations) && $topDestinations->isNotEmpty())
+    // Destinations Chart
+    const destEl = document.getElementById('destinationsChart');
+    if (destEl) {
+        new ApexCharts(destEl, {
+            chart: {
+                type: 'bar',
+                height: 300,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: { show: false }
+            },
+            series: [{
+                name: 'Traffic',
+                data: {!! json_encode($topDestinations->take(10)->pluck('total_bytes')->toArray()) !!}
+            }],
+            plotOptions: {
+                bar: { horizontal: true, borderRadius: 4, barHeight: '70%' }
+            },
+            xaxis: {
+                labels: {
+                    formatter: formatBytes,
+                    style: { fontSize: '10px', colors: '#6b7280' }
                 }
-            }
-        }
-    });
-}
-@endif
+            },
+            yaxis: {
+                categories: {!! json_encode($topDestinations->take(10)->pluck('destination_ip')->toArray()) !!},
+                labels: { style: { fontSize: '10px', fontFamily: 'monospace', colors: '#374151' } }
+            },
+            colors: ['#8B5CF6'],
+            dataLabels: { enabled: false },
+            tooltip: { y: { formatter: formatBytes } },
+            grid: { borderColor: '#e5e7eb', xaxis: { lines: { show: true } } }
+        }).render();
+    }
+    @endif
+});
 </script>
 @endpush

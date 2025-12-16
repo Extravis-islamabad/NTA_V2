@@ -518,67 +518,83 @@ function createApplicationsChart() {
     // Take top 6 apps for clean display
     const topApps = dashboardData.topApplications.slice(0, 6);
 
-    // Gradient colors for bars
+    // Modern gradient colors
     const chartColors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4'];
 
     const options = {
         chart: {
-            type: 'bar',
+            type: 'donut',
             height: 280,
-            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
-            toolbar: { show: false }
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
         },
+        series: topApps.map(app => app.bytes),
+        labels: topApps.map(app => app.name.length > 12 ? app.name.substring(0, 12) + '...' : app.name),
+        colors: chartColors,
         plotOptions: {
-            bar: {
-                horizontal: true,
-                borderRadius: 4,
-                barHeight: '60%',
-                distributed: true,
-                dataLabels: {
-                    position: 'right'
+            pie: {
+                donut: {
+                    size: '60%',
+                    labels: {
+                        show: true,
+                        name: {
+                            show: true,
+                            fontSize: '12px',
+                            fontWeight: 600
+                        },
+                        value: {
+                            show: true,
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            formatter: function(val) {
+                                return formatBytes(parseInt(val));
+                            }
+                        },
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            fontSize: '11px',
+                            fontWeight: 500,
+                            color: '#6b7280',
+                            formatter: function(w) {
+                                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                return formatBytes(total);
+                            }
+                        }
+                    }
                 }
             }
         },
-        series: [{
-            name: 'Traffic',
-            data: topApps.map(app => app.bytes)
-        }],
-        xaxis: {
-            categories: topApps.map(app => app.name.length > 15 ? app.name.substring(0, 15) + '...' : app.name),
-            labels: {
-                formatter: function(val) {
-                    return formatBytes(val);
-                },
-                style: { fontSize: '10px', colors: '#6b7280' }
+        stroke: {
+            width: 2,
+            colors: ['#fff']
+        },
+        legend: {
+            position: 'bottom',
+            fontSize: '11px',
+            fontWeight: 500,
+            horizontalAlign: 'center',
+            offsetY: 5,
+            itemMargin: { horizontal: 8, vertical: 4 },
+            markers: {
+                width: 10,
+                height: 10,
+                radius: 3
             }
         },
-        yaxis: {
-            labels: {
-                style: { fontSize: '11px', colors: '#374151', fontWeight: 500 }
-            }
-        },
-        colors: chartColors,
-        dataLabels: {
-            enabled: true,
-            formatter: function(val) {
-                return formatBytes(val);
-            },
-            style: { fontSize: '10px', colors: ['#374151'] },
-            offsetX: 5
-        },
-        legend: { show: false },
-        grid: {
-            borderColor: '#e5e7eb',
-            xaxis: { lines: { show: true } },
-            yaxis: { lines: { show: false } }
-        },
+        dataLabels: { enabled: false },
         tooltip: {
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
                 }
             }
-        }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                legend: { fontSize: '10px' }
+            }
+        }]
     };
 
     applicationsChart = new ApexCharts(document.querySelector("#applicationsChart"), options);

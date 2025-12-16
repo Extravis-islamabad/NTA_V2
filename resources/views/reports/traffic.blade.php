@@ -175,9 +175,7 @@
             </span>
         </div>
         <div class="p-6">
-            <div style="height: 300px;">
-                <canvas id="trafficTimeSeriesChart"></canvas>
-            </div>
+            <div id="trafficTimeSeriesChart" style="height: 300px;"></div>
         </div>
     </div>
     @endif
@@ -206,9 +204,7 @@
                         <p class="mt-2 text-sm text-gray-500">No application data available</p>
                     </div>
                 @else
-                    <div style="height: 180px;">
-                        <canvas id="applicationsChart"></canvas>
-                    </div>
+                    <div id="applicationsChart" style="height: 200px;"></div>
                 @endif
             </div>
         </div>
@@ -235,9 +231,7 @@
                         <p class="mt-2 text-sm text-gray-500">No protocol data available</p>
                     </div>
                 @else
-                    <div style="height: 180px;">
-                        <canvas id="protocolsChart"></canvas>
-                    </div>
+                    <div id="protocolsChart" style="height: 200px;"></div>
                 @endif
             </div>
         </div>
@@ -387,185 +381,127 @@
 
 @push('scripts')
 <script>
-@if(isset($trafficTimeSeries) && $trafficTimeSeries->isNotEmpty())
-// Traffic Time Series Chart
-const timeSeriesCtx = document.getElementById('trafficTimeSeriesChart');
-if (timeSeriesCtx) {
-    const timeSeriesData = @json($trafficTimeSeries);
-    new Chart(timeSeriesCtx, {
-        type: 'line',
-        data: {
-            labels: timeSeriesData.map(item => {
-                const date = new Date(item.time_bucket);
-                return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            }),
-            datasets: [{
-                label: 'Traffic',
-                data: timeSeriesData.map(item => item.total_bytes),
-                borderColor: '#5548F5',
-                backgroundColor: 'rgba(85, 72, 245, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 3,
-                pointBackgroundColor: '#5548F5',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const bytes = context.raw;
-                            let size;
-                            if (bytes >= 1073741824) {
-                                size = (bytes / 1073741824).toFixed(2) + ' GB';
-                            } else if (bytes >= 1048576) {
-                                size = (bytes / 1048576).toFixed(2) + ' MB';
-                            } else {
-                                size = (bytes / 1024).toFixed(2) + ' KB';
-                            }
-                            return 'Traffic: ' + size;
-                        }
-                    }
+document.addEventListener('DOMContentLoaded', function() {
+    function formatBytes(bytes) {
+        if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+        if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+        if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        return bytes + ' B';
+    }
+
+    @if(isset($trafficTimeSeries) && $trafficTimeSeries->isNotEmpty())
+    // Traffic Time Series Chart
+    const timeSeriesEl = document.getElementById('trafficTimeSeriesChart');
+    if (timeSeriesEl) {
+        const timeSeriesData = @json($trafficTimeSeries);
+        new ApexCharts(timeSeriesEl, {
+            chart: {
+                type: 'area',
+                height: 300,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: { show: true }
+            },
+            series: [{
+                name: 'Traffic',
+                data: timeSeriesData.map(item => item.total_bytes)
+            }],
+            xaxis: {
+                categories: timeSeriesData.map(item => {
+                    const date = new Date(item.time_bucket);
+                    return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }),
+                labels: { style: { fontSize: '10px', colors: '#6b7280' } }
+            },
+            yaxis: {
+                labels: {
+                    formatter: formatBytes,
+                    style: { fontSize: '11px', colors: '#6b7280' }
                 }
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6' },
-                    ticks: {
-                        callback: function(value) {
-                            if (value >= 1073741824) return (value / 1073741824).toFixed(1) + ' GB';
-                            if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB';
-                            if (value >= 1024) return (value / 1024).toFixed(1) + ' KB';
-                            return value + ' B';
-                        }
-                    }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        maxRotation: 45,
-                        minRotation: 45
-                    }
-                }
-            }
-        }
-    });
-}
-@endif
+            colors: ['#3B82F6'],
+            fill: {
+                type: 'gradient',
+                gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.2, stops: [0, 90, 100] }
+            },
+            stroke: { curve: 'smooth', width: 2 },
+            tooltip: { y: { formatter: formatBytes } },
+            grid: { borderColor: '#e5e7eb', strokeDashArray: 4 }
+        }).render();
+    }
+    @endif
 
-@if(isset($topApplications) && $topApplications->isNotEmpty())
-// Applications Chart
-const appCtx = document.getElementById('applicationsChart');
-if (appCtx) {
-    new Chart(appCtx, {
-        type: 'doughnut',
-        data: {
+    @if(isset($topApplications) && $topApplications->isNotEmpty())
+    // Applications Chart
+    const appEl = document.getElementById('applicationsChart');
+    if (appEl) {
+        new ApexCharts(appEl, {
+            chart: {
+                type: 'donut',
+                height: 200,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            },
+            series: {!! json_encode($topApplications->pluck('total_bytes')->toArray()) !!},
             labels: {!! json_encode($topApplications->pluck('application')->toArray()) !!},
-            datasets: [{
-                data: {!! json_encode($topApplications->pluck('total_bytes')->toArray()) !!},
-                backgroundColor: ['#5548F5', '#C843F3', '#9619B5', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'right',
-                    labels: {
-                        boxWidth: 12,
-                        padding: 15,
-                        font: { size: 11 }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const bytes = context.raw;
-                            let size;
-                            if (bytes >= 1073741824) {
-                                size = (bytes / 1073741824).toFixed(2) + ' GB';
-                            } else if (bytes >= 1048576) {
-                                size = (bytes / 1048576).toFixed(2) + ' MB';
-                            } else {
-                                size = (bytes / 1024).toFixed(2) + ' KB';
+            colors: ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4', '#EF4444', '#14B8A6', '#F97316', '#6366F1'],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '60%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Total',
+                                formatter: function(w) {
+                                    return formatBytes(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
+                                }
                             }
-                            return context.label + ': ' + size;
                         }
                     }
                 }
             },
-            cutout: '60%'
-        }
-    });
-}
-@endif
+            legend: { position: 'right', fontSize: '10px' },
+            dataLabels: { enabled: false },
+            tooltip: { y: { formatter: formatBytes } }
+        }).render();
+    }
+    @endif
 
-@if(isset($topProtocols) && $topProtocols->isNotEmpty())
-// Protocols Chart
-const protocolCtx = document.getElementById('protocolsChart');
-if (protocolCtx) {
-    new Chart(protocolCtx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($topProtocols->pluck('protocol')->map(fn($p) => strtoupper($p))->toArray()) !!},
-            datasets: [{
-                label: 'Traffic',
-                data: {!! json_encode($topProtocols->pluck('total_bytes')->toArray()) !!},
-                backgroundColor: '#C843F3',
-                borderRadius: 8,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const bytes = context.raw;
-                            let size;
-                            if (bytes >= 1073741824) {
-                                size = (bytes / 1073741824).toFixed(2) + ' GB';
-                            } else if (bytes >= 1048576) {
-                                size = (bytes / 1048576).toFixed(2) + ' MB';
-                            } else {
-                                size = (bytes / 1024).toFixed(2) + ' KB';
-                            }
-                            return size;
-                        }
-                    }
+    @if(isset($topProtocols) && $topProtocols->isNotEmpty())
+    // Protocols Chart
+    const protocolEl = document.getElementById('protocolsChart');
+    if (protocolEl) {
+        new ApexCharts(protocolEl, {
+            chart: {
+                type: 'bar',
+                height: 200,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: { show: false }
+            },
+            series: [{
+                name: 'Traffic',
+                data: {!! json_encode($topProtocols->pluck('total_bytes')->toArray()) !!}
+            }],
+            xaxis: {
+                categories: {!! json_encode($topProtocols->pluck('protocol')->map(fn($p) => strtoupper($p))->toArray()) !!},
+                labels: { style: { fontSize: '10px', colors: '#6b7280' } }
+            },
+            yaxis: {
+                labels: {
+                    formatter: formatBytes,
+                    style: { fontSize: '10px', colors: '#6b7280' }
                 }
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6' },
-                    ticks: {
-                        callback: function(value) {
-                            if (value >= 1073741824) return (value / 1073741824).toFixed(1) + ' GB';
-                            if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB';
-                            if (value >= 1024) return (value / 1024).toFixed(1) + ' KB';
-                            return value + ' B';
-                        }
-                    }
-                },
-                x: {
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-}
-@endif
+            colors: ['#8B5CF6'],
+            plotOptions: {
+                bar: { borderRadius: 4, columnWidth: '60%' }
+            },
+            dataLabels: { enabled: false },
+            tooltip: { y: { formatter: formatBytes } },
+            grid: { borderColor: '#e5e7eb' }
+        }).render();
+    }
+    @endif
+});
 </script>
 @endpush

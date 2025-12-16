@@ -297,9 +297,36 @@
             <!-- Logo -->
             <div class="logo-container mb-8">
                 <a href="/" class="block">
-                    <img src="{{ asset('images/monetx-logo.png') }}" alt="MonetX" class="h-16 md:h-20 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="hidden items-center justify-center text-white text-3xl font-bold">
-                        <span class="text-purple-400">Monet</span><span class="text-purple-300">X</span>
+                    <!-- Try external logo first, fallback to inline SVG -->
+                    <img src="{{ asset('images/monetx-logo.png') }}" alt="MonetX" class="h-16 md:h-20 w-auto" id="logo-img" onerror="document.getElementById('logo-img').style.display='none'; document.getElementById('logo-svg').style.display='flex';">
+                    <!-- Inline SVG Logo Fallback -->
+                    <div id="logo-svg" class="items-center justify-center" style="display: none;">
+                        <svg width="280" height="70" viewBox="0 0 280 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Stylized M with chart/network design -->
+                            <defs>
+                                <linearGradient id="purpleGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#9619B5"/>
+                                    <stop offset="50%" style="stop-color:#C843F3"/>
+                                    <stop offset="100%" style="stop-color:#5548F5"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- M shape with chart lines -->
+                            <g fill="url(#purpleGradient)">
+                                <!-- Left vertical bar -->
+                                <rect x="5" y="20" width="8" height="45" rx="4"/>
+                                <circle cx="9" cy="15" r="6"/>
+                                <!-- Middle V shape -->
+                                <path d="M20 45 L32 25 L44 45" stroke="url(#purpleGradient)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                <circle cx="32" cy="20" r="6" fill="url(#purpleGradient)"/>
+                                <!-- Right vertical bar -->
+                                <rect x="51" y="30" width="8" height="35" rx="4"/>
+                                <circle cx="55" cy="25" r="6"/>
+                            </g>
+                            <!-- "onet" text -->
+                            <text x="72" y="52" font-family="Inter, sans-serif" font-size="42" font-weight="400" fill="white">onet</text>
+                            <!-- "X" with gradient -->
+                            <text x="192" y="52" font-family="Inter, sans-serif" font-size="42" font-weight="600" fill="url(#purpleGradient)">X</text>
+                        </svg>
                     </div>
                 </a>
                 <p class="text-center text-purple-200 mt-2 text-sm tracking-wider uppercase">Network Traffic Analyzer</p>

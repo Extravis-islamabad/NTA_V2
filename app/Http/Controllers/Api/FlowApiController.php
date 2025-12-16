@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\FlowQueryRequest;
 use App\Models\Flow;
 use App\Models\Device;
 use App\Services\TrafficAnalysisService;
 use App\Services\CloudProviderService;
 use App\Services\ASLookupService;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class FlowApiController extends Controller
 {
@@ -26,26 +28,27 @@ class FlowApiController extends Controller
         $this->asService = $asService;
     }
 
-    public function index(Request $request)
+    public function index(FlowQueryRequest $request)
     {
+        $validated = $request->validated();
         $query = Flow::with('device')->latest();
 
-        if ($request->has('device_id')) {
-            $query->where('device_id', $request->device_id);
+        if (!empty($validated['device_id'])) {
+            $query->where('device_id', $validated['device_id']);
         }
 
-        if ($request->has('protocol')) {
-            $query->where('protocol', $request->protocol);
+        if (!empty($validated['protocol'])) {
+            $query->where('protocol', $validated['protocol']);
         }
 
-        if ($request->has('application')) {
-            $query->where('application', $request->application);
+        if (!empty($validated['application'])) {
+            $query->where('application', $validated['application']);
         }
 
-        if ($request->has('start_date') && $request->has('end_date')) {
+        if (!empty($validated['start_date']) && !empty($validated['end_date'])) {
             $query->whereBetween('created_at', [
-                $request->start_date,
-                $request->end_date
+                Carbon::parse($validated['start_date']),
+                Carbon::parse($validated['end_date'])
             ]);
         }
 
@@ -57,13 +60,13 @@ class FlowApiController extends Controller
         ]);
     }
 
-    public function byDevice(Device $device, Request $request)
+    public function byDevice(Device $device, FlowQueryRequest $request)
     {
+        $validated = $request->validated();
         $query = $device->flows()->latest();
 
-        if ($request->has('limit')) {
-            $query->limit($request->limit);
-        }
+        $limit = min($validated['limit'] ?? 100, 1000);
+        $query->limit($limit);
 
         $flows = $query->get();
 

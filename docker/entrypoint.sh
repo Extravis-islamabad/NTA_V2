@@ -24,7 +24,7 @@ DB_HOST=${DB_HOST:-netflow-db}
 DB_PORT=${DB_PORT:-5432}
 DB_DATABASE=${DB_DATABASE:-netflow_traffic_analyzer}
 DB_USERNAME=${DB_USERNAME:-netflow_user}
-DB_PASSWORD=${DB_PASSWORD:-NetFlow@Secure#2024!}
+DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD environment variable is required}
 
 SESSION_DRIVER=file
 SESSION_LIFETIME=120

@@ -176,6 +176,11 @@
                 </div>
             </div>
 
+            @php
+                $collectorIp = \App\Models\Setting::get('collector_ip') ?: 'Not Configured';
+                $netflowPort = \App\Models\Setting::get('netflow_port') ?: 'Not Configured';
+            @endphp
+
             <!-- NetFlow Configuration Info -->
             <div id="configInstructions" class="bg-gradient-to-r from-[#E4F2FF] to-[#F2C7FF] rounded-xl p-6" style="display: none;">
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">NetFlow Configuration</h3>
@@ -183,11 +188,11 @@
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <span class="text-gray-500">Collector IP:</span>
-                            <span class="font-mono font-medium text-[#5548F5] ml-2">192.168.10.7</span>
+                            <span class="font-mono font-medium text-[#5548F5] ml-2">{{ $collectorIp }}</span>
                         </div>
                         <div>
                             <span class="text-gray-500">Collector Port:</span>
-                            <span class="font-mono font-medium text-[#5548F5] ml-2">2055 (UDP)</span>
+                            <span class="font-mono font-medium text-[#5548F5] ml-2">{{ $netflowPort }} (UDP)</span>
                         </div>
                     </div>
                 </div>
@@ -195,8 +200,8 @@
                 <!-- Cisco Config -->
                 <div id="ciscoConfig" class="hidden">
                     <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">flow exporter NETFLOW-EXPORTER
- destination 192.168.10.7
- transport udp 2055
+ destination {{ $collectorIp }}
+ transport udp {{ $netflowPort }}
 
 flow monitor NETFLOW-MONITOR
  exporter NETFLOW-EXPORTER
@@ -210,8 +215,8 @@ interface GigabitEthernet0/0
                 <!-- FortiGate Config -->
                 <div id="fortiConfig" class="hidden">
                     <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">config system netflow
-    set collector-ip 192.168.10.7
-    set collector-port 2055
+    set collector-ip {{ $collectorIp }}
+    set collector-port {{ $netflowPort }}
 end
 
 config system interface
@@ -223,8 +228,8 @@ end</pre>
 
                 <!-- Palo Alto Config -->
                 <div id="paloConfig" class="hidden">
-                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">set deviceconfig system netflow exporter-1 server 192.168.10.7
-set deviceconfig system netflow exporter-1 port 2055
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto">set deviceconfig system netflow exporter-1 server {{ $collectorIp }}
+set deviceconfig system netflow exporter-1 port {{ $netflowPort }}
 commit</pre>
                 </div>
 
@@ -233,8 +238,8 @@ commit</pre>
                     <div class="bg-white rounded-lg p-4 text-sm">
                         <p class="font-medium mb-2">Configure your device with:</p>
                         <ul class="list-disc list-inside text-gray-600 space-y-1">
-                            <li>Collector IP: <code class="bg-gray-100 px-1 rounded">192.168.10.7</code></li>
-                            <li>Port: <code class="bg-gray-100 px-1 rounded">2055</code></li>
+                            <li>Collector IP: <code class="bg-gray-100 px-1 rounded">{{ $collectorIp }}</code></li>
+                            <li>Port: <code class="bg-gray-100 px-1 rounded">{{ $netflowPort }}</code></li>
                             <li>Protocol: <code class="bg-gray-100 px-1 rounded">UDP</code></li>
                             <li>Version: <code class="bg-gray-100 px-1 rounded">NetFlow v5 or v9</code></li>
                         </ul>

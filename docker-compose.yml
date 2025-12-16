@@ -7,17 +7,17 @@ services:
     container_name: netflow_analyzer_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: netflow_traffic_analyzer
-      POSTGRES_USER: netflow_user
-      POSTGRES_PASSWORD: NetFlow@Secure#2024!
+      POSTGRES_DB: ${DB_DATABASE:-netflow_traffic_analyzer}
+      POSTGRES_USER: ${DB_USERNAME:-netflow_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Database password is required}
     volumes:
       - netflow_db_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "${DB_EXTERNAL_PORT:-5433}:5432"
     networks:
       - netflow-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U netflow_user -d netflow_traffic_analyzer"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-netflow_user} -d ${DB_DATABASE:-netflow_traffic_analyzer}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,23 +33,24 @@ services:
       netflow-db:
         condition: service_healthy
     environment:
-      - APP_NAME=NetFlow Analyzer
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_URL=http://192.168.10.7:8003
+      - APP_NAME=${APP_NAME:-NetFlow Analyzer}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:?Application URL is required}
+      - APP_KEY=${APP_KEY:?Application key is required}
       - DB_CONNECTION=pgsql
       - DB_HOST=netflow-db
       - DB_PORT=5432
-      - DB_DATABASE=netflow_traffic_analyzer
-      - DB_USERNAME=netflow_user
-      - DB_PASSWORD=NetFlow@Secure#2024!
+      - DB_DATABASE=${DB_DATABASE:-netflow_traffic_analyzer}
+      - DB_USERNAME=${DB_USERNAME:-netflow_user}
+      - DB_PASSWORD=${DB_PASSWORD:?Database password is required}
       - CACHE_DRIVER=file
       - SESSION_DRIVER=file
       - QUEUE_CONNECTION=database
-      - NETFLOW_PORT=9996
+      - NETFLOW_PORT=${NETFLOW_PORT:-2055}
     ports:
-      - "8003:80"
-      - "9996:9996/udp"
+      - "${APP_PORT:-8003}:80"
+      - "${NETFLOW_PORT:-2055}:${NETFLOW_PORT:-2055}/udp"
     volumes:
       - netflow_storage:/var/www/html/storage
       - netflow_logs:/var/www/html/storage/logs

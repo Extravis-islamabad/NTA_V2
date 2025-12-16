@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class SettingsController extends Controller
 {
     public function index()
     {
-        $settings = $this->getSettings();
+        $settings = Setting::getAllSettings();
         return view('settings.index', compact('settings'));
     }
 
@@ -47,69 +47,33 @@ class SettingsController extends Controller
             'utilization_critical' => 'nullable|integer|min:1|max:100',
         ]);
 
-        // Process boolean checkboxes
-        $settings = [
-            'collector_ip' => $validated['collector_ip'] ?? '192.168.10.7',
-            'netflow_port' => $validated['netflow_port'] ?? 2055,
-            'sflow_port' => $validated['sflow_port'] ?? 6343,
-            'ipfix_port' => $validated['ipfix_port'] ?? 4739,
+        // Save settings to database
+        Setting::set('collector_ip', $validated['collector_ip'] ?? '', 'string');
+        Setting::set('netflow_port', $validated['netflow_port'] ?? '', 'integer');
+        Setting::set('sflow_port', $validated['sflow_port'] ?? '', 'integer');
+        Setting::set('ipfix_port', $validated['ipfix_port'] ?? '', 'integer');
 
-            'netflow_v5' => $request->has('netflow_v5'),
-            'netflow_v9' => $request->has('netflow_v9'),
-            'ipfix' => $request->has('ipfix'),
-            'sflow' => $request->has('sflow'),
+        Setting::set('netflow_v5', $request->has('netflow_v5') ? 'true' : 'false', 'boolean');
+        Setting::set('netflow_v9', $request->has('netflow_v9') ? 'true' : 'false', 'boolean');
+        Setting::set('ipfix', $request->has('ipfix') ? 'true' : 'false', 'boolean');
+        Setting::set('sflow', $request->has('sflow') ? 'true' : 'false', 'boolean');
 
-            'sample_rate' => $validated['sample_rate'] ?? 1,
-            'active_timeout' => $validated['active_timeout'] ?? 60,
+        Setting::set('sample_rate', $validated['sample_rate'] ?? 1, 'integer');
+        Setting::set('active_timeout', $validated['active_timeout'] ?? 60, 'integer');
 
-            'retention_days' => $validated['retention_days'] ?? 7,
-            'aggregation_interval' => $validated['aggregation_interval'] ?? '1min',
-            'aggregation_enabled' => $request->has('aggregation_enabled'),
-            'dns_resolution' => $request->has('dns_resolution'),
-            'geolocation_enabled' => $request->has('geolocation_enabled'),
-            'as_lookup_enabled' => $request->has('as_lookup_enabled'),
+        Setting::set('retention_days', $validated['retention_days'] ?? 7, 'integer');
+        Setting::set('aggregation_interval', $validated['aggregation_interval'] ?? '1min', 'string');
+        Setting::set('aggregation_enabled', $request->has('aggregation_enabled') ? 'true' : 'false', 'boolean');
+        Setting::set('dns_resolution', $request->has('dns_resolution') ? 'true' : 'false', 'boolean');
+        Setting::set('geolocation_enabled', $request->has('geolocation_enabled') ? 'true' : 'false', 'boolean');
+        Setting::set('as_lookup_enabled', $request->has('as_lookup_enabled') ? 'true' : 'false', 'boolean');
 
-            'traffic_threshold' => $validated['traffic_threshold'] ?? 1000,
-            'offline_timeout' => $validated['offline_timeout'] ?? 5,
-            'utilization_warning' => $validated['utilization_warning'] ?? 80,
-            'utilization_critical' => $validated['utilization_critical'] ?? 95,
-        ];
-
-        Cache::forever('netflow_settings', $settings);
+        Setting::set('traffic_threshold', $validated['traffic_threshold'] ?? 1000, 'integer');
+        Setting::set('offline_timeout', $validated['offline_timeout'] ?? 5, 'integer');
+        Setting::set('utilization_warning', $validated['utilization_warning'] ?? 80, 'integer');
+        Setting::set('utilization_critical', $validated['utilization_critical'] ?? 95, 'integer');
 
         return redirect()->route('settings.index')
             ->with('success', 'Settings updated successfully!');
-    }
-
-    private function getSettings(): array
-    {
-        $cached = Cache::get('netflow_settings', []);
-
-        return array_merge([
-            'collector_ip' => config('netflow.collector_ip', '192.168.10.7'),
-            'netflow_port' => config('netflow.port', 2055),
-            'sflow_port' => 6343,
-            'ipfix_port' => 4739,
-
-            'netflow_v5' => true,
-            'netflow_v9' => true,
-            'ipfix' => true,
-            'sflow' => false,
-
-            'sample_rate' => 1,
-            'active_timeout' => 60,
-
-            'retention_days' => config('netflow.retention_days', 7),
-            'aggregation_interval' => '1min',
-            'aggregation_enabled' => true,
-            'dns_resolution' => false,
-            'geolocation_enabled' => true,
-            'as_lookup_enabled' => true,
-
-            'traffic_threshold' => 1000,
-            'offline_timeout' => 5,
-            'utilization_warning' => 80,
-            'utilization_critical' => 95,
-        ], $cached);
     }
 }

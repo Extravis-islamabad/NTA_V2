@@ -66,9 +66,9 @@
                                         Collector IP Address
                                     </span>
                                 </label>
-                                <input type="text" name="collector_ip" value="{{ old('collector_ip', $settings['collector_ip'] ?? '192.168.10.7') }}"
+                                <input type="text" name="collector_ip" value="{{ old('collector_ip', $settings['collector_ip'] ?? '') }}"
                                        class="w-full border-gray-300 rounded-xl focus:ring-[#5548F5] focus:border-[#5548F5] font-mono text-sm py-3 shadow-sm"
-                                       placeholder="192.168.10.7">
+                                       placeholder="Enter collector IP address" required>
                                 <p class="text-xs text-gray-500">IP address where NetFlow data will be received</p>
                                 @error('collector_ip')
                                     <p class="text-sm text-red-600">{{ $message }}</p>
@@ -85,10 +85,10 @@
                                         NetFlow Listener Port
                                     </span>
                                 </label>
-                                <input type="number" name="netflow_port" value="{{ old('netflow_port', $settings['netflow_port'] ?? 2055) }}"
+                                <input type="number" name="netflow_port" value="{{ old('netflow_port', $settings['netflow_port'] ?? '') }}"
                                        class="w-full border-gray-300 rounded-xl focus:ring-[#5548F5] focus:border-[#5548F5] font-mono text-sm py-3 shadow-sm"
-                                       required min="1024" max="65535">
-                                <p class="text-xs text-gray-500">UDP port for receiving NetFlow packets (default: 2055)</p>
+                                       required min="1024" max="65535" placeholder="e.g., 2055">
+                                <p class="text-xs text-gray-500">UDP port for receiving NetFlow packets</p>
                                 @error('netflow_port')
                                     <p class="text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -104,10 +104,10 @@
                                         sFlow Listener Port
                                     </span>
                                 </label>
-                                <input type="number" name="sflow_port" value="{{ old('sflow_port', $settings['sflow_port'] ?? 6343) }}"
+                                <input type="number" name="sflow_port" value="{{ old('sflow_port', $settings['sflow_port'] ?? '') }}"
                                        class="w-full border-gray-300 rounded-xl focus:ring-[#5548F5] focus:border-[#5548F5] font-mono text-sm py-3 shadow-sm"
-                                       min="1024" max="65535">
-                                <p class="text-xs text-gray-500">UDP port for receiving sFlow packets (default: 6343)</p>
+                                       min="1024" max="65535" placeholder="e.g., 6343">
+                                <p class="text-xs text-gray-500">UDP port for receiving sFlow packets</p>
                             </div>
 
                             <!-- IPFIX Port -->
@@ -120,10 +120,10 @@
                                         IPFIX Listener Port
                                     </span>
                                 </label>
-                                <input type="number" name="ipfix_port" value="{{ old('ipfix_port', $settings['ipfix_port'] ?? 4739) }}"
+                                <input type="number" name="ipfix_port" value="{{ old('ipfix_port', $settings['ipfix_port'] ?? '') }}"
                                        class="w-full border-gray-300 rounded-xl focus:ring-[#5548F5] focus:border-[#5548F5] font-mono text-sm py-3 shadow-sm"
-                                       min="1024" max="65535">
-                                <p class="text-xs text-gray-500">UDP port for receiving IPFIX packets (default: 4739)</p>
+                                       min="1024" max="65535" placeholder="e.g., 4739">
+                                <p class="text-xs text-gray-500">UDP port for receiving IPFIX packets</p>
                             </div>
                         </div>
 
@@ -400,20 +400,20 @@
                         <div class="space-y-3">
                             <div class="bg-[#E4F2FF] rounded-xl p-4">
                                 <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Collector IP</p>
-                                <p class="text-2xl font-mono font-bold text-[#5548F5] mt-1">{{ $settings['collector_ip'] ?? '192.168.10.7' }}</p>
+                                <p class="text-2xl font-mono font-bold text-[#5548F5] mt-1">{{ $settings['collector_ip'] ?: 'Not Configured' }}</p>
                             </div>
                             <div class="bg-[#F2C7FF] rounded-xl p-4">
                                 <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">NetFlow Port (UDP)</p>
-                                <p class="text-2xl font-mono font-bold text-[#9619B5] mt-1">{{ $settings['netflow_port'] ?? 2055 }}</p>
+                                <p class="text-2xl font-mono font-bold text-[#9619B5] mt-1">{{ $settings['netflow_port'] ?: 'Not Configured' }}</p>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="bg-gray-50 rounded-xl p-3">
                                     <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">sFlow Port</p>
-                                    <p class="text-lg font-mono font-bold text-gray-700">{{ $settings['sflow_port'] ?? 6343 }}</p>
+                                    <p class="text-lg font-mono font-bold text-gray-700">{{ $settings['sflow_port'] ?: '-' }}</p>
                                 </div>
                                 <div class="bg-gray-50 rounded-xl p-3">
                                     <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">IPFIX Port</p>
-                                    <p class="text-lg font-mono font-bold text-gray-700">{{ $settings['ipfix_port'] ?? 4739 }}</p>
+                                    <p class="text-lg font-mono font-bold text-gray-700">{{ $settings['ipfix_port'] ?: '-' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -443,10 +443,11 @@
                                     class="px-4 py-2 text-xs font-semibold rounded-lg transition">Juniper</button>
                         </div>
 
+                        @if(!empty($settings['collector_ip']) && !empty($settings['netflow_port']))
                         <div x-show="activeTab === 'cisco'">
                             <pre class="bg-gray-900 text-green-400 p-4 rounded-xl text-xs overflow-x-auto max-h-48 scrollbar-thin">flow exporter MONETX-EXPORT
- destination {{ $settings['collector_ip'] ?? '192.168.10.7' }}
- transport udp {{ $settings['netflow_port'] ?? 2055 }}
+ destination {{ $settings['collector_ip'] }}
+ transport udp {{ $settings['netflow_port'] }}
  export-protocol netflow-v9
 
 flow monitor MONETX-MONITOR
@@ -460,8 +461,8 @@ interface GigabitEthernet0/0
 
                         <div x-show="activeTab === 'fortigate'" style="display: none;">
                             <pre class="bg-gray-900 text-green-400 p-4 rounded-xl text-xs overflow-x-auto max-h-48">config system netflow
-    set collector-ip {{ $settings['collector_ip'] ?? '192.168.10.7' }}
-    set collector-port {{ $settings['netflow_port'] ?? 2055 }}
+    set collector-ip {{ $settings['collector_ip'] }}
+    set collector-port {{ $settings['netflow_port'] }}
     set source-ip auto
 end
 
@@ -474,9 +475,9 @@ end</pre>
 
                         <div x-show="activeTab === 'paloalto'" style="display: none;">
                             <pre class="bg-gray-900 text-green-400 p-4 rounded-xl text-xs overflow-x-auto max-h-48">set deviceconfig system netflow
-    exporter-1 server {{ $settings['collector_ip'] ?? '192.168.10.7' }}
+    exporter-1 server {{ $settings['collector_ip'] }}
 set deviceconfig system netflow
-    exporter-1 port {{ $settings['netflow_port'] ?? 2055 }}
+    exporter-1 port {{ $settings['netflow_port'] }}
 set deviceconfig system netflow
     exporter-1 template-refresh-rate 20
 commit</pre>
@@ -489,9 +490,18 @@ set forwarding-options sampling instance sample
     input rate 1
 set forwarding-options sampling instance sample
     family inet output
-    flow-server {{ $settings['collector_ip'] ?? '192.168.10.7' }} port {{ $settings['netflow_port'] ?? 2055 }}
+    flow-server {{ $settings['collector_ip'] }} port {{ $settings['netflow_port'] }}
     version-ipfix template ipv4</pre>
                         </div>
+                        @else
+                        <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+                            <svg class="w-10 h-10 text-orange-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <p class="text-sm font-medium text-orange-700">Configure Collector IP and NetFlow Port first</p>
+                            <p class="text-xs text-orange-600 mt-1">Device configuration examples will appear after saving settings</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -512,7 +522,7 @@ set forwarding-options sampling instance sample
                                 <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">NetFlow Collector</p>
-                                    <p class="text-xs text-gray-500">Port :{{ $settings['netflow_port'] ?? 2055 }}</p>
+                                    <p class="text-xs text-gray-500">Port: {{ $settings['netflow_port'] ?: 'Not Configured' }}</p>
                                 </div>
                             </div>
                             <span class="px-3 py-1.5 text-xs font-semibold bg-green-100 text-green-800 rounded-full">Running</span>

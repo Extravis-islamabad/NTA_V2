@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Device;
 use App\Models\DeviceInterface;
+use App\Models\Setting;
 use App\Services\TrafficAnalysisService;
 use App\Services\CloudProviderService;
 use App\Services\ASLookupService;
@@ -198,9 +199,11 @@ class DeviceController extends Controller
             ->values();
 
         // Get NetFlow config template for SSH tab
-        $collectorIp = request()->server('SERVER_ADDR') ?: '192.168.10.7';
-        $collectorPort = config('netflow.port', 2055);
-        $netflowConfig = $this->sshService->getNetFlowConfigTemplate($device->type, $collectorIp, $collectorPort);
+        $collectorIp = Setting::get('collector_ip') ?: request()->server('SERVER_ADDR');
+        $collectorPort = Setting::get('netflow_port');
+        $netflowConfig = ($collectorIp && $collectorPort)
+            ? $this->sshService->getNetFlowConfigTemplate($device->type, $collectorIp, $collectorPort)
+            : 'Configure collector IP and port in Settings first.';
 
         return view('devices.show', compact(
             'device',
@@ -334,8 +337,15 @@ class DeviceController extends Controller
 
     public function pushNetFlowConfig(Request $request, Device $device)
     {
-        $collectorIp = $request->input('collector_ip', request()->server('SERVER_ADDR'));
-        $collectorPort = $request->input('collector_port', config('netflow.port', 2055));
+        $collectorIp = $request->input('collector_ip') ?: Setting::get('collector_ip');
+        $collectorPort = $request->input('collector_port') ?: Setting::get('netflow_port');
+
+        if (!$collectorIp || !$collectorPort) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Collector IP and Port must be configured in Settings first.'
+            ], 400);
+        }
 
         $result = $this->sshService->pushNetFlowConfig($device, $collectorIp, $collectorPort);
 
@@ -344,8 +354,18 @@ class DeviceController extends Controller
 
     public function getNetFlowConfig(Device $device)
     {
-        $collectorIp = request()->server('SERVER_ADDR') ?: '192.168.10.7';
-        $collectorPort = config('netflow.port', 2055);
+        $collectorIp = Setting::get('collector_ip');
+        $collectorPort = Setting::get('netflow_port');
+
+        if (!$collectorIp || !$collectorPort) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Configure Collector IP and Port in Settings first.',
+                'config' => '',
+                'collector_ip' => '',
+                'collector_port' => ''
+            ]);
+        }
 
         $config = $this->sshService->getNetFlowConfigTemplate($device->type, $collectorIp, $collectorPort);
 

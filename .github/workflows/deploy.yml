@@ -53,14 +53,15 @@ jobs:
           sudo docker compose ps
 
           # Health check
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003 2>/dev/null || echo "000")
+          APP_PORT="${APP_PORT:-8003}"
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$APP_PORT 2>/dev/null || echo "000")
           if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
-            echo "✓ Deployment successful! (HTTP $HTTP_CODE)"
+            echo "Deployment successful! (HTTP $HTTP_CODE)"
           else
-            echo "⚠ Warning: HTTP $HTTP_CODE - Check logs with: sudo docker compose logs"
+            echo "Warning: HTTP $HTTP_CODE - Check logs with: sudo docker compose logs"
           fi
 
           echo "=========================================="
           echo "  Deployment Complete!"
-          echo "  URL: http://192.168.10.7:8003"
+          echo "  Check your configured APP_URL"
           echo "=========================================="

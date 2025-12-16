@@ -1,214 +1,156 @@
 # NetFlow Analyzer
 
-Real-time network traffic monitoring and analysis application.
+Real-time network traffic monitoring and analysis application by MonetX.
 
-## Quick Reference
+## Features
 
-| Item | Value |
-|------|-------|
-| **Web URL** | http://192.168.10.7:8003 |
-| **NetFlow Port** | 2055/UDP |
-| **Database Port** | 5433 |
-| **SSH User** | monetx |
+- Real-time NetFlow/sFlow/IPFIX traffic monitoring
+- Device inventory management
+- Traffic analysis and reporting
+- Alarm management
+- PDF report generation
+- SSH device configuration
 
----
+## Requirements
 
-## DEPLOYMENT GUIDE (Using PuTTY)
-
-### Prerequisites
-
-- PuTTY installed on your Windows PC
-- GitHub account
-- Server: 192.168.10.7 (Ubuntu 22.04)
+- Docker & Docker Compose
+- Ubuntu 22.04 (recommended)
+- 4GB RAM minimum
+- PostgreSQL 16
 
 ---
 
-## PART 1: First-Time Server Setup
+## Deployment Guide
 
-### Step 1.1: Connect via PuTTY
-
-1. Open **PuTTY**
-2. Host Name: `192.168.10.7`
-3. Port: `22`
-4. Click **Open**
-5. Login: `monetx`
-6. Enter your password
-
-### Step 1.2: Create Application Directory
-
-Copy and paste these commands one by one:
+### Step 1: Clone Repository
 
 ```bash
 # Create app directory
 sudo mkdir -p /opt/netflow-analyzer
-sudo chown monetx:monetx /opt/netflow-analyzer
 cd /opt/netflow-analyzer
+
+# Clone repository
+git clone https://github.com/YOUR_ORG/netflow-analyzer.git .
 ```
 
-### Step 1.3: Open Firewall Ports
+### Step 2: Configure Environment
 
 ```bash
-# Open required ports
+# Copy example environment file
+cp .env.docker.example .env.docker
+
+# Edit with your settings
+nano .env.docker
+```
+
+**Required settings in `.env.docker`:**
+
+```bash
+# Application
+APP_URL=http://your-server-ip:8003
+APP_KEY=base64:your-generated-key-here
+
+# Database (use a strong password!)
+DB_PASSWORD=your_secure_database_password
+
+# Ports
+APP_PORT=8003
+NETFLOW_PORT=2055
+```
+
+Generate an APP_KEY:
+```bash
+php artisan key:generate --show
+# Or use: openssl rand -base64 32
+```
+
+### Step 3: Open Firewall Ports
+
+```bash
 sudo ufw allow 8003/tcp comment 'NetFlow Analyzer Web'
 sudo ufw allow 2055/udp comment 'NetFlow Data'
-sudo ufw status
 ```
+
+### Step 4: Build and Start
+
+```bash
+# Build and start containers
+docker compose --env-file .env.docker up -d --build
+
+# Check status
+docker compose ps
+```
+
+### Step 5: Create Admin User
+
+```bash
+# Enter the container
+docker exec -it netflow_analyzer_app bash
+
+# Run migrations and create user
+php artisan migrate
+php artisan tinker
+
+# In tinker, create admin user:
+\App\Models\User::create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => bcrypt('your-password')]);
+exit
+```
+
+### Step 6: Access Application
+
+Open browser: `http://your-server-ip:8003`
+
+Login with the admin credentials you created.
 
 ---
 
-## PART 2: GitHub Repository Setup
+## Post-Installation Configuration
 
-### Step 2.1: Create GitHub Repository
+After logging in, go to **Settings** to configure:
 
-1. Go to https://github.com/new
-2. Repository name: `netflow-analyzer`
-3. Set to **Private** (recommended)
-4. Click **Create repository**
-5. Copy the repository URL (e.g., `https://github.com/YOUR_USERNAME/netflow-analyzer.git`)
-
-### Step 2.2: Push Code to GitHub (From Your PC)
-
-Open **PowerShell** or **Command Prompt** on your Windows PC:
-
-```powershell
-# Navigate to project folder
-cd "D:\Extravis\Custom Solutions\netflow-analyzer"
-
-# Initialize git (if not already)
-git init
-
-# Add all files
-git add .
-
-# Commit
-git commit -m "Initial commit - NetFlow Analyzer"
-
-# Add remote (replace YOUR_USERNAME)
-git remote add origin https://github.com/YOUR_USERNAME/netflow-analyzer.git
-
-# Push to GitHub
-git branch -M main
-git push -u origin main
-```
-
-### Step 2.3: Add GitHub Secrets for CI/CD
-
-1. Go to your GitHub repository
-2. Click **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret**
-4. Add these 3 secrets:
-
-| Name | Value |
-|------|-------|
-| `SERVER_IP` | `192.168.10.7` |
-| `SERVER_USER` | `monetx` |
-| `SERVER_PASSWORD` | `your_ssh_password` |
+1. **Collector IP Address** - The IP address of your NetFlow collector
+2. **NetFlow Port** - UDP port for receiving flows (commonly 2055)
+3. **sFlow Port** - UDP port for sFlow (commonly 6343)
+4. **IPFIX Port** - UDP port for IPFIX (commonly 4739)
 
 ---
 
-## PART 3: First Deployment (Manual)
+## Network Device Configuration
 
-### Step 3.1: Clone Repository on Server
+Configure your network devices to send flow data to this collector. Examples are shown in the Settings page after you configure the collector IP and port.
 
-In PuTTY (connected to server):
+### General Settings
 
-```bash
-cd /opt/netflow-analyzer
-
-# Clone your repository (replace YOUR_USERNAME)
-git clone https://github.com/YOUR_USERNAME/netflow-analyzer.git .
-```
-
-Enter your GitHub username and **Personal Access Token** when prompted.
-
-> **Note**: GitHub no longer accepts passwords. Create a Personal Access Token:
-> 1. Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
-> 2. Generate new token with `repo` scope
-> 3. Use this token as your password
-
-### Step 3.2: Build and Start Application
-
-```bash
-# Build Docker images (takes 5-10 minutes first time)
-docker-compose build
-
-# Start the application
-docker-compose up -d
-
-# Check if containers are running
-docker-compose ps
-```
-
-### Step 3.3: Verify Deployment
-
-```bash
-# Check container status
-docker ps | grep netflow
-
-# Check logs
-docker-compose logs -f
-
-# Test web interface
-curl http://localhost:8003
-```
-
-Open browser: **http://192.168.10.7:8003**
-
----
-
-## PART 4: CI/CD - Automatic Deployments
-
-After the first manual deployment, any push to `main` branch will automatically deploy.
-
-### How it works:
-
-1. You push code to GitHub
-2. GitHub Actions runs the deployment workflow
-3. Server pulls latest code and restarts containers
-
-### Test CI/CD:
-
-1. Make a small change to any file on your PC
-2. Commit and push:
-
-```powershell
-git add .
-git commit -m "Test CI/CD"
-git push
-```
-
-3. Go to GitHub → Actions tab to see deployment progress
+- **Destination IP**: Your collector server IP
+- **Destination Port**: As configured in Settings
+- **Protocol**: UDP
+- **Version**: NetFlow v5, v9, or IPFIX
 
 ---
 
 ## Useful Commands
-
-### In PuTTY (on server):
 
 ```bash
 # Go to app directory
 cd /opt/netflow-analyzer
 
 # View running containers
-docker-compose ps
+docker compose ps
 
 # View logs (live)
-docker-compose logs -f
+docker compose logs -f
 
-# View logs (app only)
-docker-compose logs -f netflow-app
+# View app logs only
+docker compose logs -f netflow-app
 
 # Restart application
-docker-compose restart
+docker compose restart
 
 # Stop application
-docker-compose down
-
-# Start application
-docker-compose up -d
+docker compose down
 
 # Rebuild and restart
-docker-compose down && docker-compose build && docker-compose up -d
+docker compose down && docker compose build && docker compose up -d
 
 # Enter container shell
 docker exec -it netflow_analyzer_app bash
@@ -216,7 +158,7 @@ docker exec -it netflow_analyzer_app bash
 # Run artisan commands
 docker exec -it netflow_analyzer_app php artisan migrate:status
 
-# Check database
+# Access database
 docker exec -it netflow_analyzer_db psql -U netflow_user -d netflow_traffic_analyzer
 ```
 
@@ -227,30 +169,21 @@ docker exec -it netflow_analyzer_db psql -U netflow_user -d netflow_traffic_anal
 ### App not loading?
 
 ```bash
-# Check container status
-docker-compose ps
-
-# Check logs for errors
-docker-compose logs netflow-app
-
-# Restart containers
-docker-compose restart
+docker compose ps
+docker compose logs netflow-app
+docker compose restart
 ```
 
 ### Database connection error?
 
 ```bash
-# Check database container
-docker-compose logs netflow-db
-
-# Test database connection
+docker compose logs netflow-db
 docker exec -it netflow_analyzer_db psql -U netflow_user -d netflow_traffic_analyzer -c "SELECT 1"
 ```
 
 ### Port already in use?
 
 ```bash
-# Check what's using the port
 sudo ss -tlnp | grep 8003
 sudo ss -ulnp | grep 2055
 ```
@@ -258,59 +191,22 @@ sudo ss -ulnp | grep 2055
 ### Container won't start?
 
 ```bash
-# Remove and rebuild
-docker-compose down -v
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down -v
+docker compose build --no-cache
+docker compose up -d
 ```
 
 ---
 
-## Network Device Configuration
+## Security Notes
 
-Configure your network devices to send NetFlow/sFlow data to:
-
-- **Destination IP**: 192.168.10.7
-- **Destination Port**: 2055 (UDP)
-
-### Cisco Router Example:
-
-```
-flow exporter NETFLOW-EXPORT
- destination 192.168.10.7
- transport udp 2055
- source GigabitEthernet0/0
-!
-flow monitor NETFLOW-MONITOR
- exporter NETFLOW-EXPORT
- record netflow ipv4 original-input
-!
-interface GigabitEthernet0/1
- ip flow monitor NETFLOW-MONITOR input
- ip flow monitor NETFLOW-MONITOR output
-```
-
-### Palo Alto Example:
-
-```
-set deviceconfig system netflow exporter-1 server 192.168.10.7
-set deviceconfig system netflow exporter-1 port 2055
-```
-
----
-
-## Database Credentials
-
-| Item | Value |
-|------|-------|
-| Host | `netflow-db` (internal) or `192.168.10.7:5433` (external) |
-| Database | `netflow_traffic_analyzer` |
-| Username | `netflow_user` |
-| Password | `NetFlow@Secure#2024!` |
+- Always use strong passwords for database and admin accounts
+- Keep the `.env.docker` file secure and never commit it to version control
+- Use HTTPS in production (configure a reverse proxy like Nginx)
+- Regularly update Docker images and the application
 
 ---
 
 ## Support
 
-- **Logs Location**: `docker-compose logs`
-- **Application Logs**: `docker exec -it netflow_analyzer_app cat storage/logs/laravel.log`
+For support, please contact your MonetX representative.

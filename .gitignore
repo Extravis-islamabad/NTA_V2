@@ -9,6 +9,12 @@
 .env
 .env.backup
 .env.local
+.env.production
+.phpactor.json
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
 
 # Logs
 *.log
@@ -17,16 +23,33 @@
 
 # Cache
 /bootstrap/cache/*.php
+/.phpunit.cache
 
 # IDE
 /.idea
 /.vscode
+/.fleet
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Build (optional - can be committed for faster deploys)
-# /public/build
+# Build
+/public/build
+
+# Testing
+/coverage
+.phpunit.result.cache
+
+# NPM
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Claude Code settings
+.claude/settings.local.json

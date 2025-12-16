@@ -26,7 +26,13 @@ class NetflowCollectorService
     public function processNetflowPacket(array $data): void
     {
         try {
-            $device = $this->getOrCreateDevice($data['exporter_ip']);
+            $device = $this->getDevice($data['exporter_ip']);
+
+            // Skip if device is not registered - only process flows for known devices
+            if (!$device) {
+                Log::debug("Ignoring NetFlow from unregistered device: {$data['exporter_ip']}");
+                return;
+            }
 
             $flowsCreated = 0;
             $totalBytes = 0;
@@ -61,18 +67,11 @@ class NetflowCollectorService
         }
     }
 
-    private function getOrCreateDevice(string $ipAddress): Device
+    private function getDevice(string $ipAddress): ?Device
     {
         return Cache::remember("device:{$ipAddress}", self::CACHE_TTL, function () use ($ipAddress) {
-            return Device::firstOrCreate(
-                ['ip_address' => $ipAddress],
-                [
-                    'name' => "Device_{$ipAddress}",
-                    'type' => 'router',
-                    'status' => 'online',
-                    'last_seen_at' => now()
-                ]
-            );
+            // Only return existing devices - do NOT auto-create
+            return Device::where('ip_address', $ipAddress)->first();
         });
     }
 

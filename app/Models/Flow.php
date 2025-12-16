@@ -23,6 +23,9 @@ class Flow extends Model
         'last_switched',
         'application',
         'dscp',
+        // Interface fields
+        'input_interface',
+        'output_interface',
         // Geolocation fields
         'src_country_code',
         'src_country_name',
@@ -44,6 +47,8 @@ class Flow extends Model
         'packets' => 'integer',
         'first_switched' => 'datetime',
         'last_switched' => 'datetime',
+        'input_interface' => 'integer',
+        'output_interface' => 'integer',
         'src_latitude' => 'decimal:7',
         'src_longitude' => 'decimal:7',
         'dst_latitude' => 'decimal:7',

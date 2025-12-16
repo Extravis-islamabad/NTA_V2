@@ -241,6 +241,30 @@ class Device extends Model
         return $this->flows()->sum('bytes');
     }
 
+    /**
+     * Get interface count from relationships (computed accessor)
+     */
+    public function getInterfaceCountAttribute($value): int
+    {
+        // If value is stored and valid, use it; otherwise compute from relationship
+        if ($value !== null && $value > 0) {
+            return $value;
+        }
+        return $this->interfaces()->count();
+    }
+
+    /**
+     * Get flow count from relationships (computed accessor)
+     */
+    public function getFlowCountAttribute($value): int
+    {
+        // If value is stored and valid, use it; otherwise compute from relationship
+        if ($value !== null && $value > 0) {
+            return $value;
+        }
+        return $this->flows()->count();
+    }
+
     public function hasSshCredentials(): bool
     {
         return $this->ssh_enabled &&

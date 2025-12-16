@@ -213,16 +213,15 @@ class TrafficAnalysisService
         $start = $this->getTimeRangeStart($timeRange);
 
         // Determine interval based on time range
-        $interval = match($timeRange) {
-            '1hour' => 'minute',
-            '6hours' => '10 minutes',
-            '24hours' => 'hour',
-            '7days' => 'day',
-            default => 'hour',
+        // PostgreSQL date_trunc only accepts: microseconds, milliseconds, second, minute, hour, day, week, month, quarter, year
+        // For 10 minute intervals, we use a custom expression
+        $truncFunction = match($timeRange) {
+            '1hour' => "date_trunc('minute', created_at)",
+            '6hours' => "date_trunc('hour', created_at) + INTERVAL '10 min' * FLOOR(EXTRACT(MINUTE FROM created_at) / 10)",
+            '24hours' => "date_trunc('hour', created_at)",
+            '7days' => "date_trunc('day', created_at)",
+            default => "date_trunc('hour', created_at)",
         };
-
-        // For PostgreSQL, use date_trunc
-        $truncFunction = "date_trunc('{$interval}', created_at)";
 
         $data = Flow::where('device_id', $device->id)
             ->where('created_at', '>=', $start)

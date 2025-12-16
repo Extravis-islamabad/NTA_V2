@@ -120,14 +120,31 @@ document.addEventListener('DOMContentLoaded', function() {
         new ApexCharts(document.querySelector("#trafficDistributionChart"), distributionOptions).render();
     }
 
-    // Protocol Pie Chart
+    // Protocol Donut Chart - modern style
     const protocolData = @json($trafficByProtocol);
     if (protocolData && protocolData.length > 0) {
         const protocolOptions = {
             chart: {
-                type: 'pie',
+                type: 'donut',
                 height: 250,
                 fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '55%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Total',
+                                formatter: function(w) {
+                                    return formatBytes(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
+                                }
+                            }
+                        }
+                    }
+                }
             },
             series: protocolData.map(p => parseInt(p.total_bytes)),
             labels: protocolData.map(p => p.protocol),

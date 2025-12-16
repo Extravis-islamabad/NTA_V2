@@ -107,6 +107,10 @@ class NetflowCollectorService
             'app_category' => $appInfo['category'],
             'dscp' => $flowData['dscp'] ?? null,
 
+            // Interface fields
+            'input_interface' => $flowData['input_interface'] ?? $flowData['in_if'] ?? null,
+            'output_interface' => $flowData['output_interface'] ?? $flowData['out_if'] ?? null,
+
             // Source geolocation
             'src_country_code' => $srcGeo['country_code'] ?? null,
             'src_country_name' => $srcGeo['country_name'] ?? null,

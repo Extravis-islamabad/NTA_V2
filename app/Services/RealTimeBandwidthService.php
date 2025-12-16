@@ -21,38 +21,60 @@ class RealTimeBandwidthService
         $cacheKey = "device_bandwidth:{$device->id}";
 
         return Cache::remember($cacheKey, 10, function () use ($device) {
-            // Get last 2 samples to calculate rate
+            // Try BandwidthSample first
             $samples = BandwidthSample::forDevice($device->id)
                 ->whereNull('interface_id')
                 ->orderByDesc('sampled_at')
                 ->limit(2)
                 ->get();
 
-            if ($samples->count() < 2) {
-                return $this->getEmptyBandwidthStats();
+            if ($samples->count() >= 2) {
+                $current = $samples->first();
+                $previous = $samples->last();
+
+                $timeDiff = $current->sampled_at->diffInSeconds($previous->sampled_at);
+                if ($timeDiff > 0) {
+                    $byteDiff = ($current->in_bytes + $current->out_bytes) - ($previous->in_bytes + $previous->out_bytes);
+                    $bps = (int)(($byteDiff * 8) / $timeDiff);
+
+                    return [
+                        'in_bps' => $current->in_bps,
+                        'out_bps' => $current->out_bps,
+                        'total_bps' => $current->in_bps + $current->out_bps,
+                        'in_bytes' => $current->in_bytes,
+                        'out_bytes' => $current->out_bytes,
+                        'total_bytes' => $current->in_bytes + $current->out_bytes,
+                        'total_formatted' => $this->formatBytes($current->in_bytes + $current->out_bytes),
+                        'flow_count' => $current->flow_count,
+                        'formatted' => $this->formatBandwidth($bps),
+                        'sampled_at' => $current->sampled_at->toIso8601String(),
+                    ];
+                }
             }
 
-            $current = $samples->first();
-            $previous = $samples->last();
+            // Fallback: Calculate from flows in last hour
+            $flowStats = Flow::where('device_id', $device->id)
+                ->where('created_at', '>=', now()->subHour())
+                ->selectRaw('COALESCE(SUM(bytes), 0) as total_bytes')
+                ->selectRaw('COALESCE(SUM(packets), 0) as total_packets')
+                ->selectRaw('COUNT(*) as flow_count')
+                ->first();
 
-            $timeDiff = $current->sampled_at->diffInSeconds($previous->sampled_at);
-            if ($timeDiff === 0) {
-                return $this->getEmptyBandwidthStats();
-            }
-
-            $byteDiff = ($current->in_bytes + $current->out_bytes) - ($previous->in_bytes + $previous->out_bytes);
-            $bps = (int)(($byteDiff * 8) / $timeDiff);
+            $totalBytes = (int)($flowStats->total_bytes ?? 0);
+            $flowCount = (int)($flowStats->flow_count ?? 0);
+            $bps = (int)(($totalBytes * 8) / 3600); // Average over the hour
 
             return [
-                'in_bps' => $current->in_bps,
-                'out_bps' => $current->out_bps,
-                'total_bps' => $current->in_bps + $current->out_bps,
-                'in_bytes' => $current->in_bytes,
-                'out_bytes' => $current->out_bytes,
-                'total_bytes' => $current->in_bytes + $current->out_bytes,
-                'flow_count' => $current->flow_count,
+                'in_bps' => (int)($bps / 2),
+                'out_bps' => (int)($bps / 2),
+                'total_bps' => $bps,
+                'in_bytes' => (int)($totalBytes / 2),
+                'out_bytes' => (int)($totalBytes / 2),
+                'total_bytes' => $totalBytes,
+                'total_formatted' => $this->formatBytes($totalBytes),
+                'flow_count' => $flowCount,
                 'formatted' => $this->formatBandwidth($bps),
-                'sampled_at' => $current->sampled_at->toIso8601String(),
+                'sampled_at' => now()->toIso8601String(),
             ];
         });
     }
@@ -81,31 +103,61 @@ class RealTimeBandwidthService
 
     /**
      * Get sparkline data for a device
+     * Returns array of objects with 'total' property for dashboard compatibility
      */
     public function getSparklineData(Device $device, int $points = 20, int $minutes = 30): array
     {
         $cacheKey = "sparkline:{$device->id}:{$points}:{$minutes}";
 
         return Cache::remember($cacheKey, 10, function () use ($device, $points, $minutes) {
+            // Try BandwidthSample first
             $samples = BandwidthSample::forDevice($device->id)
                 ->whereNull('interface_id')
                 ->recent($minutes)
                 ->orderBy('sampled_at', 'asc')
                 ->get();
 
-            // If we have more samples than points, take evenly spaced samples
-            if ($samples->count() > $points) {
-                $step = ceil($samples->count() / $points);
-                $samples = $samples->filter(fn($item, $key) => $key % $step === 0)->values();
+            if ($samples->count() > 0) {
+                // If we have more samples than points, take evenly spaced samples
+                if ($samples->count() > $points) {
+                    $step = ceil($samples->count() / $points);
+                    $samples = $samples->filter(fn($item, $key) => $key % $step === 0)->values();
+                }
+
+                // Return in format expected by dashboard sparklines
+                return $samples->map(fn($s) => [
+                    'total' => $s->in_bps + $s->out_bps,
+                    'in' => $s->in_bps,
+                    'out' => $s->out_bps,
+                    'time' => $s->sampled_at->format('H:i'),
+                ])->toArray();
             }
 
-            return [
-                'labels' => $samples->pluck('sampled_at')->map(fn($t) => $t->format('H:i'))->toArray(),
-                'in_bps' => $samples->pluck('in_bps')->toArray(),
-                'out_bps' => $samples->pluck('out_bps')->toArray(),
-                'total_bps' => $samples->map(fn($s) => $s->in_bps + $s->out_bps)->toArray(),
-                'timestamps' => $samples->pluck('sampled_at')->map(fn($t) => $t->toIso8601String())->toArray(),
-            ];
+            // Fallback: Generate sparkline from flows grouped by minute
+            $flowData = Flow::where('device_id', $device->id)
+                ->where('created_at', '>=', now()->subMinutes($minutes))
+                ->selectRaw("date_trunc('minute', created_at) as time_bucket")
+                ->selectRaw('SUM(bytes) as total_bytes')
+                ->groupBy('time_bucket')
+                ->orderBy('time_bucket', 'asc')
+                ->limit($points)
+                ->get();
+
+            if ($flowData->isEmpty()) {
+                // Return empty sparkline data with placeholder
+                return [];
+            }
+
+            return $flowData->map(function($row) {
+                $bytes = (int)$row->total_bytes;
+                $bps = (int)($bytes * 8 / 60); // Convert bytes per minute to bps
+                return [
+                    'total' => $bps,
+                    'in' => (int)($bps / 2),
+                    'out' => (int)($bps / 2),
+                    'time' => \Carbon\Carbon::parse($row->time_bucket)->format('H:i'),
+                ];
+            })->toArray();
         });
     }
 

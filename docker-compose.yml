@@ -49,9 +49,17 @@ services:
       - QUEUE_CONNECTION=database
       - NETFLOW_PORT=${NETFLOW_PORT:-2055}
       - MAXMIND_LICENSE_KEY=${MAXMIND_LICENSE_KEY:-}
+      - BROADCAST_CONNECTION=reverb
+      - REVERB_APP_ID=${REVERB_APP_ID:-netflow-analyzer}
+      - REVERB_APP_KEY=${REVERB_APP_KEY:-netflow-key}
+      - REVERB_APP_SECRET=${REVERB_APP_SECRET:-netflow-secret}
+      - REVERB_HOST=${REVERB_HOST:-localhost}
+      - REVERB_PORT=${REVERB_PORT:-8080}
+      - REVERB_SCHEME=${REVERB_SCHEME:-http}
     ports:
       - "${APP_PORT:-8003}:80"
       - "${NETFLOW_PORT:-2055}:${NETFLOW_PORT:-2055}/udp"
+      - "${REVERB_PORT:-8080}:8080"
     volumes:
       - netflow_storage:/var/www/html/storage
       - netflow_logs:/var/www/html/storage/logs

@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libsnmp-dev \
     snmp \
-    snmp-mibs-downloader \
     zip \
     unzip \
     supervisor \

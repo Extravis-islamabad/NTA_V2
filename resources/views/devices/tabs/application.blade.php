@@ -1,116 +1,179 @@
-<div class="mb-6">
-    <canvas id="applicationChart" height="300"></canvas>
+<!-- Application Traffic Chart -->
+<div class="bg-white rounded-xl border border-gray-100 p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+        </svg>
+        Application Traffic Distribution
+    </h3>
+    <div id="applicationBarChart" style="height: 350px;"></div>
 </div>
 
-<div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Flow Count</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Bytes</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Percentage</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            @php $totalBytes = $trafficByApp->sum('total_bytes'); @endphp
-            @forelse($trafficByApp as $app)
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 rounded-full mr-3" style="background-color: {{ ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'][$loop->index % 10] }}"></div>
-                        <span class="font-medium text-gray-900">{{ $app->application }}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($app->flow_count) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    @php
-                        $bytes = $app->total_bytes;
-                        if ($bytes >= 1073741824) {
-                            echo round($bytes / 1073741824, 2) . ' GB';
-                        } elseif ($bytes >= 1048576) {
-                            echo round($bytes / 1048576, 2) . ' MB';
-                        } else {
-                            echo round($bytes / 1024, 2) . ' KB';
-                        }
-                    @endphp
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="flex-1 mr-3">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ ($app->total_bytes / max(1, $totalBytes)) * 100 }}%"></div>
+<!-- Application Table -->
+<div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            Application Details
+        </h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Flow Count</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Bytes</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distribution</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @php
+                    $totalBytes = $trafficByApp->sum('total_bytes');
+                    $colors = ['#5548F5', '#C843F3', '#9619B5', '#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#14B8A6', '#F97316', '#84CC16'];
+                @endphp
+                @forelse($trafficByApp as $app)
+                @php
+                    $color = $colors[$loop->index % count($colors)];
+                @endphp
+                <tr class="table-row-hover transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style="background-color: {{ $color }}">
+                                {{ strtoupper(substr($app->application, 0, 2)) }}
                             </div>
+                            <span class="font-medium text-gray-900">{{ $app->application }}</span>
                         </div>
-                        <span class="text-sm text-gray-500">{{ number_format(($app->total_bytes / max(1, $totalBytes)) * 100, 2) }}%</span>
-                    </div>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                    No application data available
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($app->flow_count) }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        @php
+                            $bytes = $app->total_bytes;
+                            if ($bytes >= 1073741824) {
+                                echo round($bytes / 1073741824, 2) . ' GB';
+                            } elseif ($bytes >= 1048576) {
+                                echo round($bytes / 1048576, 2) . ' MB';
+                            } else {
+                                echo round($bytes / 1024, 2) . ' KB';
+                            }
+                        @endphp
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1">
+                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500" style="width: {{ ($app->total_bytes / max(1, $totalBytes)) * 100 }}%; background: linear-gradient(90deg, #5548F5, #C843F3);"></div>
+                                </div>
+                            </div>
+                            <span class="text-sm font-semibold text-[#5548F5] w-16 text-right">{{ number_format(($app->total_bytes / max(1, $totalBytes)) * 100, 1) }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <p class="text-gray-500">No application data available</p>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @push('scripts')
 <script>
-if (typeof window.applicationChartInitialized === 'undefined') {
-    window.applicationChartInitialized = true;
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof ApexCharts === 'undefined') return;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Chart === 'undefined') return;
-
-        const canvas = document.getElementById('applicationChart');
-        if (!canvas) return;
-
-        // Destroy existing instance
-        if (window.applicationChartInstance) {
-            window.applicationChartInstance.destroy();
-        }
-
-        const appData = @json($trafficByApp);
-        if (appData && appData.length > 0) {
-            window.applicationChartInstance = new Chart(canvas, {
+    const appData = @json($trafficByApp);
+    if (appData && appData.length > 0) {
+        const chartOptions = {
+            chart: {
                 type: 'bar',
-                data: {
-                    labels: appData.map(item => item.application),
-                    datasets: [{
-                        label: 'Bytes',
-                        data: appData.map(item => item.total_bytes),
-                        backgroundColor: '#3B82F6'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value >= 1073741824) {
-                                        return (value / 1073741824).toFixed(1) + ' GB';
-                                    } else if (value >= 1048576) {
-                                        return (value / 1048576).toFixed(1) + ' MB';
-                                    } else if (value >= 1024) {
-                                        return (value / 1024).toFixed(1) + ' KB';
-                                    }
-                                    return value + ' B';
-                                }
-                            }
-                        }
+                height: 350,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: false,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: false
                     }
                 }
-            });
-        }
-    });
-}
+            },
+            series: [{
+                name: 'Traffic',
+                data: appData.map(item => parseInt(item.total_bytes))
+            }],
+            xaxis: {
+                categories: appData.map(item => item.application),
+                labels: {
+                    style: {
+                        colors: '#6b7280',
+                        fontSize: '11px'
+                    },
+                    rotate: -45,
+                    rotateAlways: appData.length > 5
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function(val) {
+                        return formatBytes(val);
+                    },
+                    style: {
+                        colors: '#6b7280',
+                        fontSize: '11px'
+                    }
+                }
+            },
+            colors: [window.monetxColors.primary],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'light',
+                    type: 'vertical',
+                    shadeIntensity: 0.25,
+                    gradientToColors: [window.monetxColors.secondary],
+                    stops: [0, 100]
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 6,
+                    columnWidth: '60%',
+                    distributed: false
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return formatBytes(val);
+                    }
+                }
+            },
+            grid: {
+                borderColor: '#e5e7eb',
+                strokeDashArray: 4
+            }
+        };
+
+        new ApexCharts(document.querySelector("#applicationBarChart"), chartOptions).render();
+    } else {
+        document.getElementById('applicationBarChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No application data available</div>';
+    }
+});
 </script>
 @endpush

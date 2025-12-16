@@ -22,7 +22,21 @@ class Flow extends Model
         'first_switched',
         'last_switched',
         'application',
-        'dscp'
+        'dscp',
+        // Geolocation fields
+        'src_country_code',
+        'src_country_name',
+        'src_city',
+        'src_latitude',
+        'src_longitude',
+        'src_asn',
+        'dst_country_code',
+        'dst_country_name',
+        'dst_city',
+        'dst_latitude',
+        'dst_longitude',
+        'dst_asn',
+        'app_category',
     ];
 
     protected $casts = [
@@ -30,6 +44,12 @@ class Flow extends Model
         'packets' => 'integer',
         'first_switched' => 'datetime',
         'last_switched' => 'datetime',
+        'src_latitude' => 'decimal:7',
+        'src_longitude' => 'decimal:7',
+        'dst_latitude' => 'decimal:7',
+        'dst_longitude' => 'decimal:7',
+        'src_asn' => 'integer',
+        'dst_asn' => 'integer',
     ];
 
     public function device(): BelongsTo
@@ -50,6 +70,22 @@ class Flow extends Model
     public function scopeByApplication($query, string $application)
     {
         return $query->where('application', $application);
+    }
+
+    public function scopeByCategory($query, string $category)
+    {
+        return $query->where('app_category', $category);
+    }
+
+    public function scopeByCountry($query, string $countryCode, string $direction = 'dst')
+    {
+        $column = $direction === 'src' ? 'src_country_code' : 'dst_country_code';
+        return $query->where($column, $countryCode);
+    }
+
+    public function scopeWithGeo($query)
+    {
+        return $query->whereNotNull('dst_country_code');
     }
 
     public function getFormattedBytesAttribute(): string

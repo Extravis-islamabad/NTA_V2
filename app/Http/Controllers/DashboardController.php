@@ -5,29 +5,42 @@ namespace App\Http\Controllers;
 use App\Models\Device;
 use App\Models\Alarm;
 use App\Models\Flow;
+use App\Models\BandwidthSample;
 use App\Services\ApplicationIdentificationService;
+use App\Services\RealTimeBandwidthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     protected ApplicationIdentificationService $appService;
+    protected RealTimeBandwidthService $bandwidthService;
 
-    public function __construct(ApplicationIdentificationService $appService)
-    {
+    public function __construct(
+        ApplicationIdentificationService $appService,
+        RealTimeBandwidthService $bandwidthService
+    ) {
         $this->appService = $appService;
+        $this->bandwidthService = $bandwidthService;
     }
 
     public function index(Request $request)
     {
         $timeRange = $request->get('range', '1hour');
         $timeStart = $this->getTimeRangeStart($timeRange);
+
+        // Calculate total bandwidth
+        $totalBandwidth = $this->bandwidthService->getDashboardSummary($timeRange);
+
         $stats = [
             'total_devices' => Device::count(),
             'online_devices' => Device::where('status', 'online')->count(),
             'offline_devices' => Device::where('status', 'offline')->count(),
             'total_flows' => Device::sum('flow_count'),
             'active_alarms' => Alarm::where('status', 'active')->count(),
+            'total_bandwidth' => $totalBandwidth['total_bandwidth'] ?? '0 B',
+            'total_bandwidth_in' => $totalBandwidth['total_in'] ?? '0 B',
+            'total_bandwidth_out' => $totalBandwidth['total_out'] ?? '0 B',
         ];
 
         $devices = Device::with('interfaces')->get();
@@ -131,6 +144,86 @@ class DashboardController extends Controller
             ->take(10)
             ->values();
 
+        // Traffic by Country for World Map
+        $trafficByCountry = Flow::where('created_at', '>=', $timeStart)
+            ->whereNotNull('dst_country_code')
+            ->select('dst_country_code', 'dst_country_name', 'dst_latitude', 'dst_longitude')
+            ->selectRaw('SUM(bytes) as total_bytes')
+            ->selectRaw('COUNT(*) as flow_count')
+            ->groupBy('dst_country_code', 'dst_country_name', 'dst_latitude', 'dst_longitude')
+            ->orderByDesc('total_bytes')
+            ->limit(20)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'country_code' => $item->dst_country_code,
+                    'country_name' => $item->dst_country_name ?? 'Unknown',
+                    'latitude' => $item->dst_latitude ?? 0,
+                    'longitude' => $item->dst_longitude ?? 0,
+                    'bytes' => $item->total_bytes,
+                    'flows' => $item->flow_count,
+                    'formatted_bytes' => $this->formatBytes($item->total_bytes),
+                ];
+            });
+
+        // Top Source IPs with geolocation
+        $topSources = Flow::where('created_at', '>=', $timeStart)
+            ->select('source_ip', 'src_country_code', 'src_country_name', 'src_city')
+            ->selectRaw('SUM(bytes) as total_bytes')
+            ->selectRaw('COUNT(*) as flow_count')
+            ->groupBy('source_ip', 'src_country_code', 'src_country_name', 'src_city')
+            ->orderByDesc('total_bytes')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'ip' => $item->source_ip,
+                    'country_code' => $item->src_country_code,
+                    'country_name' => $item->src_country_name ?? 'Unknown',
+                    'city' => $item->src_city ?? '',
+                    'bytes' => $item->total_bytes,
+                    'flows' => $item->flow_count,
+                    'formatted_bytes' => $this->formatBytes($item->total_bytes),
+                ];
+            });
+
+        // Top Destination IPs with geolocation
+        $topDestinations = Flow::where('created_at', '>=', $timeStart)
+            ->select('destination_ip', 'dst_country_code', 'dst_country_name', 'dst_city')
+            ->selectRaw('SUM(bytes) as total_bytes')
+            ->selectRaw('COUNT(*) as flow_count')
+            ->groupBy('destination_ip', 'dst_country_code', 'dst_country_name', 'dst_city')
+            ->orderByDesc('total_bytes')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'ip' => $item->destination_ip,
+                    'country_code' => $item->dst_country_code,
+                    'country_name' => $item->dst_country_name ?? 'Unknown',
+                    'city' => $item->dst_city ?? '',
+                    'bytes' => $item->total_bytes,
+                    'flows' => $item->flow_count,
+                    'formatted_bytes' => $this->formatBytes($item->total_bytes),
+                ];
+            });
+
+        // Device bandwidth data for sparklines
+        $deviceBandwidth = Device::where('status', 'online')
+            ->get()
+            ->map(function ($device) {
+                $bandwidth = $this->bandwidthService->calculateDeviceBandwidth($device);
+                $sparkline = $this->bandwidthService->getSparklineData($device, 20, 30);
+                return [
+                    'id' => $device->id,
+                    'name' => $device->name,
+                    'ip_address' => $device->ip_address,
+                    'status' => $device->status,
+                    'bandwidth' => $bandwidth,
+                    'sparkline' => $sparkline,
+                ];
+            });
+
         return view('dashboard', compact(
             'stats',
             'devices',
@@ -139,6 +232,10 @@ class DashboardController extends Controller
             'topQoS',
             'topConversations',
             'topApplications',
+            'trafficByCountry',
+            'topSources',
+            'topDestinations',
+            'deviceBandwidth',
             'timeRange'
         ));
     }

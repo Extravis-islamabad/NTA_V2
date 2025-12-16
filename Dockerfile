@@ -13,15 +13,20 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
     libsnmp-dev \
+    libmaxminddb-dev \
     snmp \
     zip \
     unzip \
     supervisor \
     nginx \
     cron \
+    wget \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip sockets snmp \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Create GeoIP database directory
+RUN mkdir -p /var/www/html/storage/geoip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

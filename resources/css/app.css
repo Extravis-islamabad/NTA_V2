@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Leaflet Map Customizations */
+.leaflet-container {
+    background: #f8fafc;
+    font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+    margin: 0.75rem;
+}
+
+/* ApexCharts Customizations */
+.apexcharts-tooltip {
+    border-radius: 0.5rem !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.apexcharts-menu {
+    border-radius: 0.5rem !important;
+}
+
+/* Sparkline Container */
+.sparkline-container {
+    height: 60px;
+    width: 100%;
+}
+
+/* Traffic Map */
+.traffic-map {
+    height: 400px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+/* Chart Loading Skeleton */
+.chart-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}

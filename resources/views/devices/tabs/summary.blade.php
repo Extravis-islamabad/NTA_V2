@@ -1,166 +1,233 @@
+<!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-gray-50 rounded-lg p-4">
-        <p class="text-sm text-gray-500">Total Flows</p>
-        <p class="text-2xl font-bold text-gray-900">{{ number_format($summaryData['total_flows']) }}</p>
+    <div class="stat-card rounded-xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Total Flows</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($summaryData['total_flows']) }}</p>
+            </div>
+            <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+        </div>
     </div>
-    <div class="bg-gray-50 rounded-lg p-4">
-        <p class="text-sm text-gray-500">Total Bytes</p>
-        <p class="text-2xl font-bold text-gray-900">
-            @php
-                $bytes = $summaryData['total_bytes'];
-                if ($bytes >= 1073741824) {
-                    echo round($bytes / 1073741824, 2) . ' GB';
-                } elseif ($bytes >= 1048576) {
-                    echo round($bytes / 1048576, 2) . ' MB';
-                } else {
-                    echo round($bytes / 1024, 2) . ' KB';
-                }
-            @endphp
-        </p>
+    <div class="stat-card rounded-xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Total Bytes</p>
+                <p class="text-2xl font-bold text-[#5548F5] mt-1">
+                    @php
+                        $bytes = $summaryData['total_bytes'];
+                        if ($bytes >= 1073741824) {
+                            echo round($bytes / 1073741824, 2) . ' GB';
+                        } elseif ($bytes >= 1048576) {
+                            echo round($bytes / 1048576, 2) . ' MB';
+                        } else {
+                            echo round($bytes / 1024, 2) . ' KB';
+                        }
+                    @endphp
+                </p>
+            </div>
+            <div class="w-10 h-10 bg-[#E4F2FF] rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                </svg>
+            </div>
+        </div>
     </div>
-    <div class="bg-gray-50 rounded-lg p-4">
-        <p class="text-sm text-gray-500">Total Packets</p>
-        <p class="text-2xl font-bold text-gray-900">{{ number_format($summaryData['total_packets']) }}</p>
+    <div class="stat-card rounded-xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Total Packets</p>
+                <p class="text-2xl font-bold text-[#C843F3] mt-1">{{ number_format($summaryData['total_packets']) }}</p>
+            </div>
+            <div class="w-10 h-10 bg-[#F2C7FF] rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                </svg>
+            </div>
+        </div>
     </div>
-    <div class="bg-gray-50 rounded-lg p-4">
-        <p class="text-sm text-gray-500">Avg Bandwidth</p>
-        <p class="text-2xl font-bold text-gray-900">
-            @php
-                $bytes = $summaryData['avg_bandwidth'];
-                if ($bytes >= 1048576) {
-                    echo round($bytes / 1048576, 2) . ' MB';
-                } else {
-                    echo round($bytes / 1024, 2) . ' KB';
-                }
-            @endphp
-        </p>
+    <div class="stat-card rounded-xl p-5 card-hover">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 font-medium">Avg Bandwidth</p>
+                <p class="text-2xl font-bold text-[#9619B5] mt-1">
+                    @php
+                        $bytes = $summaryData['avg_bandwidth'];
+                        if ($bytes >= 1048576) {
+                            echo round($bytes / 1048576, 2) . ' MB/s';
+                        } else {
+                            echo round($bytes / 1024, 2) . ' KB/s';
+                        }
+                    @endphp
+                </p>
+            </div>
+            <div class="w-10 h-10 gradient-secondary rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Charts Row -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Top Applications Chart -->
-    <div>
-        <h3 class="text-lg font-semibold mb-4">Traffic by Application</h3>
-        <div style="position: relative; height: 300px;">
-            <canvas id="summaryAppChart"></canvas>
-        </div>
+    <!-- Top Applications Donut Chart -->
+    <div class="bg-white rounded-xl border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#5548F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+            Traffic by Application
+        </h3>
+        <div id="summaryAppChart" style="height: 300px;"></div>
     </div>
 
-    <!-- Top Protocols Chart -->
-    <div>
-        <h3 class="text-lg font-semibold mb-4">Traffic by Protocol</h3>
-        <div style="position: relative; height: 300px;">
-            <canvas id="summaryProtocolChart"></canvas>
-        </div>
+    <!-- Top Protocols Bar Chart -->
+    <div class="bg-white rounded-xl border border-gray-100 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#C843F3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            Traffic by Protocol
+        </h3>
+        <div id="summaryProtocolChart" style="height: 300px;"></div>
     </div>
 </div>
 
 @push('scripts')
 <script>
-// Use a flag to ensure charts are only created once
-if (typeof window.summaryChartsInitialized === 'undefined') {
-    window.summaryChartsInitialized = true;
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof ApexCharts === 'undefined') return;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Chart === 'undefined') {
-            console.error('Chart.js not loaded');
-            return;
-        }
-
-        // Destroy existing chart instances if they exist
-        const appCanvas = document.getElementById('summaryAppChart');
-        const protocolCanvas = document.getElementById('summaryProtocolChart');
-
-        if (!appCanvas || !protocolCanvas) {
-            console.error('Chart canvases not found');
-            return;
-        }
-
-        // Get existing chart instances and destroy them
-        if (window.summaryAppChartInstance) {
-            window.summaryAppChartInstance.destroy();
-        }
-        if (window.summaryProtocolChartInstance) {
-            window.summaryProtocolChartInstance.destroy();
-        }
-
-        // Application Chart
-        const appData = @json($trafficByApp);
-        if (appData && appData.length > 0) {
-            window.summaryAppChartInstance = new Chart(appCanvas, {
-                type: 'doughnut',
-                data: {
-                    labels: appData.map(item => item.application || 'Unknown'),
-                    datasets: [{
-                        data: appData.map(item => item.total_bytes),
-                        backgroundColor: [
-                            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
-                            '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false, // Disable animation to prevent redraw issues
-                    plugins: { 
-                        legend: { 
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 10
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            appCanvas.parentElement.innerHTML = '<div class="flex items-center justify-center h-full"><p class="text-gray-500">No application data available</p></div>';
-        }
-
-        // Protocol Chart
-        const protocolData = @json($trafficByProtocol);
-        if (protocolData && protocolData.length > 0) {
-            window.summaryProtocolChartInstance = new Chart(protocolCanvas, {
-                type: 'bar',
-                data: {
-                    labels: protocolData.map(item => item.protocol),
-                    datasets: [{
-                        label: 'Bytes',
-                        data: protocolData.map(item => item.total_bytes),
-                        backgroundColor: '#3B82F6'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false, // Disable animation
-                    plugins: { 
-                        legend: { display: false }
-                    },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value >= 1073741824) {
-                                        return (value / 1073741824).toFixed(1) + ' GB';
-                                    } else if (value >= 1048576) {
-                                        return (value / 1048576).toFixed(1) + ' MB';
-                                    } else if (value >= 1024) {
-                                        return (value / 1024).toFixed(1) + ' KB';
-                                    }
-                                    return value + ' B';
+    // Application Donut Chart
+    const appData = @json($trafficByApp);
+    if (appData && appData.length > 0) {
+        const appOptions = {
+            chart: {
+                type: 'donut',
+                height: 300,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            },
+            series: appData.map(item => parseInt(item.total_bytes)),
+            labels: appData.map(item => item.application || 'Unknown'),
+            colors: [
+                window.monetxColors.primary,
+                window.monetxColors.secondary,
+                window.monetxColors.tertiary,
+                window.monetxColors.success,
+                window.monetxColors.warning,
+                window.monetxColors.info,
+                window.monetxColors.danger,
+                '#14B8A6',
+                '#F97316',
+                '#84CC16'
+            ],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '60%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Total',
+                                formatter: function(w) {
+                                    return formatBytes(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
                                 }
                             }
                         }
                     }
                 }
-            });
-        } else {
-            protocolCanvas.parentElement.innerHTML = '<div class="flex items-center justify-center h-full"><p class="text-gray-500">No protocol data available</p></div>';
-        }
-    });
-}
+            },
+            legend: {
+                position: 'bottom',
+                fontSize: '11px'
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return formatBytes(val);
+                    }
+                }
+            }
+        };
+        new ApexCharts(document.querySelector("#summaryAppChart"), appOptions).render();
+    } else {
+        document.getElementById('summaryAppChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No application data available</div>';
+    }
+
+    // Protocol Bar Chart
+    const protocolData = @json($trafficByProtocol);
+    if (protocolData && protocolData.length > 0) {
+        const protocolOptions = {
+            chart: {
+                type: 'bar',
+                height: 300,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: { show: true }
+            },
+            series: [{
+                name: 'Traffic',
+                data: protocolData.map(item => parseInt(item.total_bytes))
+            }],
+            xaxis: {
+                categories: protocolData.map(item => item.protocol),
+                labels: {
+                    style: {
+                        colors: '#6b7280',
+                        fontSize: '11px'
+                    }
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function(val) {
+                        return formatBytes(val);
+                    },
+                    style: {
+                        colors: '#6b7280',
+                        fontSize: '11px'
+                    }
+                }
+            },
+            colors: [window.monetxColors.primary],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'light',
+                    type: 'vertical',
+                    shadeIntensity: 0.25,
+                    gradientToColors: [window.monetxColors.secondary],
+                    stops: [0, 100]
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    columnWidth: '60%'
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return formatBytes(val);
+                    }
+                }
+            },
+            grid: {
+                borderColor: '#e5e7eb',
+                strokeDashArray: 4
+            }
+        };
+        new ApexCharts(document.querySelector("#summaryProtocolChart"), protocolOptions).render();
+    } else {
+        document.getElementById('summaryProtocolChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No protocol data available</div>';
+    }
+});
 </script>
 @endpush

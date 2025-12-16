@@ -48,12 +48,14 @@ services:
       - SESSION_DRIVER=file
       - QUEUE_CONNECTION=database
       - NETFLOW_PORT=${NETFLOW_PORT:-2055}
+      - MAXMIND_LICENSE_KEY=${MAXMIND_LICENSE_KEY:-}
     ports:
       - "${APP_PORT:-8003}:80"
       - "${NETFLOW_PORT:-2055}:${NETFLOW_PORT:-2055}/udp"
     volumes:
       - netflow_storage:/var/www/html/storage
       - netflow_logs:/var/www/html/storage/logs
+      - netflow_geoip:/var/www/html/storage/geoip
     networks:
       - netflow-network
     logging:
@@ -74,3 +76,5 @@ volumes:
     name: netflow_analyzer_storage
   netflow_logs:
     name: netflow_analyzer_logs
+  netflow_geoip:
+    name: netflow_analyzer_geoip

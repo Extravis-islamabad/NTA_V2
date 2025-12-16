@@ -3,6 +3,9 @@
 use App\Http\Controllers\Api\DeviceApiController;
 use App\Http\Controllers\Api\FlowApiController;
 use App\Http\Controllers\Api\AlarmApiController;
+use App\Http\Controllers\Api\GeoApiController;
+use App\Http\Controllers\Api\RealtimeApiController;
+use App\Http\Controllers\Api\ApplicationApiController;
 use Illuminate\Support\Facades\Route;
 
 // All API routes require authentication and have rate limiting
@@ -45,5 +48,36 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/{alarm}', [AlarmApiController::class, 'show']);
         Route::post('/{alarm}/acknowledge', [AlarmApiController::class, 'acknowledge']);
         Route::post('/{alarm}/resolve', [AlarmApiController::class, 'resolve']);
+    });
+
+    // Geolocation API
+    Route::prefix('geo')->group(function () {
+        Route::get('/traffic', [GeoApiController::class, 'trafficByCountry']);
+        Route::get('/traffic/{countryCode}', [GeoApiController::class, 'trafficByCity']);
+        Route::get('/map-data', [GeoApiController::class, 'mapData']);
+        Route::get('/flows', [GeoApiController::class, 'trafficFlows']);
+        Route::get('/device/{device}', [GeoApiController::class, 'deviceGeoTraffic']);
+        Route::get('/status', [GeoApiController::class, 'databaseStatus']);
+    });
+
+    // Real-time Bandwidth API
+    Route::prefix('realtime')->group(function () {
+        Route::get('/summary', [RealtimeApiController::class, 'dashboardSummary']);
+        Route::get('/devices', [RealtimeApiController::class, 'allDevicesBandwidth']);
+        Route::get('/bandwidth/{device}', [RealtimeApiController::class, 'deviceBandwidth']);
+        Route::get('/sparkline/{device}', [RealtimeApiController::class, 'sparklineData']);
+        Route::get('/interfaces/{device}', [RealtimeApiController::class, 'interfaceBandwidth']);
+        Route::get('/talkers', [RealtimeApiController::class, 'topTalkers']);
+    });
+
+    // Applications API
+    Route::prefix('applications')->group(function () {
+        Route::get('/categories', [ApplicationApiController::class, 'categories']);
+        Route::get('/by-category', [ApplicationApiController::class, 'byCategory']);
+        Route::get('/all', [ApplicationApiController::class, 'all']);
+        Route::get('/top', [ApplicationApiController::class, 'top']);
+        Route::get('/category-traffic', [ApplicationApiController::class, 'categoryTraffic']);
+        Route::get('/trends/{application}', [ApplicationApiController::class, 'trends']);
+        Route::get('/device/{device}', [ApplicationApiController::class, 'deviceApplications']);
     });
 });

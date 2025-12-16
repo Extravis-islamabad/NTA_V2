@@ -122,9 +122,7 @@
                 </h3>
             </div>
             <div class="p-4">
-                <div style="height: 180px;">
-                    <canvas id="qosDistributionChart"></canvas>
-                </div>
+                <div id="qosDistributionChart" style="height: 180px;"></div>
             </div>
         </div>
 
@@ -191,52 +189,60 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof Chart === 'undefined') return;
+    if (typeof ApexCharts === 'undefined') return;
 
     const qosData = @json($qosData);
     if (qosData.length > 0) {
-        new Chart(document.getElementById('qosDistributionChart'), {
-            type: 'doughnut',
-            data: {
-                labels: qosData.map(item => 'DSCP ' + item.dscp),
-                datasets: [{
-                    data: qosData.map(item => item.total_bytes),
-                    backgroundColor: ['#5548F5', '#C843F3', '#9619B5', '#E4F2FF', '#F2C7FF', '#7c3aed', '#a855f7', '#c084fc', '#d8b4fe', '#ede9fe'],
-                    borderWidth: 0
-                }]
+        const options = {
+            chart: {
+                type: 'donut',
+                height: 180,
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%',
-                plugins: {
-                    legend: {
-                        position: 'right',
+            series: qosData.map(item => parseInt(item.total_bytes)),
+            labels: qosData.map(item => 'DSCP ' + item.dscp),
+            colors: [
+                window.monetxColors.primary,
+                window.monetxColors.secondary,
+                window.monetxColors.tertiary,
+                window.monetxColors.success,
+                window.monetxColors.warning,
+                window.monetxColors.info,
+                window.monetxColors.danger,
+                '#14B8A6',
+                '#F97316',
+                '#84CC16'
+            ],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '60%',
                         labels: {
-                            boxWidth: 10,
-                            padding: 10,
-                            font: { size: 10 }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const bytes = context.raw;
-                                let size;
-                                if (bytes >= 1073741824) {
-                                    size = (bytes / 1073741824).toFixed(2) + ' GB';
-                                } else if (bytes >= 1048576) {
-                                    size = (bytes / 1048576).toFixed(2) + ' MB';
-                                } else {
-                                    size = (bytes / 1024).toFixed(2) + ' KB';
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Total',
+                                formatter: function(w) {
+                                    return formatBytes(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
                                 }
-                                return context.label + ': ' + size;
                             }
                         }
                     }
                 }
+            },
+            legend: {
+                position: 'right',
+                fontSize: '10px'
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return formatBytes(val);
+                    }
+                }
             }
-        });
+        };
+        new ApexCharts(document.querySelector("#qosDistributionChart"), options).render();
     }
 });
 </script>

@@ -259,8 +259,100 @@
         </footer>
     </div>
 
-    <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.0/dist/apexcharts.min.js"></script>
+
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- MonetX Chart Colors and Helpers -->
+    <script>
+        // MonetX brand colors for charts
+        window.monetxColors = {
+            primary: '#5548F5',
+            secondary: '#C843F3',
+            tertiary: '#9619B5',
+            light: '#E4F2FF',
+            lightPink: '#F2C7FF',
+            success: '#10B981',
+            warning: '#F59E0B',
+            danger: '#EF4444',
+            info: '#3B82F6',
+            gradientStart: '#5548F5',
+            gradientEnd: '#C843F3'
+        };
+
+        // Default ApexCharts options with MonetX theme
+        window.apexDefaultOptions = {
+            chart: {
+                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    }
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 800
+                }
+            },
+            colors: [
+                window.monetxColors.primary,
+                window.monetxColors.secondary,
+                window.monetxColors.tertiary,
+                window.monetxColors.success,
+                window.monetxColors.warning,
+                window.monetxColors.info,
+                window.monetxColors.danger
+            ],
+            tooltip: {
+                theme: 'light',
+                style: { fontSize: '12px' }
+            },
+            grid: {
+                borderColor: '#e5e7eb',
+                strokeDashArray: 4
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 2
+            },
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+                fontSize: '12px'
+            }
+        };
+
+        // Helper function to format bytes
+        window.formatBytes = function(bytes) {
+            if (bytes === null || bytes === undefined) return '0 B';
+            bytes = parseInt(bytes);
+            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return bytes + ' B';
+        };
+
+        // Helper function to format bandwidth
+        window.formatBandwidth = function(bps) {
+            if (bps === null || bps === undefined) return '0 bps';
+            bps = parseInt(bps);
+            if (bps >= 1000000000) return (bps / 1000000000).toFixed(2) + ' Gbps';
+            if (bps >= 1000000) return (bps / 1000000).toFixed(2) + ' Mbps';
+            if (bps >= 1000) return (bps / 1000).toFixed(2) + ' Kbps';
+            return bps + ' bps';
+        };
+    </script>
 
     <script>
         // Update time every second

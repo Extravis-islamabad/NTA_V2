@@ -35,4 +35,23 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | MaxMind GeoIP Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for MaxMind GeoLite2 databases used for IP geolocation.
+    | Sign up for a free account at https://www.maxmind.com/en/geolite2/signup
+    | to get your license key.
+    |
+    */
+    'maxmind' => [
+        'license_key' => env('MAXMIND_LICENSE_KEY'),
+        'account_id' => env('MAXMIND_ACCOUNT_ID'),
+        'database_path' => storage_path('app/geoip'),
+        'city_db' => 'GeoLite2-City.mmdb',
+        'asn_db' => 'GeoLite2-ASN.mmdb',
+        'cache_ttl' => env('GEOIP_CACHE_TTL', 2592000), // 30 days
+    ],
+
 ];

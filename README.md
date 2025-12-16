@@ -5,18 +5,18 @@ Real-time network traffic monitoring and analysis application by MonetX.
 ## Features
 
 - Real-time NetFlow/sFlow/IPFIX traffic monitoring
-- Device inventory management
+- Device inventory management with SSH configuration
 - Traffic analysis and reporting
 - Alarm management
 - PDF report generation
-- SSH device configuration
+- User authentication
 
 ## Requirements
 
 - Docker & Docker Compose
-- Ubuntu 22.04 (recommended)
+- Ubuntu 22.04 (or any Linux with Docker)
 - 4GB RAM minimum
-- PostgreSQL 16
+- Open ports: 8003 (web), 2055 (NetFlow UDP)
 
 ---
 
@@ -25,12 +25,9 @@ Real-time network traffic monitoring and analysis application by MonetX.
 ### Step 1: Clone Repository
 
 ```bash
-# Create app directory
 sudo mkdir -p /opt/netflow-analyzer
 cd /opt/netflow-analyzer
-
-# Clone repository
-git clone https://github.com/YOUR_ORG/netflow-analyzer.git .
+git clone <repository-url> .
 ```
 
 ### Step 2: Configure Environment
@@ -43,170 +40,120 @@ cp .env.docker.example .env.docker
 nano .env.docker
 ```
 
-**Required settings in `.env.docker`:**
+**Update these values in `.env.docker`:**
 
 ```bash
-# Application
-APP_URL=http://your-server-ip:8003
+APP_URL=http://YOUR_SERVER_IP:8003
 APP_KEY=base64:your-generated-key-here
-
-# Database (use a strong password!)
-DB_PASSWORD=your_secure_database_password
-
-# Ports
-APP_PORT=8003
-NETFLOW_PORT=2055
+DB_PASSWORD=your_secure_password
 ```
 
-Generate an APP_KEY:
+**Generate APP_KEY:**
 ```bash
-php artisan key:generate --show
-# Or use: openssl rand -base64 32
+openssl rand -base64 32
+# Then add "base64:" prefix, e.g.: APP_KEY=base64:abc123...
 ```
 
 ### Step 3: Open Firewall Ports
 
 ```bash
-sudo ufw allow 8003/tcp comment 'NetFlow Analyzer Web'
-sudo ufw allow 2055/udp comment 'NetFlow Data'
+sudo ufw allow 8003/tcp
+sudo ufw allow 2055/udp
 ```
 
 ### Step 4: Build and Start
 
 ```bash
-# Build and start containers
 docker compose --env-file .env.docker up -d --build
-
-# Check status
-docker compose ps
 ```
 
 ### Step 5: Create Admin User
 
 ```bash
-# Enter the container
-docker exec -it netflow_analyzer_app bash
-
-# Run migrations and create user
-php artisan migrate
-php artisan tinker
-
-# In tinker, create admin user:
-\App\Models\User::create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => bcrypt('your-password')]);
-exit
+docker exec -it netflow_analyzer_app php artisan tinker
 ```
+
+In tinker:
+```php
+\App\Models\User::create([
+    'name' => 'Admin',
+    'email' => 'admin@example.com',
+    'password' => bcrypt('your-password')
+]);
+```
+
+Type `exit` to quit.
 
 ### Step 6: Access Application
 
-Open browser: `http://your-server-ip:8003`
-
-Login with the admin credentials you created.
+Open browser: `http://YOUR_SERVER_IP:8003`
 
 ---
 
-## Post-Installation Configuration
+## Post-Installation
 
-After logging in, go to **Settings** to configure:
-
-1. **Collector IP Address** - The IP address of your NetFlow collector
-2. **NetFlow Port** - UDP port for receiving flows (commonly 2055)
-3. **sFlow Port** - UDP port for sFlow (commonly 6343)
-4. **IPFIX Port** - UDP port for IPFIX (commonly 4739)
+After login, go to **Settings** to configure:
+- Collector IP Address
+- NetFlow/sFlow/IPFIX Ports
+- Retention settings
 
 ---
 
-## Network Device Configuration
-
-Configure your network devices to send flow data to this collector. Examples are shown in the Settings page after you configure the collector IP and port.
-
-### General Settings
-
-- **Destination IP**: Your collector server IP
-- **Destination Port**: As configured in Settings
-- **Protocol**: UDP
-- **Version**: NetFlow v5, v9, or IPFIX
-
----
-
-## Useful Commands
+## Common Commands
 
 ```bash
-# Go to app directory
-cd /opt/netflow-analyzer
+# View logs
+docker compose --env-file .env.docker logs -f
 
-# View running containers
-docker compose ps
+# Restart
+docker compose --env-file .env.docker restart
 
-# View logs (live)
-docker compose logs -f
+# Stop
+docker compose --env-file .env.docker down
 
-# View app logs only
-docker compose logs -f netflow-app
+# Rebuild
+docker compose --env-file .env.docker up -d --build
 
-# Restart application
-docker compose restart
+# Run migrations
+docker exec -it netflow_analyzer_app php artisan migrate
 
-# Stop application
-docker compose down
-
-# Rebuild and restart
-docker compose down && docker compose build && docker compose up -d
-
-# Enter container shell
+# Enter container
 docker exec -it netflow_analyzer_app bash
+```
 
-# Run artisan commands
-docker exec -it netflow_analyzer_app php artisan migrate:status
+---
 
-# Access database
-docker exec -it netflow_analyzer_db psql -U netflow_user -d netflow_traffic_analyzer
+## Updating
+
+```bash
+cd /opt/netflow-analyzer
+git pull
+docker compose --env-file .env.docker up -d --build
+docker exec -it netflow_analyzer_app php artisan migrate --force
 ```
 
 ---
 
 ## Troubleshooting
 
-### App not loading?
-
+**Container not starting:**
 ```bash
-docker compose ps
-docker compose logs netflow-app
-docker compose restart
+docker compose --env-file .env.docker logs netflow-app
 ```
 
-### Database connection error?
-
+**Database issues:**
 ```bash
-docker compose logs netflow-db
-docker exec -it netflow_analyzer_db psql -U netflow_user -d netflow_traffic_analyzer -c "SELECT 1"
+docker compose --env-file .env.docker logs netflow-db
 ```
 
-### Port already in use?
-
+**Reset everything:**
 ```bash
-sudo ss -tlnp | grep 8003
-sudo ss -ulnp | grep 2055
+docker compose --env-file .env.docker down -v
+docker compose --env-file .env.docker up -d --build
 ```
-
-### Container won't start?
-
-```bash
-docker compose down -v
-docker compose build --no-cache
-docker compose up -d
-```
-
----
-
-## Security Notes
-
-- Always use strong passwords for database and admin accounts
-- Keep the `.env.docker` file secure and never commit it to version control
-- Use HTTPS in production (configure a reverse proxy like Nginx)
-- Regularly update Docker images and the application
 
 ---
 
 ## Support
 
-For support, please contact your MonetX representative.
+Contact your MonetX representative for support.

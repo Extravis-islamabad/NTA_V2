@@ -9,7 +9,10 @@
       "Bash(git commit:*)",
       "Bash(git pull:*)",
       "Bash(git stash:*)",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "Bash(plink --help:*)",
+      "Bash(plink -ssh extravis_admin@10.1.1.244 -pw \"*555extravis!\" \"echo ''Connection test successful'' && whoami\")",
+      "Bash(plink -ssh:*)"
     ],
     "deny": [],
     "ask": []

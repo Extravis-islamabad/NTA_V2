@@ -494,69 +494,70 @@ function createApplicationsChart() {
         return;
     }
 
-    // Use diverse colors instead of app-defined colors
-    const chartColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316', '#06B6D4', '#84CC16'];
+    // Take top 6 apps for clean display
+    const topApps = dashboardData.topApplications.slice(0, 6);
+
+    // Gradient colors for bars
+    const chartColors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4'];
 
     const options = {
         chart: {
-            type: 'donut',
+            type: 'bar',
             height: 280,
-            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+            toolbar: { show: false }
         },
-        series: dashboardData.topApplications.map(app => app.bytes),
-        labels: dashboardData.topApplications.map(app => app.name),
-        colors: chartColors,
         plotOptions: {
-            pie: {
-                donut: {
-                    size: '55%',
-                    labels: {
-                        show: true,
-                        name: { fontSize: '12px' },
-                        value: {
-                            fontSize: '14px',
-                            formatter: function(val) {
-                                return formatBytes(parseInt(val));
-                            }
-                        },
-                        total: {
-                            show: true,
-                            label: 'Total',
-                            fontSize: '11px',
-                            formatter: function(w) {
-                                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                                return formatBytes(total);
-                            }
-                        }
-                    }
+            bar: {
+                horizontal: true,
+                borderRadius: 4,
+                barHeight: '60%',
+                distributed: true,
+                dataLabels: {
+                    position: 'right'
                 }
             }
         },
-        legend: {
-            position: 'bottom',
-            fontSize: '10px',
-            horizontalAlign: 'center',
-            offsetY: 5,
-            itemMargin: { horizontal: 8, vertical: 2 },
-            formatter: function(seriesName, opts) {
-                // Truncate long names
-                return seriesName.length > 12 ? seriesName.substring(0, 12) + '...' : seriesName;
+        series: [{
+            name: 'Traffic',
+            data: topApps.map(app => app.bytes)
+        }],
+        xaxis: {
+            categories: topApps.map(app => app.name.length > 15 ? app.name.substring(0, 15) + '...' : app.name),
+            labels: {
+                formatter: function(val) {
+                    return formatBytes(val);
+                },
+                style: { fontSize: '10px', colors: '#6b7280' }
             }
         },
-        dataLabels: { enabled: false },
+        yaxis: {
+            labels: {
+                style: { fontSize: '11px', colors: '#374151', fontWeight: 500 }
+            }
+        },
+        colors: chartColors,
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return formatBytes(val);
+            },
+            style: { fontSize: '10px', colors: ['#374151'] },
+            offsetX: 5
+        },
+        legend: { show: false },
+        grid: {
+            borderColor: '#e5e7eb',
+            xaxis: { lines: { show: true } },
+            yaxis: { lines: { show: false } }
+        },
         tooltip: {
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
                 }
             }
-        },
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                legend: { fontSize: '9px' }
-            }
-        }]
+        }
     };
 
     applicationsChart = new ApexCharts(document.querySelector("#applicationsChart"), options);
@@ -771,9 +772,18 @@ function initializeMap() {
 
 // Initialize Sparklines for each device
 function initializeSparklines() {
+    if (!dashboardData.deviceBandwidth || !Array.isArray(dashboardData.deviceBandwidth)) return;
+
     dashboardData.deviceBandwidth.forEach(device => {
         const container = document.querySelector(`#sparkline-${device.id}`);
-        if (!container || !device.sparkline || device.sparkline.length === 0) return;
+        if (!container) return;
+
+        // Ensure sparkline is an array
+        const sparklineData = Array.isArray(device.sparkline) ? device.sparkline : [];
+        if (sparklineData.length === 0) {
+            container.innerHTML = '<span class="text-xs text-gray-400">No data</span>';
+            return;
+        }
 
         const options = {
             chart: {
@@ -797,10 +807,10 @@ function initializeSparklines() {
                     opacityTo: 0.1
                 }
             },
-            colors: [window.monetxColors.primary],
+            colors: ['#3B82F6'],
             series: [{
                 name: 'Bandwidth',
-                data: device.sparkline.map(s => s.total || 0)
+                data: sparklineData.map(s => (s && s.total) ? s.total : 0)
             }],
             tooltip: {
                 fixed: { enabled: false },

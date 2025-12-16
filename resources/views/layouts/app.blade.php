@@ -371,14 +371,10 @@
             const now = new Date();
             const timeElement = document.getElementById('currentTime');
             if (timeElement) {
-                timeElement.textContent = now.toLocaleString('en-US', {
-                    month: 'short',
-                    day: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                const hours = now.getHours().toString().padStart(2, '0');
+                const mins = now.getMinutes().toString().padStart(2, '0');
+                const secs = now.getSeconds().toString().padStart(2, '0');
+                timeElement.textContent = `${hours}:${mins}:${secs}`;
             }
         }, 1000);
     </script>

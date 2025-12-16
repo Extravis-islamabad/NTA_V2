@@ -119,8 +119,8 @@
                 </h3>
             </div>
             <div class="p-4">
-                <div id="trafficMap" class="traffic-map" style="height: 350px; min-height: 300px;"></div>
-                <div class="mt-4 flex justify-between items-center text-sm">
+                <div id="trafficMap" class="traffic-map" style="height: 280px; min-height: 250px;"></div>
+                <div class="mt-3 flex justify-between items-center text-sm border-b border-gray-100 pb-3">
                     <div class="flex items-center gap-4">
                         <span class="flex items-center gap-1">
                             <span class="w-3 h-3 rounded-full bg-blue-500"></span>
@@ -132,6 +132,27 @@
                         </span>
                     </div>
                     <span class="text-gray-500">{{ $trafficByCountry->count() }} countries</span>
+                </div>
+                <!-- Traffic by Country Table -->
+                <div class="mt-3 max-h-40 overflow-y-auto">
+                    @if($trafficByCountry->isEmpty())
+                        <p class="text-sm text-gray-400 text-center py-4">No geographic data available</p>
+                    @else
+                        <div class="space-y-1">
+                            @foreach($trafficByCountry->take(8) as $country)
+                            <div class="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-medium text-gray-700">{{ $country['country_name'] }}</span>
+                                    <span class="text-xs text-gray-400">({{ $country['country_code'] }})</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-500">{{ number_format($country['flows']) }} flows</span>
+                                    <span class="font-semibold text-blue-600">{{ $country['formatted_bytes'] }}</span>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

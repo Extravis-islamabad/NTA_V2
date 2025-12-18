@@ -398,6 +398,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     size: 6
                 }
             },
+            dataLabels: {
+                enabled: false
+            },
             tooltip: {
                 shared: true,
                 intersect: false,

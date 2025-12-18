@@ -133,6 +133,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         size: '60%',
                         labels: {
                             show: true,
+                            name: {
+                                show: true,
+                                fontSize: '14px',
+                                fontWeight: 600
+                            },
+                            value: {
+                                show: true,
+                                fontSize: '16px',
+                                fontWeight: 700,
+                                formatter: function(val) {
+                                    return formatBytes(parseInt(val));
+                                }
+                            },
                             total: {
                                 show: true,
                                 label: 'Total',
@@ -143,6 +156,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
+            },
+            dataLabels: {
+                enabled: false
             },
             legend: {
                 position: 'bottom',
@@ -210,6 +226,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 bar: {
                     borderRadius: 4,
                     columnWidth: '60%'
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function(val) {
+                    return formatBytes(val);
+                },
+                style: {
+                    fontSize: '11px',
+                    fontWeight: 600
                 }
             },
             tooltip: {

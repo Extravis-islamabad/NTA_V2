@@ -130,7 +130,7 @@ class DeviceController extends Controller
         $cloudTraffic = [];
         $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->select('destination_ip', 'bytes')
+            ->select('id', 'destination_ip', 'bytes')
             ->chunkById(1000, function ($flows) use (&$cloudTraffic) {
                 foreach ($flows as $flow) {
                     $cloudProvider = $this->cloudService->identifyProvider($flow->destination_ip);
@@ -161,7 +161,7 @@ class DeviceController extends Controller
         $asTraffic = [];
         $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->select('source_ip', 'destination_ip', 'bytes')
+            ->select('id', 'source_ip', 'destination_ip', 'bytes')
             ->chunkById(1000, function ($flows) use (&$asTraffic) {
                 foreach ($flows as $flow) {
                     $sourceAS = $this->asService->lookupAS($flow->source_ip);

@@ -16,104 +16,84 @@
 
         <style>
             :root {
-                --primary-purple: #5548F5;
-                --secondary-purple: #C843F3;
-                --light-purple: #E4F2FF;
-                --pink-accent: #F2C7FF;
-                --dark-purple: #9619B5;
+                --primary-purple: #8B5CF6;
+                --secondary-purple: #A78BFA;
+                --accent-pink: #EC4899;
+                --dark-bg: #0f0a1f;
+                --darker-bg: #080510;
             }
 
             body {
                 font-family: 'Inter', sans-serif;
             }
 
-            .gradient-bg {
-                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            .space-bg {
+                background: linear-gradient(135deg, #0f0a1f 0%, #1a1035 30%, #0f0a1f 70%, #080510 100%);
                 position: relative;
                 overflow: hidden;
+                min-height: 100vh;
             }
 
-            .gradient-bg::before {
+            .space-bg::before {
                 content: '';
                 position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(85, 72, 245, 0.1) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 20%, rgba(200, 67, 243, 0.15) 0%, transparent 40%),
-                            radial-gradient(circle at 20% 80%, rgba(150, 25, 181, 0.1) 0%, transparent 40%);
-                animation: rotate 30s linear infinite;
-            }
-
-            @keyframes rotate {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-
-            .glass-card {
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
-                            0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-            }
-
-            .floating-shapes {
-                position: absolute;
+                top: 0;
+                left: 0;
                 width: 100%;
                 height: 100%;
-                overflow: hidden;
+                background-image: url('{{ asset("images/space-bg.png") }}');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
                 z-index: 0;
             }
 
-            .shape {
+            /* Stars animation */
+            .stars {
                 position: absolute;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+            }
+
+            .star {
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: white;
                 border-radius: 50%;
-                animation: float 20s infinite ease-in-out;
+                animation: twinkle 3s infinite ease-in-out;
             }
 
-            .shape-1 {
-                width: 300px;
-                height: 300px;
-                background: linear-gradient(135deg, rgba(85, 72, 245, 0.3), rgba(200, 67, 243, 0.2));
-                top: -100px;
-                right: -100px;
-                animation-delay: 0s;
+            @keyframes twinkle {
+                0%, 100% { opacity: 0.3; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.2); }
             }
 
-            .shape-2 {
-                width: 200px;
-                height: 200px;
-                background: linear-gradient(135deg, rgba(200, 67, 243, 0.2), rgba(150, 25, 181, 0.3));
-                bottom: -50px;
-                left: -50px;
-                animation-delay: -5s;
-            }
-
-            .shape-3 {
-                width: 150px;
-                height: 150px;
-                background: linear-gradient(135deg, rgba(85, 72, 245, 0.2), rgba(228, 242, 255, 0.3));
+            /* Planet glow effect */
+            .planet {
+                position: absolute;
+                width: 350px;
+                height: 350px;
+                border-radius: 50%;
+                background: radial-gradient(circle at 30% 30%, #3d2a5c 0%, #1a1035 50%, #0f0a1f 100%);
+                left: -100px;
                 top: 50%;
-                left: 10%;
-                animation-delay: -10s;
+                transform: translateY(-50%);
+                box-shadow:
+                    inset -20px -20px 40px rgba(0,0,0,0.5),
+                    0 0 60px rgba(139, 92, 246, 0.15);
+                z-index: 1;
             }
 
-            .shape-4 {
-                width: 100px;
-                height: 100px;
-                background: linear-gradient(135deg, rgba(242, 199, 255, 0.3), rgba(200, 67, 243, 0.2));
-                bottom: 20%;
-                right: 15%;
-                animation-delay: -15s;
-            }
-
-            @keyframes float {
-                0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-                25% { transform: translateY(-30px) rotate(5deg) scale(1.05); }
-                50% { transform: translateY(-15px) rotate(-5deg) scale(1); }
-                75% { transform: translateY(-40px) rotate(3deg) scale(1.02); }
+            .glass-card {
+                background: rgba(15, 10, 31, 0.7);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(139, 92, 246, 0.2);
+                box-shadow:
+                    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(139, 92, 246, 0.1) inset,
+                    0 0 40px rgba(139, 92, 246, 0.05);
             }
 
             .input-group {
@@ -123,18 +103,23 @@
             .input-group input {
                 width: 100%;
                 padding: 16px 16px 16px 50px;
-                border: 2px solid #e5e7eb;
+                border: 1px solid rgba(139, 92, 246, 0.3);
                 border-radius: 12px;
                 font-size: 16px;
                 transition: all 0.3s ease;
-                background: #f9fafb;
+                background: rgba(15, 10, 31, 0.6);
+                color: #e5e7eb;
+            }
+
+            .input-group input::placeholder {
+                color: #9ca3af;
             }
 
             .input-group input:focus {
                 outline: none;
                 border-color: var(--primary-purple);
-                background: white;
-                box-shadow: 0 0 0 4px rgba(85, 72, 245, 0.1);
+                background: rgba(15, 10, 31, 0.8);
+                box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
             }
 
             .input-group .icon {
@@ -152,7 +137,7 @@
             }
 
             .btn-primary {
-                background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+                background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
                 color: white;
                 padding: 16px 32px;
                 border-radius: 12px;
@@ -182,7 +167,7 @@
 
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 10px 30px -10px rgba(85, 72, 245, 0.5);
+                box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.5);
             }
 
             .btn-primary:active {
@@ -193,15 +178,16 @@
                 appearance: none;
                 width: 20px;
                 height: 20px;
-                border: 2px solid #d1d5db;
+                border: 2px solid rgba(139, 92, 246, 0.4);
                 border-radius: 6px;
                 cursor: pointer;
                 transition: all 0.2s ease;
                 position: relative;
+                background: rgba(15, 10, 31, 0.6);
             }
 
             .checkbox-custom:checked {
-                background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+                background: linear-gradient(135deg, var(--primary-purple), var(--accent-pink));
                 border-color: var(--primary-purple);
             }
 
@@ -218,14 +204,14 @@
             }
 
             .link-purple {
-                color: var(--primary-purple);
+                color: var(--secondary-purple);
                 text-decoration: none;
                 font-weight: 500;
                 transition: color 0.2s ease;
             }
 
             .link-purple:hover {
-                color: var(--secondary-purple);
+                color: var(--accent-pink);
             }
 
             .logo-container {
@@ -258,40 +244,63 @@
                 }
             }
 
-            .network-lines {
+            /* Shooting star */
+            .shooting-star {
                 position: absolute;
-                width: 100%;
-                height: 100%;
-                z-index: 0;
-                opacity: 0.1;
+                width: 100px;
+                height: 2px;
+                background: linear-gradient(90deg, white, transparent);
+                right: 20%;
+                bottom: 30%;
+                transform: rotate(-45deg);
+                animation: shoot 4s infinite ease-out;
+                opacity: 0;
+                z-index: 1;
             }
 
-            .network-lines svg {
-                width: 100%;
-                height: 100%;
+            @keyframes shoot {
+                0% { opacity: 0; transform: translateX(0) translateY(0) rotate(-45deg); }
+                10% { opacity: 1; }
+                30% { opacity: 0; transform: translateX(-200px) translateY(200px) rotate(-45deg); }
+                100% { opacity: 0; }
+            }
+
+            /* Constellation lines */
+            .constellation {
+                position: absolute;
+                right: 10%;
+                top: 15%;
+                width: 150px;
+                height: 150px;
+                z-index: 1;
+            }
+
+            .constellation svg {
+                stroke: rgba(255, 255, 255, 0.3);
+                stroke-width: 1;
+                fill: none;
             }
         </style>
     </head>
-    <body class="gradient-bg min-h-screen">
-        <!-- Floating shapes -->
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-            <div class="shape shape-4"></div>
-        </div>
+    <body class="space-bg">
+        <!-- Decorative elements -->
+        <div class="planet"></div>
+        <div class="shooting-star"></div>
 
-        <!-- Network lines background -->
-        <div class="network-lines">
-            <svg xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-                        <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                    </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grid)" />
+        <!-- Constellation -->
+        <div class="constellation">
+            <svg viewBox="0 0 100 100">
+                <path d="M10 40 L40 20 L70 35 L60 70 L30 80 L10 40" />
+                <circle cx="10" cy="40" r="2" fill="white" opacity="0.8"/>
+                <circle cx="40" cy="20" r="2" fill="white" opacity="0.8"/>
+                <circle cx="70" cy="35" r="2" fill="white" opacity="0.8"/>
+                <circle cx="60" cy="70" r="2" fill="white" opacity="0.8"/>
+                <circle cx="30" cy="80" r="2" fill="white" opacity="0.8"/>
             </svg>
         </div>
+
+        <!-- Stars -->
+        <div class="stars" id="stars"></div>
 
         <div class="min-h-screen flex flex-col justify-center items-center px-4 py-8 relative z-10">
             <!-- Logo -->
@@ -299,7 +308,7 @@
                 <a href="/" class="block text-center">
                     <img src="{{ asset('MonetX_black@4x-8.png') }}" alt="MonetX" class="h-16 md:h-20 w-auto mx-auto" style="filter: brightness(0) invert(1);">
                 </a>
-                <p class="text-center text-purple-200 mt-2 text-sm tracking-wider uppercase">Network Traffic Analyzer</p>
+                <p class="text-center text-purple-300 mt-2 text-sm tracking-wider uppercase">Network Traffic Analyzer</p>
             </div>
 
             <!-- Login Card -->
@@ -308,25 +317,24 @@
             </div>
 
             <!-- Footer -->
-            <div class="mt-8 text-center text-purple-200 text-sm">
+            <div class="mt-8 text-center text-purple-300/60 text-sm">
                 <p>&copy; {{ date('Y') }} MonetX. All rights reserved.</p>
             </div>
         </div>
 
         <script>
-            // Add interactive particle effect on mouse move
-            document.addEventListener('mousemove', (e) => {
-                const shapes = document.querySelectorAll('.shape');
-                const x = e.clientX / window.innerWidth;
-                const y = e.clientY / window.innerHeight;
-
-                shapes.forEach((shape, index) => {
-                    const speed = (index + 1) * 0.5;
-                    const xOffset = (x - 0.5) * 20 * speed;
-                    const yOffset = (y - 0.5) * 20 * speed;
-                    shape.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
-                });
-            });
+            // Generate random stars
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                starsContainer.appendChild(star);
+            }
         </script>
     </body>
 </html>

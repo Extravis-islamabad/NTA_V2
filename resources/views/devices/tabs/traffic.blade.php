@@ -1,8 +1,8 @@
 <!-- Traffic Distribution and Protocol Charts Row -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Traffic Distribution -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-500 to-blue-600">
+    <div class="glass-card rounded-xl overflow-hidden border border-white/10">
+        <div class="px-6 py-4 border-b border-white/10 bg-purple-500/10">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
@@ -13,14 +13,14 @@
         <div class="p-6">
             <div id="trafficDistributionChart" style="height: 220px;"></div>
             <div class="mt-4 grid grid-cols-2 gap-4">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                <div class="bg-blue-500/10 rounded-xl p-4 border border-blue-500/30">
                     <div class="flex items-center gap-2 mb-1">
-                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
                         </svg>
-                        <p class="text-xs text-gray-600 font-medium">Inbound Traffic</p>
+                        <p class="text-xs text-gray-300 font-medium">Inbound Traffic</p>
                     </div>
-                    <p class="text-2xl font-bold text-blue-600">
+                    <p class="text-2xl font-bold text-blue-400">
                         @php
                             $inbound = $trafficDistribution['inbound_bytes'] ?? 0;
                             if ($inbound >= 1073741824) {
@@ -32,16 +32,16 @@
                             }
                         @endphp
                     </p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $trafficDistribution['inbound_percent'] ?? 0 }}% of total</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ $trafficDistribution['inbound_percent'] ?? 0 }}% of total</p>
                 </div>
-                <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+                <div class="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/30">
                     <div class="flex items-center gap-2 mb-1">
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
                         </svg>
-                        <p class="text-xs text-gray-600 font-medium">Outbound Traffic</p>
+                        <p class="text-xs text-gray-300 font-medium">Outbound Traffic</p>
                     </div>
-                    <p class="text-2xl font-bold text-emerald-600">
+                    <p class="text-2xl font-bold text-emerald-400">
                         @php
                             $outbound = $trafficDistribution['outbound_bytes'] ?? 0;
                             if ($outbound >= 1073741824) {
@@ -53,15 +53,15 @@
                             }
                         @endphp
                     </p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $trafficDistribution['outbound_percent'] ?? 0 }}% of total</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ $trafficDistribution['outbound_percent'] ?? 0 }}% of total</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Top Protocols -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-500 to-purple-600">
+    <div class="glass-card rounded-xl overflow-hidden border border-white/10">
+        <div class="px-6 py-4 border-b border-white/10 bg-purple-500/10">
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -76,8 +76,8 @@
 </div>
 
 <!-- Traffic Over Time Chart -->
-<div class="mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-500 to-indigo-600">
+<div class="mt-6 glass-card rounded-xl overflow-hidden border border-white/10">
+    <div class="px-6 py-4 border-b border-white/10 bg-purple-500/10">
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
@@ -92,9 +92,9 @@
 
 <!-- Traffic Stats Summary -->
 <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-    <div class="bg-white rounded-xl shadow-lg p-5 border-l-4 border-blue-500">
-        <p class="text-sm text-gray-500 font-medium">Total Traffic</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">
+    <div class="glass-card rounded-xl p-5 border-l-4 border-blue-500">
+        <p class="text-sm text-gray-400 font-medium">Total Traffic</p>
+        <p class="text-2xl font-bold text-white mt-1">
             @php
                 $total = ($trafficDistribution['total_bytes'] ?? 0);
                 if ($total >= 1073741824) {
@@ -105,17 +105,17 @@
             @endphp
         </p>
     </div>
-    <div class="bg-white rounded-xl shadow-lg p-5 border-l-4 border-emerald-500">
-        <p class="text-sm text-gray-500 font-medium">Total Flows</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($summaryData['total_flows'] ?? 0) }}</p>
+    <div class="glass-card rounded-xl p-5 border-l-4 border-emerald-500">
+        <p class="text-sm text-gray-400 font-medium">Total Flows</p>
+        <p class="text-2xl font-bold text-white mt-1">{{ number_format($summaryData['total_flows'] ?? 0) }}</p>
     </div>
-    <div class="bg-white rounded-xl shadow-lg p-5 border-l-4 border-purple-500">
-        <p class="text-sm text-gray-500 font-medium">Total Packets</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($summaryData['total_packets'] ?? 0) }}</p>
+    <div class="glass-card rounded-xl p-5 border-l-4 border-purple-500">
+        <p class="text-sm text-gray-400 font-medium">Total Packets</p>
+        <p class="text-2xl font-bold text-white mt-1">{{ number_format($summaryData['total_packets'] ?? 0) }}</p>
     </div>
-    <div class="bg-white rounded-xl shadow-lg p-5 border-l-4 border-amber-500">
-        <p class="text-sm text-gray-500 font-medium">Avg Bandwidth</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">
+    <div class="glass-card rounded-xl p-5 border-l-4 border-amber-500">
+        <p class="text-sm text-gray-400 font-medium">Avg Bandwidth</p>
+        <p class="text-2xl font-bold text-white mt-1">
             @php
                 $avgBw = ($summaryData['avg_bandwidth'] ?? 0) * 8;
                 if ($avgBw >= 1000000000) {
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         new ApexCharts(document.querySelector("#trafficTimeChart"), timeOptions).render();
     } else {
-        document.getElementById('trafficTimeChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-500"><svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><p>No traffic data available for this time range</p></div>';
+        document.getElementById('trafficTimeChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><svg class="w-12 h-12 mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><p>No traffic data available for this time range</p></div>';
     }
 
     // Modern formatBytes function - never shows KB, always MB or GB

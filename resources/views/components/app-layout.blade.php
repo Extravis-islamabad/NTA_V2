@@ -54,44 +54,63 @@
             opacity: 0.9;
             box-shadow: 0 6px 20px rgba(85, 72, 245, 0.4);
         }
+        /* Dark Glassmorphic Theme */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(139, 92, 246, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .glass-nav {
+            background: rgba(10, 10, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 font-sans antialiased">
+<body class="bg-[#0a0a1a] font-sans antialiased text-white" style="background-image: url('{{ asset('monetx_bg.webp') }}'); background-size: cover; background-attachment: fixed; background-position: center;">
     <div class="min-h-screen">
         <!-- Navigation -->
-        <nav class="bg-white shadow-sm border-b border-gray-200">
+        <nav class="glass-nav sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex">
                         <div class="flex-shrink-0 flex items-center">
                             <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                                <img src="{{ asset('MonetX_black@4x-8.png') }}" alt="MonetX" class="h-10 w-auto">
+                                <img src="{{ asset('MonetX_white@4x-8.png') }}" alt="MonetX" class="h-10 w-auto">
                             </a>
                         </div>
                         <div class="hidden space-x-1 sm:-my-px sm:ml-10 sm:flex">
                             <a href="{{ route('dashboard') }}"
-                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-[#5548F5] text-[#5548F5]' : 'border-transparent text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }} text-sm font-medium transition-all">
+                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-[#C843F3] text-[#C843F3]' : 'border-transparent text-gray-300 hover:text-[#C843F3] hover:border-[#C843F3]/30' }} text-sm font-medium transition-all">
                                 Dashboard
                             </a>
                             <a href="{{ route('devices.index') }}"
-                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('devices.*') ? 'border-[#5548F5] text-[#5548F5]' : 'border-transparent text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }} text-sm font-medium transition-all">
+                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('devices.*') ? 'border-[#C843F3] text-[#C843F3]' : 'border-transparent text-gray-300 hover:text-[#C843F3] hover:border-[#C843F3]/30' }} text-sm font-medium transition-all">
                                 Inventory
                             </a>
                             <a href="{{ route('traffic.index') }}"
-                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('traffic.*') ? 'border-[#5548F5] text-[#5548F5]' : 'border-transparent text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }} text-sm font-medium transition-all">
+                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('traffic.*') ? 'border-[#C843F3] text-[#C843F3]' : 'border-transparent text-gray-300 hover:text-[#C843F3] hover:border-[#C843F3]/30' }} text-sm font-medium transition-all">
                                 Traffic
                             </a>
                             <a href="{{ route('alarms.index') }}"
-                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('alarms.*') ? 'border-[#5548F5] text-[#5548F5]' : 'border-transparent text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }} text-sm font-medium transition-all">
+                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('alarms.*') ? 'border-[#C843F3] text-[#C843F3]' : 'border-transparent text-gray-300 hover:text-[#C843F3] hover:border-[#C843F3]/30' }} text-sm font-medium transition-all">
                                 Alarms
                             </a>
                             <a href="{{ route('reports.index') }}"
-                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('reports.*') ? 'border-[#5548F5] text-[#5548F5]' : 'border-transparent text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }} text-sm font-medium transition-all">
+                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('reports.*') ? 'border-[#C843F3] text-[#C843F3]' : 'border-transparent text-gray-300 hover:text-[#C843F3] hover:border-[#C843F3]/30' }} text-sm font-medium transition-all">
                                 Reports
                             </a>
                             <a href="{{ route('settings.index') }}"
-                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('settings.*') ? 'border-[#5548F5] text-[#5548F5]' : 'border-transparent text-gray-500 hover:text-[#5548F5] hover:border-[#5548F5]/30' }} text-sm font-medium transition-all">
+                                class="inline-flex items-center px-4 pt-1 border-b-2 {{ request()->routeIs('settings.*') ? 'border-[#C843F3] text-[#C843F3]' : 'border-transparent text-gray-300 hover:text-[#C843F3] hover:border-[#C843F3]/30' }} text-sm font-medium transition-all">
                                 Settings
                             </a>
                         </div>
@@ -100,28 +119,28 @@
                         <!-- User Dropdown -->
                         @auth
                         <div x-data="{ open: false }" class="relative">
-                            <button @click="open = !open" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                            <button @click="open = !open" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition">
                                 <div class="w-8 h-8 gradient-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
-                                <span class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span class="text-sm font-medium text-gray-200">{{ auth()->user()->name }}</span>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
 
                             <div x-show="open" @click.outside="open = false" x-transition
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
-                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                 class="absolute right-0 mt-2 w-48 glass rounded-lg shadow-lg py-1 z-50">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-200 hover:bg-white/10">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                     </svg>
                                     Profile
                                 </a>
-                                <hr class="my-1">
+                                <hr class="my-1 border-white/10">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-red-500/20">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                         </svg>
@@ -138,7 +157,7 @@
 
         <!-- Page Header -->
         @isset($header)
-        <header class="bg-white shadow-sm">
+        <header class="glass-nav">
             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                 {{ $header }}
             </div>
@@ -153,12 +172,12 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
+        <footer class="glass-nav py-4 mt-auto">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center text-sm text-gray-500">
+                <div class="flex justify-between items-center text-sm text-gray-400">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('MonetX_black@4x-8.png') }}" alt="MonetX" class="h-6 w-auto">
-                        <span class="text-gray-400">|</span>
+                        <img src="{{ asset('MonetX_white@4x-8.png') }}" alt="MonetX" class="h-6 w-auto">
+                        <span class="text-gray-600">|</span>
                         <span>NetFlow Traffic Analyzer v2.0</span>
                     </div>
                     @php
@@ -172,9 +191,9 @@
                             Collector: {{ $collectorIp }}:{{ $netflowPort }}
                         </span>
                         @else
-                        <span class="flex items-center gap-2 text-orange-600">
+                        <span class="flex items-center gap-2 text-orange-400">
                             <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
-                            Collector: <a href="{{ route('settings.index') }}" class="underline">Configure in Settings</a>
+                            Collector: <a href="{{ route('settings.index') }}" class="underline hover:text-orange-300">Configure in Settings</a>
                         </span>
                         @endif
                     </div>

@@ -1,32 +1,32 @@
 @if($cloudTraffic->isEmpty())
 <div class="text-center py-12">
-    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="mx-auto h-16 w-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
     </svg>
-    <h3 class="mt-4 text-lg font-medium text-gray-900">No Cloud Traffic Detected</h3>
-    <p class="mt-2 text-sm text-gray-500">No traffic to known cloud service providers found in the selected time range.</p>
+    <h3 class="mt-4 text-lg font-medium text-white">No Cloud Traffic Detected</h3>
+    <p class="mt-2 text-sm text-gray-400">No traffic to known cloud service providers found in the selected time range.</p>
 </div>
 @else
 <!-- Cloud Provider Distribution -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Cloud Provider Distribution</h3>
+    <div class="glass-card rounded-xl p-6 border border-white/10">
+        <h3 class="text-lg font-semibold text-white mb-4">Cloud Provider Distribution</h3>
         <div id="cloudProviderChart" style="height: 280px;"></div>
     </div>
 
     <!-- Cloud Stats -->
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Cloud Traffic Summary</h3>
+    <div class="glass-card rounded-xl p-6 border border-white/10">
+        <h3 class="text-lg font-semibold text-white mb-4">Cloud Traffic Summary</h3>
         <div class="space-y-4">
             @php $totalBytes = $cloudTraffic->sum('bytes'); @endphp
             @foreach($cloudTraffic->take(5) as $cloud)
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                 <div class="flex items-center gap-3">
                     <div class="w-3 h-3 rounded-full" style="background-color: {{ ['#FF9900', '#0078D4', '#4285F4', '#F38020', '#0080FF'][$loop->index % 5] }}"></div>
-                    <span class="font-medium text-gray-900">{{ $cloud['provider'] }}</span>
+                    <span class="font-medium text-white">{{ $cloud['provider'] }}</span>
                 </div>
                 <div class="text-right">
-                    <span class="font-semibold text-gray-900">
+                    <span class="font-semibold text-white">
                         @php
                             $bytes = $cloud['bytes'];
                             if ($bytes >= 1073741824) {
@@ -38,7 +38,7 @@
                             }
                         @endphp
                     </span>
-                    <span class="text-xs text-gray-500 ml-2">({{ number_format(($cloud['bytes'] / max(1, $totalBytes)) * 100, 1) }}%)</span>
+                    <span class="text-xs text-gray-400 ml-2">({{ number_format(($cloud['bytes'] / max(1, $totalBytes)) * 100, 1) }}%)</span>
                 </div>
             </div>
             @endforeach
@@ -47,32 +47,32 @@
 </div>
 
 <!-- Cloud Traffic Table -->
-<div class="bg-white rounded-xl shadow-lg overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-900">Cloud Traffic Details</h3>
+<div class="glass-card rounded-xl overflow-hidden border border-white/10">
+    <div class="px-6 py-4 border-b border-white/10">
+        <h3 class="text-lg font-semibold text-white">Cloud Traffic Details</h3>
     </div>
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-white/5">
+            <thead class="bg-purple-500/10">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cloud Provider</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Flow Count</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Bytes</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unique IPs</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Percentage</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Cloud Provider</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Flow Count</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Total Bytes</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Unique IPs</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Percentage</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-white/5">
                 @foreach($cloudTraffic as $cloud)
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-white/5">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="w-3 h-3 rounded-full mr-3" style="background-color: {{ ['#FF9900', '#0078D4', '#4285F4', '#F38020', '#0080FF'][$loop->index % 5] }}"></div>
-                            <span class="font-medium text-gray-900">{{ $cloud['provider'] }}</span>
+                            <span class="font-medium text-white">{{ $cloud['provider'] }}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($cloud['flows']) }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ number_format($cloud['flows']) }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                         @php
                             $bytes = $cloud['bytes'];
                             if ($bytes >= 1073741824) {
@@ -84,15 +84,15 @@
                             }
                         @endphp
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $cloud['unique_ips'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ $cloud['unique_ips'] }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-1 mr-3 max-w-24">
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ ($cloud['bytes'] / max(1, $totalBytes)) * 100 }}%"></div>
+                                <div class="w-full bg-white/10 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: {{ ($cloud['bytes'] / max(1, $totalBytes)) * 100 }}%"></div>
                                 </div>
                             </div>
-                            <span class="text-sm text-gray-500">{{ number_format(($cloud['bytes'] / max(1, $totalBytes)) * 100, 1) }}%</span>
+                            <span class="text-sm text-gray-400">{{ number_format(($cloud['bytes'] / max(1, $totalBytes)) * 100, 1) }}%</span>
                         </div>
                     </td>
                 </tr>

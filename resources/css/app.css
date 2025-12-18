@@ -2,29 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark Glassmorphic Theme Base */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-purple-bg: rgba(139, 92, 246, 0.08);
+    --glass-purple-border: rgba(139, 92, 246, 0.2);
+}
+
 /* Leaflet Map Customizations */
 .leaflet-container {
-    background: #f8fafc;
+    background: #0a0a1a;
     font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif;
 }
 
 .leaflet-popup-content-wrapper {
     border-radius: 0.5rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    background: rgba(20, 20, 40, 0.95);
+    color: #e5e7eb;
 }
 
 .leaflet-popup-content {
     margin: 0.75rem;
 }
 
+.leaflet-popup-tip {
+    background: rgba(20, 20, 40, 0.95);
+}
+
 /* ApexCharts Customizations */
 .apexcharts-tooltip {
     border-radius: 0.5rem !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+    background: rgba(20, 20, 40, 0.95) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+}
+
+.apexcharts-tooltip-title {
+    background: rgba(139, 92, 246, 0.2) !important;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
 }
 
 .apexcharts-menu {
     border-radius: 0.5rem !important;
+    background: rgba(20, 20, 40, 0.95) !important;
+    border: 1px solid rgba(139, 92, 246, 0.2) !important;
+}
+
+.apexcharts-menu-item:hover {
+    background: rgba(139, 92, 246, 0.2) !important;
 }
 
 /* Sparkline Container */
@@ -40,9 +67,9 @@
     overflow: hidden;
 }
 
-/* Chart Loading Skeleton */
+/* Chart Loading Skeleton - Dark Theme */
 .chart-skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 25%, rgba(139, 92, 246, 0.2) 50%, rgba(139, 92, 246, 0.1) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
 }
@@ -50,4 +77,59 @@
 @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
+}
+
+/* Glass Card Utility Classes */
+.glass-card {
+    background: rgba(139, 92, 246, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 1rem;
+}
+
+.glass-table {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+}
+
+.glass-input:focus {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.glass-input::placeholder {
+    color: rgba(156, 163, 175, 0.6);
+}
+
+/* Table Styling for Dark Theme */
+.dark-table th {
+    background: rgba(139, 92, 246, 0.15);
+    color: #c4b5fd;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.dark-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e5e7eb;
+}
+
+.dark-table tr:hover td {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* Select/Dropdown Dark Theme */
+select.glass-input {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
 }

@@ -30,27 +30,27 @@
 <div class="space-y-4">
     @if($qosData->isEmpty())
         <!-- Empty State -->
-        <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div class="glass-card rounded-xl p-8 text-center border border-white/10">
             <div class="w-16 h-16 mx-auto bg-[#F2C7FF] rounded-full flex items-center justify-center mb-4">
                 <svg class="w-8 h-8 text-[#9619B5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">No QoS Data Available</h3>
-            <p class="text-gray-600 mb-4">DSCP/QoS information will appear once flows with QoS markings are received.</p>
-            <div class="bg-[#F2C7FF]/30 rounded-lg p-4 text-left max-w-md mx-auto">
-                <p class="text-sm text-[#9619B5] font-medium mb-2">To see QoS data:</p>
-                <ul class="text-sm text-gray-600 space-y-1">
+            <h3 class="text-lg font-bold text-white mb-2">No QoS Data Available</h3>
+            <p class="text-gray-300 mb-4">DSCP/QoS information will appear once flows with QoS markings are received.</p>
+            <div class="bg-purple-500/10 rounded-lg p-4 text-left max-w-md mx-auto border border-purple-500/30">
+                <p class="text-sm text-purple-300 font-medium mb-2">To see QoS data:</p>
+                <ul class="text-sm text-gray-300 space-y-1">
                     <li class="flex items-start gap-2">
-                        <span class="text-[#9619B5]">•</span>
+                        <span class="text-purple-400">•</span>
                         Ensure DSCP/ToS field is included in NetFlow export
                     </li>
                     <li class="flex items-start gap-2">
-                        <span class="text-[#9619B5]">•</span>
+                        <span class="text-purple-400">•</span>
                         Traffic must have QoS markings applied
                     </li>
                     <li class="flex items-start gap-2">
-                        <span class="text-[#9619B5]">•</span>
+                        <span class="text-purple-400">•</span>
                         Wait for new flows to be collected
                     </li>
                 </ul>
@@ -59,10 +59,10 @@
     @else
         <!-- QoS Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white rounded-xl shadow p-4">
+            <div class="glass-card rounded-xl p-4 border border-white/10">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-gray-500 font-medium">QoS Classes</p>
+                        <p class="text-xs text-gray-400 font-medium">QoS Classes</p>
                         <p class="text-2xl font-bold text-[#5548F5]">{{ $qosData->count() }}</p>
                     </div>
                     <div class="w-10 h-10 bg-[#E4F2FF] rounded-lg flex items-center justify-center">
@@ -72,10 +72,10 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow p-4">
+            <div class="glass-card rounded-xl p-4 border border-white/10">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-gray-500 font-medium">Total Flows</p>
+                        <p class="text-xs text-gray-400 font-medium">Total Flows</p>
                         <p class="text-2xl font-bold text-[#C843F3]">{{ number_format($qosData->sum('flow_count')) }}</p>
                     </div>
                     <div class="w-10 h-10 bg-[#F2C7FF] rounded-lg flex items-center justify-center">
@@ -85,10 +85,10 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow p-4">
+            <div class="glass-card rounded-xl p-4 border border-white/10">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-gray-500 font-medium">Total Traffic</p>
+                        <p class="text-xs text-gray-400 font-medium">Total Traffic</p>
                         <p class="text-2xl font-bold text-[#9619B5]">
                             @php
                                 if ($totalBytes >= 1073741824) {
@@ -111,9 +111,9 @@
         </div>
 
         <!-- QoS Chart -->
-        <div class="bg-white rounded-xl shadow overflow-hidden">
-            <div class="px-5 py-3 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+        <div class="glass-card rounded-xl overflow-hidden border border-white/10">
+            <div class="px-5 py-3 border-b border-white/10 flex justify-between items-center">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
                     <svg class="w-4 h-4 text-[#9619B5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
@@ -127,36 +127,36 @@
         </div>
 
         <!-- QoS Table -->
-        <div class="bg-white rounded-xl shadow overflow-hidden">
-            <div class="px-5 py-3 bg-gradient-to-r from-[#5548F5] to-[#9619B5]">
+        <div class="glass-card rounded-xl overflow-hidden border border-white/10">
+            <div class="px-5 py-3 bg-purple-500/10">
                 <h3 class="text-sm font-bold text-white">DSCP Classification Details</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-white/5">
+                    <thead class="bg-purple-500/10">
                         <tr>
-                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">DSCP</th>
-                            <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Class Name</th>
-                            <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Flows</th>
-                            <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Traffic</th>
-                            <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Distribution</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-purple-300 uppercase">DSCP</th>
+                            <th class="px-5 py-3 text-left text-xs font-semibold text-purple-300 uppercase">Class Name</th>
+                            <th class="px-5 py-3 text-right text-xs font-semibold text-purple-300 uppercase">Flows</th>
+                            <th class="px-5 py-3 text-right text-xs font-semibold text-purple-300 uppercase">Traffic</th>
+                            <th class="px-5 py-3 text-right text-xs font-semibold text-purple-300 uppercase">Distribution</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
+                    <tbody class="divide-y divide-white/5">
                         @foreach($qosData as $index => $qos)
-                        <tr class="hover:bg-[#E4F2FF]/20 transition">
+                        <tr class="hover:bg-white/5 transition">
                             <td class="px-5 py-3 whitespace-nowrap">
-                                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-[#E4F2FF] text-[#5548F5]">
+                                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                                     {{ $qos->dscp }}
                                 </span>
                             </td>
                             <td class="px-5 py-3 whitespace-nowrap">
-                                <span class="font-medium text-gray-900">{{ $dscpNames[$qos->dscp] ?? 'DSCP ' . $qos->dscp }}</span>
+                                <span class="font-medium text-white">{{ $dscpNames[$qos->dscp] ?? 'DSCP ' . $qos->dscp }}</span>
                             </td>
-                            <td class="px-5 py-3 whitespace-nowrap text-right text-sm text-gray-600">
+                            <td class="px-5 py-3 whitespace-nowrap text-right text-sm text-gray-300">
                                 {{ number_format($qos->flow_count) }}
                             </td>
-                            <td class="px-5 py-3 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                            <td class="px-5 py-3 whitespace-nowrap text-right text-sm font-medium text-white">
                                 @php
                                     $bytes = $qos->total_bytes;
                                     if ($bytes >= 1073741824) {
@@ -171,10 +171,10 @@
                             <td class="px-5 py-3 whitespace-nowrap text-right">
                                 @php $percent = $totalBytes > 0 ? ($qos->total_bytes / $totalBytes) * 100 : 0; @endphp
                                 <div class="flex items-center justify-end gap-2">
-                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="w-20 bg-white/10 rounded-full h-2">
                                         <div class="h-2 rounded-full bg-gradient-to-r from-[#5548F5] to-[#C843F3]" style="width: {{ min($percent, 100) }}%"></div>
                                     </div>
-                                    <span class="text-xs text-gray-600 w-12 text-right">{{ number_format($percent, 1) }}%</span>
+                                    <span class="text-xs text-gray-300 w-12 text-right">{{ number_format($percent, 1) }}%</span>
                                 </div>
                             </td>
                         </tr>

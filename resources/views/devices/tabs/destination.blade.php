@@ -1,20 +1,20 @@
 <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+    <table class="min-w-full divide-y divide-white/5">
+        <thead class="bg-purple-500/10">
             <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destination IP</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Flow Count</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Bytes</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Percentage</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Destination IP</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Flow Count</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Total Bytes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase">Percentage</th>
             </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="divide-y divide-white/5">
             @php $totalBytes = $topDestinations->sum('total_bytes'); @endphp
             @forelse($topDestinations as $dest)
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $dest->destination_ip }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ number_format($dest->flow_count) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <tr class="hover:bg-white/5">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-white">{{ $dest->destination_ip }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ number_format($dest->flow_count) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
                     @php
                         $bytes = $dest->total_bytes;
                         if ($bytes >= 1073741824) {
@@ -29,17 +29,17 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div class="flex-1 mr-3">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ ($dest->total_bytes / max(1, $totalBytes)) * 100 }}%"></div>
+                            <div class="w-full bg-white/10 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: {{ ($dest->total_bytes / max(1, $totalBytes)) * 100 }}%"></div>
                             </div>
                         </div>
-                        <span class="text-sm text-gray-500">{{ number_format(($dest->total_bytes / max(1, $totalBytes)) * 100, 2) }}%</span>
+                        <span class="text-sm text-gray-400">{{ number_format(($dest->total_bytes / max(1, $totalBytes)) * 100, 2) }}%</span>
                     </div>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                <td colspan="4" class="px-6 py-12 text-center text-gray-400">
                     No destination data available
                 </td>
             </tr>

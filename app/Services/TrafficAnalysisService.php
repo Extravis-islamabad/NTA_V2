@@ -163,36 +163,37 @@ class TrafficAnalysisService
         $deviceIpParts = explode('.', $device->ip_address);
         $localNetwork = $deviceIpParts[0] . '.' . $deviceIpParts[1] . '.' . $deviceIpParts[2] . '.';
 
-        $flows = Flow::where('device_id', $device->id)
+        // Use database aggregation to avoid memory issues with large datasets
+        // Inbound: source is external (not private IP), destination is internal (private IP)
+        $inboundBytes = Flow::where('device_id', $device->id)
             ->where('created_at', '>=', $start)
-            ->get();
+            ->whereRaw("(destination_ip LIKE ? OR destination_ip LIKE ? OR destination_ip LIKE ? OR destination_ip LIKE ?)",
+                [$localNetwork . '%', '10.%', '192.168.%', '172.16.%'])
+            ->whereRaw("NOT (source_ip LIKE ? OR source_ip LIKE ? OR source_ip LIKE ? OR source_ip LIKE ?)",
+                [$localNetwork . '%', '10.%', '192.168.%', '172.16.%'])
+            ->sum('bytes') ?? 0;
 
-        $inboundBytes = 0;
-        $outboundBytes = 0;
+        // Outbound: source is internal (private IP), destination is external (not private IP)
+        $outboundBytes = Flow::where('device_id', $device->id)
+            ->where('created_at', '>=', $start)
+            ->whereRaw("(source_ip LIKE ? OR source_ip LIKE ? OR source_ip LIKE ? OR source_ip LIKE ?)",
+                [$localNetwork . '%', '10.%', '192.168.%', '172.16.%'])
+            ->whereRaw("NOT (destination_ip LIKE ? OR destination_ip LIKE ? OR destination_ip LIKE ? OR destination_ip LIKE ?)",
+                [$localNetwork . '%', '10.%', '192.168.%', '172.16.%'])
+            ->sum('bytes') ?? 0;
 
-        foreach ($flows as $flow) {
-            // Inbound: source is external, destination is internal
-            // Outbound: source is internal, destination is external
-            $sourceIsLocal = str_starts_with($flow->source_ip, $localNetwork) ||
-                             str_starts_with($flow->source_ip, '10.') ||
-                             str_starts_with($flow->source_ip, '192.168.') ||
-                             str_starts_with($flow->source_ip, '172.16.');
+        // Internal traffic (both source and destination are private IPs)
+        $internalBytes = Flow::where('device_id', $device->id)
+            ->where('created_at', '>=', $start)
+            ->whereRaw("(source_ip LIKE ? OR source_ip LIKE ? OR source_ip LIKE ? OR source_ip LIKE ?)",
+                [$localNetwork . '%', '10.%', '192.168.%', '172.16.%'])
+            ->whereRaw("(destination_ip LIKE ? OR destination_ip LIKE ? OR destination_ip LIKE ? OR destination_ip LIKE ?)",
+                [$localNetwork . '%', '10.%', '192.168.%', '172.16.%'])
+            ->sum('bytes') ?? 0;
 
-            $destIsLocal = str_starts_with($flow->destination_ip, $localNetwork) ||
-                           str_starts_with($flow->destination_ip, '10.') ||
-                           str_starts_with($flow->destination_ip, '192.168.') ||
-                           str_starts_with($flow->destination_ip, '172.16.');
-
-            if (!$sourceIsLocal && $destIsLocal) {
-                $inboundBytes += $flow->bytes;
-            } elseif ($sourceIsLocal && !$destIsLocal) {
-                $outboundBytes += $flow->bytes;
-            } else {
-                // Internal traffic - split evenly for display
-                $inboundBytes += $flow->bytes / 2;
-                $outboundBytes += $flow->bytes / 2;
-            }
-        }
+        // Split internal traffic evenly for display
+        $inboundBytes += $internalBytes / 2;
+        $outboundBytes += $internalBytes / 2;
 
         $totalBytes = $inboundBytes + $outboundBytes;
 
@@ -217,7 +218,7 @@ class TrafficAnalysisService
         // For 10 minute intervals, we use a custom expression
         $truncFunction = match($timeRange) {
             '1hour' => "date_trunc('minute', created_at)",
-            '6hours' => "date_trunc('hour', created_at) + INTERVAL '10 min' * FLOOR(EXTRACT(MINUTE FROM created_at) / 10)",
+            '6hours' => "date_trunc('hour', created_at) + (INTERVAL '10 minutes' * FLOOR(EXTRACT(MINUTE FROM created_at)::integer / 10))",
             '24hours' => "date_trunc('hour', created_at)",
             '7days' => "date_trunc('day', created_at)",
             default => "date_trunc('hour', created_at)",

@@ -89,6 +89,9 @@
                             <a href="{{ route('devices.show', $device) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
                                 View
                             </a>
+                            <a href="{{ route('devices.edit', $device) }}" class="text-green-600 hover:text-green-900 mr-3">
+                                Edit
+                            </a>
                             <button onclick="deleteDevice({{ $device->id }})" class="text-red-600 hover:text-red-900">
                                 Delete
                             </button>

@@ -249,28 +249,32 @@ class FlowApiController extends Controller
         $timeRange = $request->get('range', '1hour');
         $start = $this->getTimeRangeStart($timeRange);
 
+        // Use database aggregation with chunking to avoid memory exhaustion
         $cloudTraffic = [];
-        $flows = $device->flows()
-            ->where('created_at', '>=', $start)
-            ->get();
 
-        foreach ($flows as $flow) {
-            $cloudProvider = $this->cloudService->identifyProvider($flow->destination_ip);
-            if ($cloudProvider) {
-                $key = $cloudProvider['provider'];
-                if (!isset($cloudTraffic[$key])) {
-                    $cloudTraffic[$key] = [
-                        'provider' => $cloudProvider['name'],
-                        'bytes' => 0,
-                        'flows' => 0,
-                        'ips' => []
-                    ];
+        // Process flows in chunks to avoid memory issues
+        $device->flows()
+            ->where('created_at', '>=', $start)
+            ->select('destination_ip', 'bytes')
+            ->chunkById(1000, function ($flows) use (&$cloudTraffic) {
+                foreach ($flows as $flow) {
+                    $cloudProvider = $this->cloudService->identifyProvider($flow->destination_ip);
+                    if ($cloudProvider) {
+                        $key = $cloudProvider['provider'];
+                        if (!isset($cloudTraffic[$key])) {
+                            $cloudTraffic[$key] = [
+                                'provider' => $cloudProvider['name'],
+                                'bytes' => 0,
+                                'flows' => 0,
+                                'ips' => []
+                            ];
+                        }
+                        $cloudTraffic[$key]['bytes'] += $flow->bytes;
+                        $cloudTraffic[$key]['flows']++;
+                        $cloudTraffic[$key]['ips'][$flow->destination_ip] = true;
+                    }
                 }
-                $cloudTraffic[$key]['bytes'] += $flow->bytes;
-                $cloudTraffic[$key]['flows']++;
-                $cloudTraffic[$key]['ips'][$flow->destination_ip] = true;
-            }
-        }
+            });
 
         $cloudTraffic = collect($cloudTraffic)->map(function($item) {
             $item['unique_ips'] = count($item['ips']);
@@ -293,45 +297,48 @@ class FlowApiController extends Controller
         $start = $this->getTimeRangeStart($timeRange);
 
         $asTraffic = [];
-        $flows = $device->flows()
+
+        // Process flows in chunks to avoid memory exhaustion
+        $device->flows()
             ->where('created_at', '>=', $start)
-            ->get();
+            ->select('source_ip', 'destination_ip', 'bytes')
+            ->chunkById(1000, function ($flows) use (&$asTraffic) {
+                foreach ($flows as $flow) {
+                    $sourceAS = $this->asService->lookupAS($flow->source_ip);
+                    $destAS = $this->asService->lookupAS($flow->destination_ip);
 
-        foreach ($flows as $flow) {
-            $sourceAS = $this->asService->lookupAS($flow->source_ip);
-            $destAS = $this->asService->lookupAS($flow->destination_ip);
+                    if ($sourceAS) {
+                        $sourceKey = $sourceAS['asn'];
+                        if (!isset($asTraffic[$sourceKey])) {
+                            $asTraffic[$sourceKey] = [
+                                'asn' => $sourceAS['asn'],
+                                'name' => $sourceAS['name'],
+                                'country' => $sourceAS['country'],
+                                'bytes_sent' => 0,
+                                'bytes_received' => 0,
+                                'flows' => 0
+                            ];
+                        }
+                        $asTraffic[$sourceKey]['bytes_sent'] += $flow->bytes;
+                        $asTraffic[$sourceKey]['flows']++;
+                    }
 
-            if ($sourceAS) {
-                $sourceKey = $sourceAS['asn'];
-                if (!isset($asTraffic[$sourceKey])) {
-                    $asTraffic[$sourceKey] = [
-                        'asn' => $sourceAS['asn'],
-                        'name' => $sourceAS['name'],
-                        'country' => $sourceAS['country'],
-                        'bytes_sent' => 0,
-                        'bytes_received' => 0,
-                        'flows' => 0
-                    ];
+                    if ($destAS) {
+                        $destKey = $destAS['asn'];
+                        if (!isset($asTraffic[$destKey])) {
+                            $asTraffic[$destKey] = [
+                                'asn' => $destAS['asn'],
+                                'name' => $destAS['name'],
+                                'country' => $destAS['country'],
+                                'bytes_sent' => 0,
+                                'bytes_received' => 0,
+                                'flows' => 0
+                            ];
+                        }
+                        $asTraffic[$destKey]['bytes_received'] += $flow->bytes;
+                    }
                 }
-                $asTraffic[$sourceKey]['bytes_sent'] += $flow->bytes;
-                $asTraffic[$sourceKey]['flows']++;
-            }
-
-            if ($destAS) {
-                $destKey = $destAS['asn'];
-                if (!isset($asTraffic[$destKey])) {
-                    $asTraffic[$destKey] = [
-                        'asn' => $destAS['asn'],
-                        'name' => $destAS['name'],
-                        'country' => $destAS['country'],
-                        'bytes_sent' => 0,
-                        'bytes_received' => 0,
-                        'flows' => 0
-                    ];
-                }
-                $asTraffic[$destKey]['bytes_received'] += $flow->bytes;
-            }
-        }
+            });
 
         $asTraffic = collect($asTraffic)
             ->map(function($item) {

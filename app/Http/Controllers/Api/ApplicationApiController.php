@@ -142,15 +142,17 @@ class ApplicationApiController extends Controller
         $start = $this->getTimeRangeStart($timeRange);
 
         // Determine interval based on time range
-        $interval = match ($timeRange) {
-            '1hour' => 'minute',
-            '6hours' => '10 minutes',
-            '24hours' => 'hour',
-            '7days' => 'day',
-            default => 'hour',
+        // PostgreSQL date_trunc only accepts: microseconds, milliseconds, second, minute, hour, day, week, month, quarter, year
+        // For 10 minute intervals, we use a custom expression
+        $truncExpression = match ($timeRange) {
+            '1hour' => "date_trunc('minute', created_at)",
+            '6hours' => "date_trunc('hour', created_at) + (INTERVAL '10 minutes' * FLOOR(EXTRACT(MINUTE FROM created_at)::integer / 10))",
+            '24hours' => "date_trunc('hour', created_at)",
+            '7days' => "date_trunc('day', created_at)",
+            default => "date_trunc('hour', created_at)",
         };
 
-        $trends = Flow::selectRaw("date_trunc('{$interval}', created_at) as time_bucket")
+        $trends = Flow::selectRaw("{$truncExpression} as time_bucket")
             ->selectRaw('SUM(bytes) as total_bytes')
             ->selectRaw('COUNT(*) as flow_count')
             ->where('application', $application)

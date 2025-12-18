@@ -20,9 +20,11 @@
                 <p class="text-sm text-gray-500">{{ $device->ip_address }}</p>
             </div>
             <div class="flex items-center space-x-3">
-                <form method="GET" class="flex gap-2">
+                <form method="GET" id="timeRangeForm" class="flex items-center gap-2">
                     <input type="hidden" name="tab" value="{{ $tab }}">
-                    <select name="range" class="border-gray-300 rounded-md text-sm" onchange="this.form.submit()">
+                    <span class="text-sm text-gray-600">Time Range:</span>
+                    <select name="range" onchange="this.form.submit()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#5548F5] focus:border-[#5548F5] cursor-pointer">
                         <option value="1hour" {{ $timeRange === '1hour' ? 'selected' : '' }}>Last Hour</option>
                         <option value="6hours" {{ $timeRange === '6hours' ? 'selected' : '' }}>Last 6 Hours</option>
                         <option value="24hours" {{ $timeRange === '24hours' ? 'selected' : '' }}>Last 24 Hours</option>

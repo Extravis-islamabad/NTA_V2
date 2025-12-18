@@ -337,14 +337,13 @@
             }
         };
 
-        // Helper function to format bytes
+        // Helper function to format bytes - always shows MB or GB, never KB
         window.formatBytes = function(bytes) {
-            if (bytes === null || bytes === undefined) return '0 B';
+            if (bytes === null || bytes === undefined || bytes === 0) return '0 MB';
             bytes = parseInt(bytes);
             if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
-            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
-            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
-            return bytes + ' B';
+            // Always show MB, never KB or B for cleaner display
+            return (bytes / 1048576).toFixed(2) + ' MB';
         };
 
         // Helper function to format bandwidth

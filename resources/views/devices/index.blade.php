@@ -6,9 +6,9 @@
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h2 class="text-2xl font-bold text-white">Device Inventory</h2>
-            <p class="text-sm text-purple-300/60 mt-1">Manage and monitor your network devices</p>
+            <p class="text-sm text-gray-400 mt-1">Manage and monitor your network devices</p>
         </div>
-        <a href="{{ route('devices.create') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-medium rounded-lg transition-all shadow-lg shadow-purple-500/25">
+        <a href="{{ route('devices.create') }}" class="inline-flex items-center px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg transition-all shadow-lg shadow-cyan-500/25">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -27,14 +27,14 @@
 
     @if($devices->isEmpty())
         <div class="glass-card p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
-            <div class="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
-                <svg class="w-10 h-10 text-purple-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-20 h-20 rounded-full bg-cyan-500/10 flex items-center justify-center mb-4">
+                <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                 </svg>
             </div>
             <h3 class="text-xl font-semibold text-white mb-2">No Devices Found</h3>
-            <p class="text-purple-300/60 mb-6 max-w-md">Get started by adding your first network device to begin monitoring traffic flows.</p>
-            <a href="{{ route('devices.create') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-medium rounded-lg transition-all shadow-lg shadow-purple-500/25">
+            <p class="text-gray-400 mb-6 max-w-md">Get started by adding your first network device to begin monitoring traffic flows.</p>
+            <a href="{{ route('devices.create') }}" class="inline-flex items-center px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg transition-all shadow-lg shadow-cyan-500/25">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -51,19 +51,19 @@
             <form method="GET" class="flex flex-wrap gap-4 items-end">
                 <!-- Search -->
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-xs text-purple-300/60 uppercase tracking-wider mb-1.5">Search</label>
+                    <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Search</label>
                     <div class="relative">
-                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-purple-300/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search devices..."
-                            class="w-full pl-10 pr-4 py-2 glass-input rounded-lg text-sm text-white placeholder-purple-300/40">
+                            class="w-full pl-10 pr-4 py-2 glass-input rounded-lg text-sm text-white placeholder-gray-500">
                     </div>
                 </div>
 
                 <!-- Type Filter -->
                 <div class="w-40">
-                    <label class="block text-xs text-purple-300/60 uppercase tracking-wider mb-1.5">Type</label>
+                    <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Type</label>
                     <select name="type" class="w-full px-3 py-2 glass-input rounded-lg text-sm text-white">
                         <option value="">All Types</option>
                         <option value="router" {{ request('type') === 'router' ? 'selected' : '' }}>Router</option>
@@ -76,7 +76,7 @@
 
                 <!-- Status Filter -->
                 <div class="w-36">
-                    <label class="block text-xs text-purple-300/60 uppercase tracking-wider mb-1.5">Status</label>
+                    <label class="block text-xs text-gray-400 uppercase tracking-wider mb-1.5">Status</label>
                     <select name="status" class="w-full px-3 py-2 glass-input rounded-lg text-sm text-white">
                         <option value="">All Status</option>
                         <option value="online" {{ request('status') === 'online' ? 'selected' : '' }}>Online</option>
@@ -86,7 +86,7 @@
                 </div>
 
                 <!-- Filter Button -->
-                <button type="submit" class="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 text-sm font-medium rounded-lg transition-colors">
+                <button type="submit" class="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 text-sm font-medium rounded-lg transition-colors">
                     <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
@@ -94,7 +94,7 @@
                 </button>
 
                 @if(request('search') || request('type') || request('status'))
-                <a href="{{ route('devices.index') }}" class="px-4 py-2 text-purple-300/60 hover:text-purple-300 text-sm transition-colors">
+                <a href="{{ route('devices.index') }}" class="px-4 py-2 text-gray-400 hover:text-cyan-300 text-sm transition-colors">
                     Clear
                 </a>
                 @endif
@@ -102,7 +102,7 @@
         </div>
 
         <!-- Device Count -->
-        <div class="mb-4 text-sm text-purple-300/60">
+        <div class="mb-4 text-sm text-gray-400">
             Showing {{ $devices->count() }} device{{ $devices->count() !== 1 ? 's' : '' }}
         </div>
 
@@ -110,43 +110,43 @@
         <div class="glass-card overflow-hidden min-h-[400px]">
             <table class="min-w-full">
                 <thead>
-                    <tr class="border-b border-purple-500/20">
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Device</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">IP Address</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Type</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Location</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Interfaces</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Flows</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Status</th>
-                        <th class="px-5 py-3 text-right text-xs font-medium text-purple-300/70 uppercase tracking-wider bg-purple-500/10">Actions</th>
+                    <tr class="border-b border-white/10">
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Device</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">IP Address</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Type</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Location</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Interfaces</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Flows</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Status</th>
+                        <th class="px-5 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider bg-cyan-500/10">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-purple-500/10">
+                <tbody class="divide-y divide-white/5">
                     @foreach($devices as $index => $device)
-                    <tr class="{{ $index % 2 === 0 ? 'bg-purple-500/5' : '' }} hover:bg-purple-500/10 transition-colors group">
+                    <tr class="{{ $index % 2 === 0 ? 'bg-white/3' : '' }} hover:bg-cyan-500/10 transition-colors group">
                         <td class="px-5 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <a href="{{ route('devices.show', $device) }}" class="text-white font-medium hover:text-purple-300 transition-colors">
+                                    <a href="{{ route('devices.show', $device) }}" class="text-white font-medium hover:text-cyan-300 transition-colors">
                                         {{ $device->name }}
                                     </a>
                                 </div>
                             </div>
                         </td>
                         <td class="px-5 py-4 whitespace-nowrap">
-                            <span class="font-mono text-sm text-purple-300/80">{{ $device->ip_address }}</span>
+                            <span class="font-mono text-sm text-gray-300">{{ $device->ip_address }}</span>
                         </td>
                         <td class="px-5 py-4 whitespace-nowrap">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/20">
+                            <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/20">
                                 {{ ucfirst(str_replace('_', ' ', $device->type)) }}
                             </span>
                         </td>
-                        <td class="px-5 py-4 whitespace-nowrap text-sm text-purple-300/60">
+                        <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-400">
                             {{ $device->location ?? '-' }}
                         </td>
                         <td class="px-5 py-4 whitespace-nowrap text-sm text-white font-medium">
@@ -175,8 +175,8 @@
                         </td>
                         <td class="px-5 py-4 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <a href="{{ route('devices.show', $device) }}" class="p-2 hover:bg-purple-500/20 rounded-lg transition-colors" title="View Details">
-                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <a href="{{ route('devices.show', $device) }}" class="p-2 hover:bg-cyan-500/20 rounded-lg transition-colors" title="View Details">
+                                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
@@ -213,12 +213,12 @@
     <div class="fixed inset-0 flex items-center justify-center p-4">
         <div class="glass-card p-6 max-w-md w-full relative">
             <h3 class="text-lg font-semibold text-white mb-2">Delete Device</h3>
-            <p class="text-purple-300/70 text-sm mb-4">
+            <p class="text-gray-400 text-sm mb-4">
                 Are you sure you want to delete <span id="deleteDeviceName" class="text-white font-medium"></span>?
                 This will also delete all associated flows and interfaces.
             </p>
             <div class="flex justify-end gap-3">
-                <button onclick="closeDeleteModal()" class="px-4 py-2 text-purple-300/70 hover:text-purple-300 text-sm font-medium transition-colors">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 text-gray-400 hover:text-cyan-300 text-sm font-medium transition-colors">
                     Cancel
                 </button>
                 <button onclick="confirmDelete()" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 text-sm font-medium rounded-lg transition-colors">

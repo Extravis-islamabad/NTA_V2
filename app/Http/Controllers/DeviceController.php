@@ -35,38 +35,67 @@ class DeviceController extends Controller
         $this->snmpService = $snmpService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $devices = Device::with('interfaces')->get();
+        $query = Device::with('interfaces');
+
+        // Search filter
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('ip_address', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        // Type filter
+        if ($type = $request->get('type')) {
+            $query->where('type', $type);
+        }
+
+        // Status filter
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $devices = $query->orderBy('name')->get();
+
         return view('devices.index', compact('devices'));
     }
 
     public function show(Device $device, Request $request)
     {
-        $tab = $request->get('tab', 'summary');
+        $tab = $request->get('tab', 'overview');
         $timeRange = $request->get('range', '1hour');
 
-        $device->load(['interfaces', 'flows' => function($query) use ($timeRange) {
-            $start = $this->getTimeRangeStart($timeRange);
-            $query->where('created_at', '>=', $start)->latest()->limit(100);
-        }]);
+        // Always load basic device info
+        $device->load('interfaces');
 
-        // Summary Data
+        // Load tab-specific data only for performance
+        $data = match($tab) {
+            'overview' => $this->getOverviewData($device, $timeRange),
+            'flows' => $this->getFlowsData($device, $timeRange),
+            'endpoints' => $this->getEndpointsData($device, $timeRange),
+            'applications' => $this->getApplicationsData($device, $timeRange),
+            'network' => $this->getNetworkData($device, $timeRange),
+            default => $this->getOverviewData($device, $timeRange),
+        };
+
+        return view('devices.show', array_merge(
+            compact('device', 'tab', 'timeRange'),
+            $data
+        ));
+    }
+
+    /**
+     * Get data for Overview tab (Summary + Traffic)
+     */
+    private function getOverviewData(Device $device, string $timeRange): array
+    {
         $summaryData = $this->trafficService->getDeviceSummary($device, $timeRange);
-
-        // Traffic Distribution (inbound vs outbound)
         $trafficDistribution = $this->trafficService->getTrafficDistribution($device, $timeRange);
-
-        // Traffic Time Series for charts
         $trafficTimeSeries = $this->trafficService->getTrafficTimeSeries($device, $timeRange);
 
-        // Flow Details
-        $flowDetails = $device->flows()
-            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->latest()
-            ->paginate(50);
-
-        // Traffic by Application
         $trafficByApp = $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
             ->whereNotNull('application')
@@ -77,7 +106,6 @@ class DeviceController extends Controller
             ->limit(10)
             ->get();
 
-        // Traffic by Protocol
         $trafficByProtocol = $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
             ->select('protocol')
@@ -86,37 +114,19 @@ class DeviceController extends Controller
             ->orderByDesc('total_bytes')
             ->get();
 
-        // Source IPs
-        $topSources = $device->flows()
-            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->select('source_ip')
-            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
-            ->groupBy('source_ip')
-            ->orderByDesc('total_bytes')
-            ->limit(10)
-            ->get();
+        return compact('summaryData', 'trafficDistribution', 'trafficTimeSeries', 'trafficByApp', 'trafficByProtocol');
+    }
 
-        // Destination IPs
-        $topDestinations = $device->flows()
+    /**
+     * Get data for Flows tab (Flow Details + Conversations)
+     */
+    private function getFlowsData(Device $device, string $timeRange): array
+    {
+        $flowDetails = $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->select('destination_ip')
-            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
-            ->groupBy('destination_ip')
-            ->orderByDesc('total_bytes')
-            ->limit(10)
-            ->get();
+            ->latest()
+            ->paginate(25);
 
-        // QoS Data
-        $qosData = $device->flows()
-            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->whereNotNull('dscp')
-            ->select('dscp')
-            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
-            ->groupBy('dscp')
-            ->orderByDesc('total_bytes')
-            ->get();
-
-        // Conversations
         $conversations = $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
             ->select('source_ip', 'destination_ip', 'protocol', 'application')
@@ -126,44 +136,47 @@ class DeviceController extends Controller
             ->limit(20)
             ->get();
 
-        // Cloud Services Data - use chunking to avoid memory exhaustion
-        $cloudTraffic = [];
-        $device->flows()
+        return compact('flowDetails', 'conversations');
+    }
+
+    /**
+     * Get data for Endpoints tab (Sources + Destinations + AS View)
+     */
+    private function getEndpointsData(Device $device, string $timeRange): array
+    {
+        $topSources = $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->select('id', 'destination_ip', 'bytes')
-            ->chunkById(1000, function ($flows) use (&$cloudTraffic) {
-                foreach ($flows as $flow) {
-                    $cloudProvider = $this->cloudService->identifyProvider($flow->destination_ip);
-                    if ($cloudProvider) {
-                        $key = $cloudProvider['provider'];
-                        if (!isset($cloudTraffic[$key])) {
-                            $cloudTraffic[$key] = [
-                                'provider' => $cloudProvider['name'],
-                                'bytes' => 0,
-                                'flows' => 0,
-                                'ips' => []
-                            ];
-                        }
-                        $cloudTraffic[$key]['bytes'] += $flow->bytes;
-                        $cloudTraffic[$key]['flows']++;
-                        $cloudTraffic[$key]['ips'][$flow->destination_ip] = true;
-                    }
-                }
-            });
+            ->select('source_ip')
+            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->groupBy('source_ip')
+            ->orderByDesc('total_bytes')
+            ->limit(15)
+            ->get();
 
-        $cloudTraffic = collect($cloudTraffic)->map(function($item) {
-            $item['unique_ips'] = count($item['ips']);
-            unset($item['ips']);
-            return $item;
-        })->sortByDesc('bytes')->values();
+        $topDestinations = $device->flows()
+            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
+            ->select('destination_ip')
+            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->groupBy('destination_ip')
+            ->orderByDesc('total_bytes')
+            ->limit(15)
+            ->get();
 
-        // AS View Data - use chunking to avoid memory exhaustion
+        // AS View Data - optimized with limit and caching
         $asTraffic = [];
+        $processedCount = 0;
+        $maxFlows = 5000; // Limit processing for performance
+
         $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
             ->select('id', 'source_ip', 'destination_ip', 'bytes')
-            ->chunkById(1000, function ($flows) use (&$asTraffic) {
+            ->orderByDesc('bytes')
+            ->chunkById(1000, function ($flows) use (&$asTraffic, &$processedCount, $maxFlows) {
+                if ($processedCount >= $maxFlows) return false;
+
                 foreach ($flows as $flow) {
+                    if ($processedCount >= $maxFlows) break;
+
                     $sourceAS = $this->asService->lookupAS($flow->source_ip);
                     $destAS = $this->asService->lookupAS($flow->destination_ip);
 
@@ -197,6 +210,8 @@ class DeviceController extends Controller
                         }
                         $asTraffic[$destKey]['bytes_received'] += $flow->bytes;
                     }
+
+                    $processedCount++;
                 }
             });
 
@@ -206,33 +221,92 @@ class DeviceController extends Controller
                 return $item;
             })
             ->sortByDesc('total_bytes')
-            ->values();
+            ->values()
+            ->take(15);
 
-        // Get NetFlow config template for SSH tab
+        return compact('topSources', 'topDestinations', 'asTraffic');
+    }
+
+    /**
+     * Get data for Applications tab (Applications + Cloud Services)
+     */
+    private function getApplicationsData(Device $device, string $timeRange): array
+    {
+        $trafficByApp = $device->flows()
+            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
+            ->whereNotNull('application')
+            ->select('application')
+            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->groupBy('application')
+            ->orderByDesc('total_bytes')
+            ->limit(15)
+            ->get();
+
+        // Cloud Services Data - optimized with limit
+        $cloudTraffic = [];
+        $processedCount = 0;
+        $maxFlows = 5000;
+
+        $device->flows()
+            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
+            ->select('id', 'destination_ip', 'bytes')
+            ->orderByDesc('bytes')
+            ->chunkById(1000, function ($flows) use (&$cloudTraffic, &$processedCount, $maxFlows) {
+                if ($processedCount >= $maxFlows) return false;
+
+                foreach ($flows as $flow) {
+                    if ($processedCount >= $maxFlows) break;
+
+                    $cloudProvider = $this->cloudService->identifyProvider($flow->destination_ip);
+                    if ($cloudProvider) {
+                        $key = $cloudProvider['provider'];
+                        if (!isset($cloudTraffic[$key])) {
+                            $cloudTraffic[$key] = [
+                                'provider' => $cloudProvider['name'],
+                                'bytes' => 0,
+                                'flows' => 0,
+                                'ips' => []
+                            ];
+                        }
+                        $cloudTraffic[$key]['bytes'] += $flow->bytes;
+                        $cloudTraffic[$key]['flows']++;
+                        $cloudTraffic[$key]['ips'][$flow->destination_ip] = true;
+                    }
+
+                    $processedCount++;
+                }
+            });
+
+        $cloudTraffic = collect($cloudTraffic)->map(function($item) {
+            $item['unique_ips'] = count($item['ips']);
+            unset($item['ips']);
+            return $item;
+        })->sortByDesc('bytes')->values();
+
+        return compact('trafficByApp', 'cloudTraffic');
+    }
+
+    /**
+     * Get data for Network tab (Interface + QoS)
+     */
+    private function getNetworkData(Device $device, string $timeRange): array
+    {
+        $qosData = $device->flows()
+            ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
+            ->whereNotNull('dscp')
+            ->select('dscp')
+            ->selectRaw('SUM(bytes) as total_bytes, COUNT(*) as flow_count')
+            ->groupBy('dscp')
+            ->orderByDesc('total_bytes')
+            ->get();
+
         $collectorIp = Setting::get('collector_ip') ?: request()->server('SERVER_ADDR');
         $collectorPort = Setting::get('netflow_port');
         $netflowConfig = ($collectorIp && $collectorPort)
             ? $this->sshService->getNetFlowConfigTemplate($device->type, $collectorIp, $collectorPort)
             : 'Configure collector IP and port in Settings first.';
 
-        return view('devices.show', compact(
-            'device',
-            'tab',
-            'timeRange',
-            'summaryData',
-            'trafficDistribution',
-            'trafficTimeSeries',
-            'flowDetails',
-            'trafficByApp',
-            'trafficByProtocol',
-            'topSources',
-            'topDestinations',
-            'qosData',
-            'conversations',
-            'cloudTraffic',
-            'asTraffic',
-            'netflowConfig'
-        ));
+        return compact('qosData', 'netflowConfig');
     }
 
     public function create()

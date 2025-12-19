@@ -9,21 +9,27 @@
             <p class="text-sm text-purple-300/60 mt-1">Real-time network analytics and monitoring</p>
         </div>
         <div class="flex items-center gap-4">
+            <span class="text-xs text-purple-300/40 hidden md:flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Updated: <span id="lastUpdated">{{ now()->format('H:i:s') }}</span>
+            </span>
             <form method="GET" id="timeRangeForm" class="flex items-center gap-2">
-                <span class="text-sm text-purple-300/70">Time Range:</span>
+                <span class="text-sm text-purple-300/70 hidden sm:inline">Time Range:</span>
                 <select id="globalTimeRange" name="range" onchange="document.getElementById('timeRangeForm').submit()"
-                    class="px-4 py-2 border border-purple-500/30 rounded-lg shadow-sm bg-space-dark/80 text-sm font-medium text-purple-200 hover:bg-space-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 cursor-pointer">
+                    class="px-3 py-2 border border-purple-500/30 rounded-lg shadow-sm bg-space-dark/80 text-sm font-medium text-purple-200 hover:bg-space-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 cursor-pointer">
                     <option value="1hour" {{ $timeRange === '1hour' ? 'selected' : '' }}>Last Hour</option>
                     <option value="6hours" {{ $timeRange === '6hours' ? 'selected' : '' }}>Last 6 Hours</option>
                     <option value="24hours" {{ $timeRange === '24hours' ? 'selected' : '' }}>Last 24 Hours</option>
                     <option value="7days" {{ $timeRange === '7days' ? 'selected' : '' }}>Last 7 Days</option>
                 </select>
             </form>
-            <button onclick="refreshAllData()" class="btn-gradient inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white">
+            <button onclick="refreshAllData()" class="btn-gradient inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white hover:scale-105 transition-transform">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Refresh
+                <span class="hidden sm:inline">Refresh</span>
             </button>
         </div>
     </div>
@@ -106,49 +112,13 @@
         </div>
     </div>
 
-    <!-- World Map and Top Applications Row -->
+    <!-- Top Applications and Protocol Distribution Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- World Traffic Map -->
-        <div class="lg:col-span-2 glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-600 to-pink-600">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Global Traffic Distribution
-                </h3>
-            </div>
-            <div class="p-4">
-                <div id="trafficMap" class="traffic-map rounded-lg" style="height: 250px; min-height: 220px;"></div>
-                <div class="mt-3 flex justify-between items-center text-sm border-b border-purple-500/20 pb-3">
-                    <div class="flex items-center gap-4">
-                        <span class="flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-purple-500"></span>
-                            <span class="text-purple-300/70">Traffic Origin</span>
-                        </span>
-                        <span class="flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-purple-300/70">Traffic Destination</span>
-                        </span>
-                    </div>
-                    <span class="text-purple-300/60">{{ $trafficByCountry->count() }} countries</span>
-                </div>
-                <!-- Traffic by Country Chart -->
-                <div class="mt-3">
-                    @if($trafficByCountry->isEmpty())
-                        <p class="text-sm text-purple-300/50 text-center py-4">No geographic data available</p>
-                    @else
-                        <div id="countryTrafficChart" style="height: 140px;"></div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
         <!-- Top Applications Donut Chart -->
         <div class="glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20 bg-gradient-to-r from-emerald-600 to-teal-600">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-6 py-4 border-b border-purple-500/20">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                     </svg>
                     Top Applications
@@ -156,25 +126,23 @@
             </div>
             <div class="p-4">
                 @if($topApplications->isEmpty())
-                    <div class="flex flex-col items-center justify-center h-64 text-purple-300/50">
-                        <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex flex-col items-center justify-center py-12 text-purple-300/50">
+                        <svg class="w-12 h-12 mb-3 text-purple-400/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
-                        <p class="text-sm">No application data available</p>
+                        <p class="text-sm font-medium mb-1">No application data</p>
+                        <p class="text-xs text-purple-400/40">Traffic will appear here once flows are collected</p>
                     </div>
                 @else
-                    <div id="applicationsChart" style="height: 280px;"></div>
+                    <div id="applicationsChart" style="height: 320px;"></div>
                 @endif
             </div>
         </div>
-    </div>
 
-    <!-- Bandwidth and Traffic Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Top Protocols Chart -->
-        <div class="glass-card rounded-xl overflow-hidden">
+        <!-- Protocol Distribution Chart -->
+        <div class="lg:col-span-2 glass-card rounded-xl overflow-hidden">
             <div class="px-6 py-4 border-b border-purple-500/20">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
@@ -182,65 +150,80 @@
                 </h3>
             </div>
             <div class="p-4">
-                <div id="protocolsChart" style="height: 300px;"></div>
-            </div>
-        </div>
-
-        <!-- QoS Distribution Chart -->
-        <div class="glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
-                    </svg>
-                    QoS Distribution (DSCP)
-                </h3>
-            </div>
-            <div class="p-4">
-                @if($topQoS->isEmpty())
-                    <div class="flex flex-col items-center justify-center h-64 text-purple-300/50">
-                        <p class="text-sm">No QoS data available</p>
-                    </div>
-                @else
-                    <div id="qosChart" style="height: 300px;"></div>
-                @endif
+                <div id="protocolsChart" style="height: 320px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Device Status and Top Sources/Destinations Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Device Status Heatmap -->
+    <!-- Global Traffic Map Row -->
+    <div class="glass-card rounded-xl overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-purple-500/20 flex justify-between items-center">
+            <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Global Traffic Distribution
+            </h3>
+            <span class="text-sm text-purple-300/60">{{ $trafficByCountry->count() }} countries</span>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="lg:col-span-2">
+                    <div id="trafficMap" class="traffic-map rounded-lg" style="height: 180px;"></div>
+                    <div class="mt-2 flex items-center gap-4 text-xs">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                            <span class="text-purple-300/60">Traffic Origin</span>
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-purple-300/60">Traffic Destination</span>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    @if($trafficByCountry->isEmpty())
+                        <p class="text-sm text-purple-300/50 text-center py-8">No geographic data available</p>
+                    @else
+                        <div id="countryTrafficChart" style="height: 200px;"></div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Health, Top Sources, Destinations, and Conversations Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Device Health -->
         <div class="glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-5 py-3 border-b border-purple-500/20">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                     </svg>
                     Device Health
                 </h3>
             </div>
-            <div class="p-6">
-                <div id="deviceHealthChart" style="height: 200px;"></div>
-                <div class="mt-4 space-y-2">
-                    <div class="flex items-center justify-between text-sm">
+            <div class="p-4">
+                <div id="deviceHealthChart" style="height: 160px;"></div>
+                <div class="mt-3 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
                             <span class="text-purple-300/70">Online</span>
                         </div>
                         <span class="font-semibold text-white">{{ $heatMapData['link_up'] }}</span>
                     </div>
-                    <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
                             <span class="text-purple-300/70">Offline</span>
                         </div>
                         <span class="font-semibold text-white">{{ $heatMapData['link_down'] }}</span>
                     </div>
-                    <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
                             <span class="text-purple-300/70">Warning</span>
                         </div>
                         <span class="font-semibold text-white">{{ $heatMapData['unknown'] }}</span>
@@ -251,28 +234,33 @@
 
         <!-- Top Sources -->
         <div class="glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-5 py-3 border-b border-purple-500/20">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
                     </svg>
                     Top Sources
                 </h3>
             </div>
-            <div class="p-4 max-h-80 overflow-y-auto">
+            <div class="p-3 max-h-72 overflow-y-auto">
                 @if($topSources->isEmpty())
-                    <p class="text-sm text-purple-300/50 text-center py-8">No source data available</p>
+                    <div class="flex flex-col items-center justify-center py-8 text-purple-300/50">
+                        <svg class="w-10 h-10 mb-2 text-purple-400/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
+                        </svg>
+                        <p class="text-xs">No source data</p>
+                    </div>
                 @else
-                    <div class="space-y-2">
+                    <div class="space-y-1">
                         @foreach($topSources as $source)
-                        <div class="flex items-center justify-between p-2 rounded-lg hover:bg-purple-500/10 transition-colors">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <span class="font-mono text-sm text-purple-200 truncate">{{ $source['ip'] }}</span>
+                        <div class="flex items-center justify-between p-1.5 rounded-lg hover:bg-purple-500/10 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="font-mono text-xs text-purple-200 truncate">{{ $source['ip'] }}</span>
                                 @if($source['country_code'])
-                                    <span class="text-xs text-purple-400/60">({{ $source['country_code'] }})</span>
+                                    <span class="text-[10px] text-purple-400/60">({{ $source['country_code'] }})</span>
                                 @endif
                             </div>
-                            <span class="text-sm font-semibold text-blue-400">{{ $source['formatted_bytes'] }}</span>
+                            <span class="text-xs font-semibold text-blue-400 ml-2">{{ $source['formatted_bytes'] }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -282,134 +270,77 @@
 
         <!-- Top Destinations -->
         <div class="glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-5 py-3 border-b border-purple-500/20">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
                     Top Destinations
                 </h3>
             </div>
-            <div class="p-4 max-h-80 overflow-y-auto">
+            <div class="p-3 max-h-72 overflow-y-auto">
                 @if($topDestinations->isEmpty())
-                    <p class="text-sm text-purple-300/50 text-center py-8">No destination data available</p>
+                    <div class="flex flex-col items-center justify-center py-8 text-purple-300/50">
+                        <svg class="w-10 h-10 mb-2 text-purple-400/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                        <p class="text-xs">No destination data</p>
+                    </div>
                 @else
-                    <div class="space-y-2">
+                    <div class="space-y-1">
                         @foreach($topDestinations as $dest)
-                        <div class="flex items-center justify-between p-2 rounded-lg hover:bg-purple-500/10 transition-colors">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <span class="font-mono text-sm text-purple-200 truncate">{{ $dest['ip'] }}</span>
+                        <div class="flex items-center justify-between p-1.5 rounded-lg hover:bg-purple-500/10 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="font-mono text-xs text-purple-200 truncate">{{ $dest['ip'] }}</span>
                                 @if($dest['country_code'])
-                                    <span class="text-xs text-purple-400/60">({{ $dest['country_code'] }})</span>
+                                    <span class="text-[10px] text-purple-400/60">({{ $dest['country_code'] }})</span>
                                 @endif
                             </div>
-                            <span class="text-sm font-semibold text-emerald-400">{{ $dest['formatted_bytes'] }}</span>
+                            <span class="text-xs font-semibold text-emerald-400 ml-2">{{ $dest['formatted_bytes'] }}</span>
                         </div>
                         @endforeach
                     </div>
                 @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- Device Bandwidth with Sparklines and Conversations -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Device Bandwidth Table -->
-        <div class="lg:col-span-2 glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
-                    </svg>
-                    Device Bandwidth
-                </h3>
-                <button onclick="refreshDeviceTable()" class="text-sm text-purple-400 hover:text-purple-300">
-                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-purple-500/20">
-                    <thead class="bg-space-medium/50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Device</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">IP Address</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Bandwidth</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Trend</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-purple-500/10">
-                        @foreach($devices as $device)
-                        <tr class="table-row-hover transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('devices.show', $device) }}" class="text-purple-400 hover:text-purple-300 font-medium">
-                                    {{ $device->name }}
-                                </a>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-300/70 font-mono">{{ $device->ip_address }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-300/70">{{ ucfirst(str_replace('_', ' ', $device->type)) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                                @php
-                                    $bw = $deviceBandwidth->firstWhere('id', $device->id);
-                                @endphp
-                                {{ $bw ? ($bw['bandwidth']['total_formatted'] ?? '0 B') : '0 B' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div id="sparkline-{{ $device->id }}" class="sparkline-container"></div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($device->status === 'online')
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500/20 text-green-400">
-                                        Online
-                                    </span>
-                                @else
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-500/20 text-red-400">
-                                        Offline
-                                    </span>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
             </div>
         </div>
 
         <!-- Top Conversations -->
         <div class="glass-card rounded-xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-purple-500/20">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="px-5 py-3 border-b border-purple-500/20">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                     </svg>
                     Top Conversations
                 </h3>
             </div>
-            <div class="p-4 max-h-96 overflow-y-auto">
+            <div class="p-3 max-h-72 overflow-y-auto">
                 @if($topConversations->isEmpty())
-                    <p class="text-sm text-purple-300/50 text-center py-8">No conversation data available</p>
+                    <div class="flex flex-col items-center justify-center py-8 text-purple-300/50">
+                        <svg class="w-10 h-10 mb-2 text-purple-400/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <p class="text-xs">No conversation data</p>
+                    </div>
                 @else
-                    <div class="space-y-3">
+                    <div class="space-y-2">
                         @foreach($topConversations as $conv)
-                        <div class="p-3 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 transition-colors">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" style="background-color: {{ $conv['app_color'] }}">
+                        <div class="p-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-6 h-6 rounded flex items-center justify-center text-white text-[10px] font-bold" style="background-color: {{ $conv['app_color'] }}">
                                         {{ strtoupper(substr($conv['application'], 0, 2)) }}
                                     </div>
-                                    <span class="text-sm font-medium text-white">{{ $conv['application'] }}</span>
+                                    <span class="text-xs font-medium text-white">{{ $conv['application'] }}</span>
                                 </div>
-                                <span class="text-sm font-semibold text-blue-400">{{ $conv['formatted_bytes'] }}</span>
+                                <span class="text-xs font-semibold text-blue-400">{{ $conv['formatted_bytes'] }}</span>
                             </div>
-                            <div class="flex items-center text-xs text-purple-300/60 gap-1">
-                                <span class="font-mono truncate max-w-[100px]">{{ $conv['source'] }}</span>
-                                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-center text-[10px] text-purple-300/60 gap-1">
+                                <span class="font-mono truncate max-w-[70px]">{{ $conv['source'] }}</span>
+                                <svg class="w-2.5 h-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                                 </svg>
-                                <span class="font-mono truncate max-w-[100px]">{{ $conv['destination'] }}</span>
+                                <span class="font-mono truncate max-w-[70px]">{{ $conv['destination'] }}</span>
                             </div>
                         </div>
                         @endforeach
@@ -419,36 +350,147 @@
         </div>
     </div>
 
-    <!-- Recent Alarms -->
-    <div class="glass-card rounded-xl overflow-hidden">
+    <!-- Device Bandwidth Table - Full Width -->
+    <div class="glass-card rounded-xl overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-purple-500/20 flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+            <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                </svg>
+                Device Bandwidth
+            </h3>
+            <button onclick="refreshDeviceTable()" class="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span class="hidden sm:inline">Refresh</span>
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-purple-500/20">
+                <thead class="bg-space-medium/50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Device</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">IP Address</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Bandwidth</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Trend</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-purple-500/10">
+                    @foreach($devices as $device)
+                    <tr class="table-row-hover transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{{ route('devices.show', $device) }}" class="text-purple-400 hover:text-purple-300 hover:underline font-medium transition-colors">
+                                {{ $device->name }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-300/70 font-mono">{{ $device->ip_address }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-300/70">{{ ucfirst(str_replace('_', ' ', $device->type)) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                            @php
+                                $bw = $deviceBandwidth->firstWhere('id', $device->id);
+                            @endphp
+                            {{ $bw ? ($bw['bandwidth']['total_formatted'] ?? '0 B') : '0 B' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div id="sparkline-{{ $device->id }}" class="sparkline-container" style="width: 100px;"></div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($device->status === 'online')
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500/20 text-green-400">
+                                    Online
+                                </span>
+                            @else
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-500/20 text-red-400">
+                                    Offline
+                                </span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- QoS Distribution - Compact -->
+    @if(!$topQoS->isEmpty())
+    <div class="glass-card rounded-xl overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-purple-500/20">
+            <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                </svg>
+                QoS Distribution (DSCP)
+            </h3>
+        </div>
+        <div class="p-4">
+            <div id="qosChart" style="height: 200px;"></div>
+        </div>
+    </div>
+    @else
+    <div class="glass-card rounded-xl overflow-hidden mb-6">
+        <div class="px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                </svg>
+                <span class="text-sm text-purple-300/60">No QoS/DSCP data available.</span>
+            </div>
+            <a href="{{ route('settings.index') }}" class="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors">
+                Configure monitoring
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    @endif
+
+    <!-- Recent Alarms - Compact -->
+    <div class="glass-card rounded-xl overflow-hidden">
+        <div class="px-6 py-3 border-b border-purple-500/20 flex justify-between items-center">
+            <h3 class="text-base font-semibold text-white flex items-center gap-2">
                 <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
                 Recent Alarms
             </h3>
-            <a href="{{ route('alarms.index') }}" class="text-sm text-purple-400 hover:text-purple-300">View All</a>
+            <a href="{{ route('alarms.index') }}" class="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1 font-medium transition-colors">
+                View All
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
         </div>
-        <div class="p-6" id="alarmsContainer">
+        <div class="p-4" id="alarmsContainer">
             @if($recentAlarms->isEmpty())
-                <div class="text-center py-8">
-                    <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p class="mt-2 text-sm text-purple-300/60">No active alarms - All systems operational</p>
+                <div class="flex items-center justify-center gap-3 py-4">
+                    <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-green-400">All Systems Operational</p>
+                        <p class="text-xs text-purple-300/50">No active alarms detected</p>
+                    </div>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach($recentAlarms as $alarm)
-                    <div class="border-l-4 {{ $alarm->severity === 'critical' ? 'border-red-500 bg-red-500/10' : ($alarm->severity === 'warning' ? 'border-yellow-500 bg-yellow-500/10' : 'border-blue-500 bg-blue-500/10') }} rounded-r-lg p-4">
+                    <div class="border-l-4 {{ $alarm->severity === 'critical' ? 'border-red-500 bg-red-500/10' : ($alarm->severity === 'warning' ? 'border-yellow-500 bg-yellow-500/10' : 'border-blue-500 bg-blue-500/10') }} rounded-r-lg p-3 hover:bg-opacity-20 transition-colors cursor-pointer">
                         <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-white">{{ $alarm->title }}</p>
-                                <p class="mt-1 text-sm text-purple-300/60">{{ Str::limit($alarm->description, 50) }}</p>
-                                <p class="mt-1 text-xs text-purple-400/50">{{ $alarm->created_at->diffForHumans() }}</p>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-white truncate">{{ $alarm->title }}</p>
+                                <p class="mt-0.5 text-xs text-purple-300/60 truncate">{{ Str::limit($alarm->description, 40) }}</p>
+                                <p class="mt-1 text-[10px] text-purple-400/50">{{ $alarm->created_at->diffForHumans() }}</p>
                             </div>
-                            <span class="px-2 py-1 text-xs font-semibold rounded {{ $alarm->severity === 'critical' ? 'bg-red-500/20 text-red-400' : ($alarm->severity === 'warning' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400') }}">
+                            <span class="ml-2 px-1.5 py-0.5 text-[10px] font-semibold rounded {{ $alarm->severity === 'critical' ? 'bg-red-500/20 text-red-400' : ($alarm->severity === 'warning' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400') }}">
                                 {{ ucfirst($alarm->severity) }}
                             </span>
                         </div>
@@ -498,8 +540,8 @@ function initializeCharts() {
 
 // Applications Donut Chart - improved styling
 function createApplicationsChart() {
-    if (dashboardData.topApplications.length === 0) {
-        document.getElementById('applicationsChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No application data</p></div>';
+    const container = document.getElementById('applicationsChart');
+    if (!container || dashboardData.topApplications.length === 0) {
         return;
     }
 
@@ -512,37 +554,40 @@ function createApplicationsChart() {
     const options = {
         chart: {
             type: 'donut',
-            height: 280,
-            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            height: 320,
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+            background: 'transparent'
         },
         series: topApps.map(app => app.bytes),
-        labels: topApps.map(app => app.name.length > 12 ? app.name.substring(0, 12) + '...' : app.name),
+        labels: topApps.map(app => app.name.length > 15 ? app.name.substring(0, 15) + '...' : app.name),
         colors: chartColors,
         plotOptions: {
             pie: {
                 donut: {
-                    size: '60%',
+                    size: '68%',
                     labels: {
                         show: true,
                         name: {
                             show: true,
-                            fontSize: '12px',
-                            fontWeight: 600
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#a78bfa'
                         },
                         value: {
                             show: true,
-                            fontSize: '14px',
+                            fontSize: '16px',
                             fontWeight: 700,
+                            color: '#fff',
                             formatter: function(val) {
                                 return formatBytes(parseInt(val));
                             }
                         },
                         total: {
                             show: true,
-                            label: 'Total',
+                            label: 'Total Traffic',
                             fontSize: '11px',
                             fontWeight: 500,
-                            color: '#6b7280',
+                            color: '#a78bfa',
                             formatter: function(w) {
                                 const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                                 return formatBytes(total);
@@ -554,15 +599,16 @@ function createApplicationsChart() {
         },
         stroke: {
             width: 2,
-            colors: ['#fff']
+            colors: ['rgba(15, 10, 31, 0.8)']
         },
         legend: {
             position: 'bottom',
             fontSize: '11px',
             fontWeight: 500,
             horizontalAlign: 'center',
-            offsetY: 5,
+            offsetY: 0,
             itemMargin: { horizontal: 8, vertical: 4 },
+            labels: { colors: '#a78bfa' },
             markers: {
                 width: 10,
                 height: 10,
@@ -571,6 +617,7 @@ function createApplicationsChart() {
         },
         dataLabels: { enabled: false },
         tooltip: {
+            theme: 'dark',
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
@@ -585,30 +632,35 @@ function createApplicationsChart() {
         }]
     };
 
-    applicationsChart = new ApexCharts(document.querySelector("#applicationsChart"), options);
+    applicationsChart = new ApexCharts(container, options);
     applicationsChart.render();
 }
 
 // Protocols Bar Chart - using server-side data
 function createProtocolsChart() {
+    const container = document.getElementById('protocolsChart');
     const protocols = dashboardData.topProtocols;
-    if (!protocols || protocols.length === 0) {
-        document.getElementById('protocolsChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No protocol data available</p></div>';
+    if (!container || !protocols || protocols.length === 0) {
+        if (container) {
+            container.innerHTML = '<div class="flex items-center justify-center h-full text-purple-300/50"><p>No protocol data available</p></div>';
+        }
         return;
     }
 
     const options = {
         chart: {
             type: 'bar',
-            height: 300,
+            height: 320,
             fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
-            toolbar: { show: true }
+            background: 'transparent',
+            foreColor: '#a78bfa',
+            toolbar: { show: false }
         },
         plotOptions: {
             bar: {
                 horizontal: false,
-                borderRadius: 6,
-                columnWidth: '55%',
+                borderRadius: 8,
+                columnWidth: '70%',
                 distributed: true
             }
         },
@@ -621,10 +673,12 @@ function createProtocolsChart() {
             categories: protocols.map(p => p.protocol),
             labels: {
                 style: {
-                    colors: '#6b7280',
+                    colors: '#a78bfa',
                     fontSize: '11px'
                 }
-            }
+            },
+            axisBorder: { show: false },
+            axisTicks: { show: false }
         },
         yaxis: {
             labels: {
@@ -632,7 +686,7 @@ function createProtocolsChart() {
                     return formatBytes(val);
                 },
                 style: {
-                    colors: '#6b7280',
+                    colors: '#a78bfa',
                     fontSize: '11px'
                 }
             }
@@ -640,6 +694,7 @@ function createProtocolsChart() {
         legend: { show: false },
         dataLabels: { enabled: false },
         tooltip: {
+            theme: 'dark',
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
@@ -647,7 +702,7 @@ function createProtocolsChart() {
             }
         },
         grid: {
-            borderColor: '#e5e7eb',
+            borderColor: 'rgba(139, 92, 246, 0.1)',
             strokeDashArray: 4
         }
     };
@@ -655,17 +710,14 @@ function createProtocolsChart() {
     if (protocolsChart) {
         protocolsChart.destroy();
     }
-    protocolsChart = new ApexCharts(document.querySelector("#protocolsChart"), options);
+    protocolsChart = new ApexCharts(container, options);
     protocolsChart.render();
 }
 
 // QoS Pie Chart - improved
 function createQoSChart() {
-    if (!dashboardData.topQoS || dashboardData.topQoS.length === 0) {
-        const qosContainer = document.getElementById('qosChart');
-        if (qosContainer) {
-            qosContainer.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No QoS data available</p></div>';
-        }
+    const container = document.getElementById('qosChart');
+    if (!container || !dashboardData.topQoS || dashboardData.topQoS.length === 0) {
         return;
     }
 
@@ -674,20 +726,27 @@ function createQoSChart() {
     const options = {
         chart: {
             type: 'pie',
-            height: 300,
-            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            height: 200,
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+            background: 'transparent'
         },
         series: dashboardData.topQoS.map(q => parseInt(q.bytes)),
         labels: dashboardData.topQoS.map(q => q.dscp),
         colors: chartColors,
         legend: {
-            position: 'bottom',
+            position: 'right',
             fontSize: '10px',
             horizontalAlign: 'center',
-            itemMargin: { horizontal: 6, vertical: 2 }
+            itemMargin: { horizontal: 4, vertical: 2 },
+            labels: { colors: '#a78bfa' }
+        },
+        stroke: {
+            width: 2,
+            colors: ['rgba(15, 10, 31, 0.8)']
         },
         dataLabels: { enabled: false },
         tooltip: {
+            theme: 'dark',
             y: {
                 formatter: function(val) {
                     return formatBytes(val);
@@ -697,25 +756,29 @@ function createQoSChart() {
         responsive: [{
             breakpoint: 480,
             options: {
-                legend: { fontSize: '9px' }
+                legend: { position: 'bottom', fontSize: '9px' }
             }
         }]
     };
 
-    qosChart = new ApexCharts(document.querySelector("#qosChart"), options);
+    qosChart = new ApexCharts(container, options);
     qosChart.render();
 }
 
 // Device Health Radial Chart
 function createDeviceHealthChart() {
+    const container = document.getElementById('deviceHealthChart');
+    if (!container) return;
+
     const total = dashboardData.heatMapData.link_up + dashboardData.heatMapData.link_down + dashboardData.heatMapData.unknown;
     if (total === 0) return;
 
     const options = {
         chart: {
             type: 'radialBar',
-            height: 200,
-            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
+            height: 160,
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+            background: 'transparent'
         },
         series: [
             Math.round((dashboardData.heatMapData.link_up / total) * 100),
@@ -726,21 +789,31 @@ function createDeviceHealthChart() {
         colors: ['#10B981', '#EF4444', '#F59E0B'],
         plotOptions: {
             radialBar: {
+                hollow: {
+                    size: '40%'
+                },
+                track: {
+                    background: 'rgba(139, 92, 246, 0.1)'
+                },
                 dataLabels: {
                     name: {
-                        fontSize: '12px'
+                        fontSize: '10px',
+                        color: '#a78bfa'
                     },
                     value: {
-                        fontSize: '14px',
+                        fontSize: '12px',
+                        color: '#fff',
                         formatter: function(val) {
                             return val + '%';
                         }
                     },
                     total: {
                         show: true,
-                        label: 'Total',
+                        label: 'Devices',
+                        fontSize: '10px',
+                        color: '#a78bfa',
                         formatter: function() {
-                            return total + ' devices';
+                            return total;
                         }
                     }
                 }
@@ -748,7 +821,7 @@ function createDeviceHealthChart() {
         }
     };
 
-    deviceHealthChart = new ApexCharts(document.querySelector("#deviceHealthChart"), options);
+    deviceHealthChart = new ApexCharts(container, options);
     deviceHealthChart.render();
 }
 
@@ -757,23 +830,23 @@ function createCountryTrafficChart() {
     const container = document.getElementById('countryTrafficChart');
     if (!container || !dashboardData.trafficByCountry || dashboardData.trafficByCountry.length === 0) return;
 
-    const countries = dashboardData.trafficByCountry.slice(0, 6);
-    const chartColors = ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#06B6D4', '#EF4444'];
+    const countries = dashboardData.trafficByCountry.slice(0, 5);
+    const chartColors = ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#06B6D4'];
 
     const options = {
         chart: {
             type: 'bar',
-            height: 140,
+            height: 200,
             background: 'transparent',
             foreColor: '#a78bfa',
             toolbar: { show: false },
-            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+            fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif'
         },
         plotOptions: {
             bar: {
                 horizontal: true,
                 borderRadius: 4,
-                barHeight: '70%',
+                barHeight: '65%',
                 distributed: true
             }
         },
@@ -783,25 +856,23 @@ function createCountryTrafficChart() {
             data: countries.map(c => c.bytes)
         }],
         xaxis: {
-            categories: countries.map(c => c.country_name.length > 15 ? c.country_name.substring(0, 15) + '...' : c.country_name),
+            categories: countries.map(c => c.country_name.length > 12 ? c.country_name.substring(0, 12) + '...' : c.country_name),
             labels: {
                 formatter: function(val) {
                     return formatBytes(val);
                 },
-                style: { colors: '#9ca3af', fontSize: '10px' }
-            }
+                style: { colors: '#a78bfa', fontSize: '9px' }
+            },
+            axisBorder: { show: false },
+            axisTicks: { show: false }
         },
         yaxis: {
             labels: {
-                style: { colors: '#a78bfa', fontSize: '11px' }
+                style: { colors: '#a78bfa', fontSize: '10px' }
             }
         },
         dataLabels: {
-            enabled: true,
-            formatter: function(val) {
-                return formatBytes(val);
-            },
-            style: { fontSize: '10px', colors: ['#fff'] }
+            enabled: false
         },
         legend: { show: false },
         grid: {

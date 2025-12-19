@@ -246,6 +246,95 @@
         .apexcharts-gridline {
             stroke: rgba(139, 92, 246, 0.1);
         }
+
+        /* Interactive list items */
+        .interactive-row {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .interactive-row:hover {
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateX(2px);
+        }
+
+        /* Fade in animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        /* Stagger animations */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+
+        /* Smooth data update animation */
+        @keyframes dataUpdate {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .data-updating {
+            animation: dataUpdate 0.5s ease-in-out;
+        }
+
+        /* Status indicator pulse */
+        .status-online {
+            position: relative;
+        }
+
+        .status-online::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            animation: statusPulse 2s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.3; }
+        }
+
+        /* Link hover underline effect */
+        .link-underline {
+            position: relative;
+        }
+
+        .link-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: currentColor;
+            transition: width 0.2s ease;
+        }
+
+        .link-underline:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
 

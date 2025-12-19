@@ -1,7 +1,7 @@
 @php
     $interfaces = $device->interfaces ?? collect();
     $totalQosBytes = ($qosData ?? collect())->sum('total_bytes') ?: 1;
-    $chartColors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4', '#84CC16'];
+    $chartColors = ['#22d3ee', '#10B981', '#818cf8', '#F59E0B', '#EF4444', '#EC4899', '#3B82F6', '#84CC16'];
 
     // DSCP class names mapping
     $dscpNames = [
@@ -32,7 +32,7 @@
 <!-- Interface Stats Section -->
 <div class="mb-6">
     <div class="glass-card rounded-xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-purple-500/20">
+        <div class="px-5 py-3 border-b border-white/10">
             <h3 class="text-base font-semibold text-white flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
@@ -44,27 +44,27 @@
             @if($interfaces->isNotEmpty())
             <div class="overflow-x-auto">
                 <table class="min-w-full">
-                    <thead class="bg-purple-500/10">
+                    <thead class="bg-white/5">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Interface</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Index</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Speed</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">In Traffic</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-purple-300/70 uppercase tracking-wider">Out Traffic</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Interface</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Index</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Speed</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">In Traffic</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Out Traffic</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-purple-500/10">
+                    <tbody class="divide-y divide-white/5">
                         @foreach($interfaces as $index => $interface)
-                        <tr class="{{ $index % 2 === 0 ? 'bg-purple-500/5' : '' }} hover:bg-purple-500/10 transition-colors">
+                        <tr class="{{ $index % 2 === 0 ? 'bg-white/[0.02]' : '' }} hover:bg-white/5 transition-colors">
                             <td class="px-4 py-3 whitespace-nowrap">
                                 <span class="text-sm font-medium text-white">{{ $interface->name }}</span>
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="text-xs text-purple-300/60">{{ $interface->if_index }}</span>
+                                <span class="text-xs text-gray-400">{{ $interface->if_index }}</span>
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="text-xs text-purple-300/60">
+                                <span class="text-xs text-gray-400">
                                     @if($interface->speed)
                                         {{ $interface->speed >= 1000 ? ($interface->speed / 1000) . ' Gbps' : $interface->speed . ' Mbps' }}
                                     @else
@@ -105,7 +105,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <h4 class="text-sm font-semibold text-white mb-2">No Interface Data</h4>
-                    <p class="text-xs text-purple-300/60 mb-4">Enable SNMP polling to discover network interfaces and monitor traffic statistics.</p>
+                    <p class="text-xs text-gray-400 mb-4">Enable SNMP polling to discover network interfaces and monitor traffic statistics.</p>
                     <a href="{{ route('devices.edit', $device) }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-white bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -122,7 +122,7 @@
 
 <!-- QoS Distribution Section -->
 <div class="glass-card rounded-xl overflow-hidden">
-    <div class="px-5 py-3 border-b border-purple-500/20">
+    <div class="px-5 py-3 border-b border-white/10">
         <h3 class="text-base font-semibold text-white flex items-center gap-2">
             <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
@@ -140,22 +140,22 @@
             <!-- QoS Table -->
             <div class="overflow-x-auto">
                 <table class="min-w-full">
-                    <thead class="bg-purple-500/10">
+                    <thead class="bg-white/5">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-purple-300/70 uppercase">DSCP</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-purple-300/70 uppercase">Class</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-purple-300/70 uppercase">Traffic</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-purple-300/70 uppercase">%</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase">DSCP</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase">Class</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase">Traffic</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase">%</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-purple-500/10">
+                    <tbody class="divide-y divide-white/5">
                         @foreach($qosData as $index => $qos)
                         @php
                             $percent = round(($qos->total_bytes / $totalQosBytes) * 100, 1);
                             $dscpValue = intval($qos->dscp);
                             $dscpName = $dscpNames[$dscpValue] ?? "DSCP $dscpValue";
                         @endphp
-                        <tr class="{{ $index % 2 === 0 ? 'bg-purple-500/5' : '' }} hover:bg-purple-500/10 transition-colors">
+                        <tr class="{{ $index % 2 === 0 ? 'bg-white/[0.02]' : '' }} hover:bg-white/5 transition-colors">
                             <td class="px-4 py-2 whitespace-nowrap">
                                 <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full" style="background-color: {{ $chartColors[$index % count($chartColors)] }}20; color: {{ $chartColors[$index % count($chartColors)] }}">
                                     {{ $qos->dscp }}
@@ -172,10 +172,10 @@
                             </td>
                             <td class="px-4 py-2 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-16 h-1.5 bg-purple-500/10 rounded-full overflow-hidden">
+                                    <div class="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
                                         <div class="h-full rounded-full" style="width: {{ $percent }}%; background-color: {{ $chartColors[$index % count($chartColors)] }}"></div>
                                     </div>
-                                    <span class="text-xs text-purple-300/60">{{ $percent }}%</span>
+                                    <span class="text-xs text-gray-400">{{ $percent }}%</span>
                                 </div>
                             </td>
                         </tr>
@@ -191,7 +191,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <h4 class="text-sm font-semibold text-white mb-2">No QoS Data Available</h4>
-                <p class="text-xs text-purple-300/60 mb-4">DSCP/QoS data will appear once the device sends flows with QoS markings.</p>
+                <p class="text-xs text-gray-400 mb-4">DSCP/QoS data will appear once the device sends flows with QoS markings.</p>
                 <a href="{{ route('settings.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -226,8 +226,8 @@ document.addEventListener('DOMContentLoaded', function() {
             series: qosData.map(item => parseInt(item.total_bytes)),
             labels: qosData.map(item => 'DSCP ' + item.dscp),
             colors: chartColors,
-            stroke: { width: 2, colors: ['rgba(15, 10, 31, 0.8)'] },
-            legend: { position: 'bottom', fontSize: '10px', labels: { colors: '#a78bfa' } },
+            stroke: { width: 2, colors: ['rgba(15, 15, 26, 0.8)'] },
+            legend: { position: 'bottom', fontSize: '10px', labels: { colors: '#9ca3af' } },
             dataLabels: { enabled: false },
             tooltip: { theme: 'dark', y: { formatter: formatBytes } }
         }).render();

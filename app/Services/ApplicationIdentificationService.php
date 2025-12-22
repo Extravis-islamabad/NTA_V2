@@ -620,6 +620,12 @@ class ApplicationIdentificationService
             return $result;
         }
 
+        // Try to identify based on well-known port ranges
+        $result = $this->identifyByPortRange($srcPort, $dstPort, $protocol);
+        if ($result) {
+            return $result;
+        }
+
         // Return unknown
         return [
             'name' => 'Unknown',
@@ -627,6 +633,41 @@ class ApplicationIdentificationService
             'icon' => 'help-circle',
             'color' => '#6B7280',
         ];
+    }
+
+    /**
+     * Identify application by port ranges for common services
+     */
+    protected function identifyByPortRange(int $srcPort, int $dstPort, string $protocol): ?array
+    {
+        $checkPort = max($srcPort, $dstPort);
+        $lowPort = min($srcPort, $dstPort);
+
+        // High ports typically used by specific applications
+        if ($checkPort >= 8000 && $checkPort <= 9999) {
+            return ['name' => 'Web-Service', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'];
+        }
+
+        // Common gaming ports
+        if (($checkPort >= 27000 && $checkPort <= 27050) || ($checkPort >= 7777 && $checkPort <= 7799)) {
+            return ['name' => 'Gaming', 'category' => 'Gaming', 'icon' => 'gamepad-2', 'color' => '#9146FF'];
+        }
+
+        // VoIP/Streaming ports
+        if ($checkPort >= 16384 && $checkPort <= 32767 && strtoupper($protocol) === 'UDP') {
+            return ['name' => 'Media-Stream', 'category' => 'Streaming', 'icon' => 'video', 'color' => '#E50914'];
+        }
+
+        // Dynamic/ephemeral ports with low ports indicate client connections
+        if ($lowPort <= 1024 && $checkPort >= 49152) {
+            // Client connecting to a well-known service
+            $result = $this->identifyByPort($lowPort);
+            if ($result) {
+                return $result;
+            }
+        }
+
+        return null;
     }
 
     /**

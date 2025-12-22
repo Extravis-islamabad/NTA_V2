@@ -176,7 +176,18 @@
         <div class="p-4">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div class="lg:col-span-2">
-                    <div id="trafficMap" class="traffic-map rounded-lg" style="height: 180px;"></div>
+                    <div class="relative">
+                        <div id="mapLoadingIndicator" class="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg z-10">
+                            <div class="flex items-center gap-2 text-cyan-400">
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="text-sm">Loading map...</span>
+                            </div>
+                        </div>
+                        <div id="trafficMap" class="traffic-map rounded-lg" style="height: 180px;"></div>
+                    </div>
                     <div class="mt-2 flex items-center gap-4 text-xs">
                         <span class="flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-purple-500"></span>
@@ -905,20 +916,39 @@ function createCountryTrafficChart() {
 // Initialize World Map
 function initializeMap() {
     const mapContainer = document.getElementById('trafficMap');
-    if (!mapContainer) return;
+    const loadingIndicator = document.getElementById('mapLoadingIndicator');
+    if (!mapContainer) {
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+        return;
+    }
 
-    // Initialize Leaflet map
+    // Initialize Leaflet map with optimized settings
     trafficMap = L.map('trafficMap', {
         center: [20, 0],
         zoom: 2,
         minZoom: 1,
-        maxZoom: 10
+        maxZoom: 10,
+        preferCanvas: true,
+        zoomControl: true,
+        attributionControl: false
     });
 
-    // Add dark themed tile layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }).addTo(trafficMap);
+    // Add dark themed tile layer with loading events
+    const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OSM &copy; CARTO',
+        maxZoom: 19,
+        crossOrigin: true
+    });
+
+    // Hide loading indicator when tiles are loaded
+    tileLayer.on('load', function() {
+        if (loadingIndicator) {
+            loadingIndicator.style.opacity = '0';
+            setTimeout(() => { loadingIndicator.style.display = 'none'; }, 300);
+        }
+    });
+
+    tileLayer.addTo(trafficMap);
 
     // Add traffic markers
     dashboardData.trafficByCountry.forEach(country => {
@@ -942,6 +972,19 @@ function initializeMap() {
                 </div>
             `);
         }
+    });
+
+    // Fix map size when container is resized or tab becomes visible
+    const resizeObserver = new ResizeObserver(() => {
+        if (trafficMap) {
+            setTimeout(() => trafficMap.invalidateSize(), 100);
+        }
+    });
+    resizeObserver.observe(mapContainer);
+
+    // Also invalidate on window resize
+    window.addEventListener('resize', () => {
+        if (trafficMap) trafficMap.invalidateSize();
     });
 }
 

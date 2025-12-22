@@ -922,130 +922,194 @@ function initializeMap() {
         return;
     }
 
-    // Use requestIdleCallback for non-blocking initialization
-    const initMap = () => {
-        // Initialize Leaflet map with optimized settings for faster loading
-        trafficMap = L.map('trafficMap', {
-            center: [20, 0],
-            zoom: 2,
-            minZoom: 1,
-            maxZoom: 10,
-            preferCanvas: true,
-            zoomControl: true,
-            attributionControl: false,
-            fadeAnimation: false,
-            zoomAnimation: true,
-            markerZoomAnimation: false
-        });
+    let tileLayer = null;
+    let markerGroup = null;
+    let lastValidSize = { width: 0, height: 0 };
 
-        // Add dark themed tile layer with caching and loading events
-        const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OSM &copy; CARTO',
-            maxZoom: 19,
-            crossOrigin: true,
-            updateWhenIdle: true,
-            updateWhenZooming: false,
-            keepBuffer: 2
-        });
+    // Function to refresh the map completely
+    const refreshMap = () => {
+        if (!trafficMap) return;
 
-        // Hide loading indicator when tiles are loaded
-        let tilesLoaded = false;
-        tileLayer.on('load', function() {
-            if (!tilesLoaded) {
-                tilesLoaded = true;
-                if (loadingIndicator) {
-                    loadingIndicator.style.transition = 'opacity 0.3s ease';
-                    loadingIndicator.style.opacity = '0';
-                    setTimeout(() => { loadingIndicator.style.display = 'none'; }, 300);
+        const container = trafficMap.getContainer();
+        const width = container.offsetWidth;
+        const height = container.offsetHeight;
+
+        // Only refresh if container has valid dimensions
+        if (width > 0 && height > 0) {
+            trafficMap.invalidateSize({ animate: false, pan: false });
+
+            // Force tile layer to redraw if dimensions changed significantly
+            if (Math.abs(width - lastValidSize.width) > 10 || Math.abs(height - lastValidSize.height) > 10) {
+                if (tileLayer) {
+                    tileLayer.redraw();
                 }
+                lastValidSize = { width, height };
+            }
+        }
+    };
+
+    // Initialize Leaflet map with optimized settings for faster loading
+    trafficMap = L.map('trafficMap', {
+        center: [20, 0],
+        zoom: 2,
+        minZoom: 1,
+        maxZoom: 10,
+        preferCanvas: true,
+        zoomControl: true,
+        attributionControl: false,
+        fadeAnimation: false,
+        zoomAnimation: true,
+        markerZoomAnimation: false
+    });
+
+    // Add dark themed tile layer with caching and loading events
+    tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OSM &copy; CARTO',
+        maxZoom: 19,
+        crossOrigin: true,
+        updateWhenIdle: false,
+        updateWhenZooming: true,
+        keepBuffer: 4
+    });
+
+    // Hide loading indicator when tiles are loaded
+    let tilesLoaded = false;
+    tileLayer.on('load', function() {
+        if (!tilesLoaded) {
+            tilesLoaded = true;
+            if (loadingIndicator) {
+                loadingIndicator.style.transition = 'opacity 0.3s ease';
+                loadingIndicator.style.opacity = '0';
+                setTimeout(() => { loadingIndicator.style.display = 'none'; }, 300);
+            }
+        }
+    });
+
+    // Also hide on first tile load for faster feedback
+    tileLayer.on('tileload', function() {
+        if (!tilesLoaded && loadingIndicator) {
+            loadingIndicator.style.transition = 'opacity 0.3s ease';
+            loadingIndicator.style.opacity = '0';
+            setTimeout(() => {
+                loadingIndicator.style.display = 'none';
+                tilesLoaded = true;
+            }, 300);
+        }
+    });
+
+    tileLayer.addTo(trafficMap);
+
+    // Add traffic markers
+    const countries = dashboardData.trafficByCountry;
+    if (countries && countries.length > 0) {
+        markerGroup = L.layerGroup();
+
+        countries.forEach(country => {
+            if (country.latitude && country.longitude) {
+                const radius = Math.min(25, Math.max(8, Math.log10(country.bytes) * 3));
+
+                const marker = L.circleMarker([country.latitude, country.longitude], {
+                    radius: radius,
+                    fillColor: window.monetxColors?.primary || '#8B5CF6',
+                    color: window.monetxColors?.secondary || '#10B981',
+                    weight: 2,
+                    opacity: 0.9,
+                    fillOpacity: 0.6
+                });
+
+                marker.bindPopup(`
+                    <div class="text-sm">
+                        <strong class="text-blue-600">${country.country_name}</strong><br>
+                        <span class="text-gray-600">Traffic: ${country.formatted_bytes}</span><br>
+                        <span class="text-gray-500">Flows: ${country.flows.toLocaleString()}</span>
+                    </div>
+                `);
+
+                markerGroup.addLayer(marker);
             }
         });
 
-        // Also hide on first tile load for faster feedback
-        tileLayer.on('tileload', function() {
-            if (!tilesLoaded && loadingIndicator) {
-                loadingIndicator.style.transition = 'opacity 0.3s ease';
-                loadingIndicator.style.opacity = '0';
+        markerGroup.addTo(trafficMap);
+    }
+
+    // Store initial valid size
+    lastValidSize = {
+        width: mapContainer.offsetWidth,
+        height: mapContainer.offsetHeight
+    };
+
+    // Fix map size when container is resized
+    const resizeObserver = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (trafficMap && entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+            setTimeout(refreshMap, 50);
+        }
+    });
+    resizeObserver.observe(mapContainer);
+
+    // Handle window resize with debounce
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(refreshMap, 200);
+    });
+
+    // Handle visibility change (tab switching, minimize/restore)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && trafficMap) {
+            // Multiple attempts to ensure map redraws properly
+            setTimeout(refreshMap, 100);
+            setTimeout(refreshMap, 300);
+            setTimeout(() => {
+                if (tileLayer) tileLayer.redraw();
+            }, 500);
+        }
+    });
+
+    // Handle window focus (for minimize/restore)
+    window.addEventListener('focus', () => {
+        if (trafficMap) {
+            setTimeout(refreshMap, 100);
+            setTimeout(refreshMap, 300);
+            setTimeout(() => {
+                if (tileLayer) tileLayer.redraw();
+            }, 500);
+        }
+    });
+
+    // Intersection Observer to detect when map becomes visible
+    const intersectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && trafficMap) {
+                setTimeout(refreshMap, 100);
                 setTimeout(() => {
-                    loadingIndicator.style.display = 'none';
-                    tilesLoaded = true;
+                    if (tileLayer) tileLayer.redraw();
                 }, 300);
             }
         });
+    }, { threshold: 0.1 });
+    intersectionObserver.observe(mapContainer);
 
-        tileLayer.addTo(trafficMap);
+    // Periodic check for map health (every 2 seconds when page is visible)
+    setInterval(() => {
+        if (!document.hidden && trafficMap) {
+            const container = trafficMap.getContainer();
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
 
-        // Add traffic markers in batches for better performance
-        const countries = dashboardData.trafficByCountry;
-        if (countries && countries.length > 0) {
-            const markerGroup = L.layerGroup();
-
-            countries.forEach(country => {
-                if (country.latitude && country.longitude) {
-                    const radius = Math.min(25, Math.max(8, Math.log10(country.bytes) * 3));
-
-                    const marker = L.circleMarker([country.latitude, country.longitude], {
-                        radius: radius,
-                        fillColor: window.monetxColors?.primary || '#8B5CF6',
-                        color: window.monetxColors?.secondary || '#10B981',
-                        weight: 2,
-                        opacity: 0.9,
-                        fillOpacity: 0.6
-                    });
-
-                    marker.bindPopup(`
-                        <div class="text-sm">
-                            <strong class="text-blue-600">${country.country_name}</strong><br>
-                            <span class="text-gray-600">Traffic: ${country.formatted_bytes}</span><br>
-                            <span class="text-gray-500">Flows: ${country.flows.toLocaleString()}</span>
-                        </div>
-                    `);
-
-                    markerGroup.addLayer(marker);
+            // Check if map container has valid size but map might be broken
+            if (width > 0 && height > 0) {
+                const mapPane = container.querySelector('.leaflet-map-pane');
+                if (mapPane) {
+                    const transform = mapPane.style.transform;
+                    // If transform is not set, map might need refresh
+                    if (!transform || transform === 'none') {
+                        refreshMap();
+                    }
                 }
-            });
-
-            markerGroup.addTo(trafficMap);
+            }
         }
-
-        // Fix map size when container is resized or becomes visible
-        const resizeObserver = new ResizeObserver((entries) => {
-            if (trafficMap && entries[0].contentRect.width > 0) {
-                trafficMap.invalidateSize({ animate: false, pan: false });
-            }
-        });
-        resizeObserver.observe(mapContainer);
-
-        // Handle window resize
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (trafficMap) trafficMap.invalidateSize({ animate: false });
-            }, 150);
-        });
-
-        // Handle visibility change (tab switching, minimize/restore)
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && trafficMap) {
-                setTimeout(() => trafficMap.invalidateSize({ animate: false }), 100);
-            }
-        });
-
-        // Handle window focus (for minimize/restore)
-        window.addEventListener('focus', () => {
-            if (trafficMap) {
-                setTimeout(() => trafficMap.invalidateSize({ animate: false }), 100);
-            }
-        });
-    };
-
-    // Use requestIdleCallback if available, otherwise use setTimeout
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(initMap, { timeout: 500 });
-    } else {
-        setTimeout(initMap, 50);
-    }
+    }, 2000);
 }
 
 // Initialize Sparklines for each device

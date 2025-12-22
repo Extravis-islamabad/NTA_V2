@@ -87,15 +87,20 @@
                             </div>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
-                            <div class="flex items-center gap-1 group">
-                                <span class="font-mono text-xs text-white">{{ $flow->destination_ip }}</span>
-                                <span class="text-gray-500">:</span>
-                                <span class="text-xs text-gray-400">{{ $flow->destination_port }}</span>
-                                <button onclick="copyToClipboard('{{ $flow->destination_ip }}')" class="p-1 hover:bg-cyan-500/20 rounded opacity-0 group-hover:opacity-100 transition-opacity" title="Copy IP">
-                                    <svg class="w-3 h-3 text-gray-500 hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                    </svg>
-                                </button>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-1 group">
+                                    <span class="font-mono text-xs text-white">{{ $flow->destination_ip }}</span>
+                                    <span class="text-gray-500">:</span>
+                                    <span class="text-xs text-gray-400">{{ $flow->destination_port }}</span>
+                                    <button onclick="copyToClipboard('{{ $flow->destination_ip }}')" class="p-1 hover:bg-cyan-500/20 rounded opacity-0 group-hover:opacity-100 transition-opacity" title="Copy IP">
+                                        <svg class="w-3 h-3 text-gray-500 hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                @if($flow->dst_domain)
+                                    <span class="text-[10px] text-cyan-400 truncate max-w-[150px]" title="{{ $flow->dst_domain }}">{{ $flow->dst_domain }}</span>
+                                @endif
                             </div>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">

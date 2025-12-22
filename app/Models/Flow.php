@@ -39,6 +39,8 @@ class Flow extends Model
         'dst_latitude',
         'dst_longitude',
         'dst_asn',
+        'dst_domain',
+        'src_domain',
         'app_category',
     ];
 

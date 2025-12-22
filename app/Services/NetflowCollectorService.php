@@ -92,6 +92,21 @@ class NetflowCollectorService
         // Geolocation lookup for destination IP
         $dstGeo = $this->geoService->lookup($flowData['dst_ip']);
 
+        // Domain identification for HTTP/HTTPS traffic
+        $dstDomain = null;
+        $srcDomain = null;
+
+        // For known applications, use the app name as domain hint
+        if ($appInfo['name'] !== 'Unknown' && $appInfo['category'] !== 'Unknown') {
+            $dstDomain = strtolower($appInfo['name']) . '.com';
+        }
+
+        // Try reverse DNS for destination (for HTTP/HTTPS traffic)
+        $dstPort = (int)$flowData['dst_port'];
+        if (in_array($dstPort, [80, 443, 8080, 8443]) && $dstDomain === null) {
+            $dstDomain = $this->resolveDomain($flowData['dst_ip']);
+        }
+
         Flow::create([
             'device_id' => $device->id,
             'source_ip' => $flowData['src_ip'],
@@ -126,7 +141,66 @@ class NetflowCollectorService
             'dst_latitude' => $dstGeo['latitude'] ?? null,
             'dst_longitude' => $dstGeo['longitude'] ?? null,
             'dst_asn' => $dstGeo['asn'] ?? null,
+
+            // Domain identification
+            'dst_domain' => $dstDomain,
+            'src_domain' => $srcDomain,
         ]);
+    }
+
+    /**
+     * Resolve domain name from IP using reverse DNS with caching
+     */
+    private function resolveDomain(string $ip): ?string
+    {
+        // Skip private IPs
+        if ($this->isPrivateIP($ip)) {
+            return null;
+        }
+
+        // Check cache first
+        $cacheKey = "dns_reverse:{$ip}";
+        $cached = Cache::get($cacheKey);
+
+        if ($cached !== null) {
+            return $cached === '' ? null : $cached;
+        }
+
+        try {
+            $host = @gethostbyaddr($ip);
+
+            // gethostbyaddr returns the IP if no hostname found
+            if ($host && $host !== $ip) {
+                // Clean up the hostname to get the domain
+                $parts = explode('.', $host);
+                if (count($parts) >= 2) {
+                    // Get the last two parts as domain
+                    $domain = implode('.', array_slice($parts, -2));
+                    Cache::put($cacheKey, $domain, 3600); // Cache for 1 hour
+                    return $domain;
+                }
+                Cache::put($cacheKey, $host, 3600);
+                return $host;
+            }
+        } catch (\Exception $e) {
+            Log::debug("DNS reverse lookup failed for {$ip}: " . $e->getMessage());
+        }
+
+        // Cache empty result to avoid repeated lookups
+        Cache::put($cacheKey, '', 1800); // Cache failures for 30 minutes
+        return null;
+    }
+
+    /**
+     * Check if IP is private/internal
+     */
+    private function isPrivateIP(string $ip): bool
+    {
+        return filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) === false;
     }
 
     private function getProtocolName(int $protocolNumber): string

@@ -484,6 +484,67 @@
         .page-break {
             page-break-before: always;
         }
+
+        /* Improved table formatting for better PDF rendering */
+        table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        /* Prevent tables from breaking across pages awkwardly */
+        .data-table tr {
+            page-break-inside: avoid;
+        }
+
+        .data-table th,
+        .data-table td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Ensure content doesn't overflow */
+        .section {
+            page-break-inside: avoid;
+        }
+
+        /* Better spacing for readability */
+        .content {
+            padding: 0 5px;
+        }
+
+        /* Fix chart container overflow */
+        .chart-container {
+            overflow: hidden;
+        }
+
+        /* Consistent cell padding */
+        .chart-table td {
+            padding: 4px 0;
+        }
+
+        /* Improved IP address display */
+        .ip-code {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+            display: inline-block;
+        }
+
+        /* Better progress bar alignment */
+        .progress-container {
+            white-space: nowrap;
+        }
+
+        /* Ensure summary cards don't break */
+        .summary-grid tr {
+            page-break-inside: avoid;
+        }
+
+        /* Fix insights box margin */
+        .insights-box {
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>

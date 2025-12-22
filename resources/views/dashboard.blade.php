@@ -92,7 +92,7 @@
         <div class="glass-card rounded-xl p-5 border-l-4 border-indigo-500">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-gray-400 uppercase tracking-wider font-medium">Total Flows</p>
+                    <p class="text-xs text-gray-400 uppercase tracking-wider font-medium">Flows ({{ $timeRange === '1hour' ? 'Last Hour' : ($timeRange === '6hours' ? 'Last 6 Hours' : ($timeRange === '24hours' ? 'Last 24 Hours' : 'Last 7 Days')) }})</p>
                     <p class="text-3xl font-bold text-indigo-400 mt-1">{{ number_format($stats['total_flows']) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
@@ -913,7 +913,7 @@ function createCountryTrafficChart() {
     new ApexCharts(container, options).render();
 }
 
-// Initialize World Map
+// Initialize World Map with optimizations
 function initializeMap() {
     const mapContainer = document.getElementById('trafficMap');
     const loadingIndicator = document.getElementById('mapLoadingIndicator');
@@ -922,70 +922,130 @@ function initializeMap() {
         return;
     }
 
-    // Initialize Leaflet map with optimized settings
-    trafficMap = L.map('trafficMap', {
-        center: [20, 0],
-        zoom: 2,
-        minZoom: 1,
-        maxZoom: 10,
-        preferCanvas: true,
-        zoomControl: true,
-        attributionControl: false
-    });
+    // Use requestIdleCallback for non-blocking initialization
+    const initMap = () => {
+        // Initialize Leaflet map with optimized settings for faster loading
+        trafficMap = L.map('trafficMap', {
+            center: [20, 0],
+            zoom: 2,
+            minZoom: 1,
+            maxZoom: 10,
+            preferCanvas: true,
+            zoomControl: true,
+            attributionControl: false,
+            fadeAnimation: false,
+            zoomAnimation: true,
+            markerZoomAnimation: false
+        });
 
-    // Add dark themed tile layer with loading events
-    const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OSM &copy; CARTO',
-        maxZoom: 19,
-        crossOrigin: true
-    });
+        // Add dark themed tile layer with caching and loading events
+        const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OSM &copy; CARTO',
+            maxZoom: 19,
+            crossOrigin: true,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            keepBuffer: 2
+        });
 
-    // Hide loading indicator when tiles are loaded
-    tileLayer.on('load', function() {
-        if (loadingIndicator) {
-            loadingIndicator.style.opacity = '0';
-            setTimeout(() => { loadingIndicator.style.display = 'none'; }, 300);
+        // Hide loading indicator when tiles are loaded
+        let tilesLoaded = false;
+        tileLayer.on('load', function() {
+            if (!tilesLoaded) {
+                tilesLoaded = true;
+                if (loadingIndicator) {
+                    loadingIndicator.style.transition = 'opacity 0.3s ease';
+                    loadingIndicator.style.opacity = '0';
+                    setTimeout(() => { loadingIndicator.style.display = 'none'; }, 300);
+                }
+            }
+        });
+
+        // Also hide on first tile load for faster feedback
+        tileLayer.on('tileload', function() {
+            if (!tilesLoaded && loadingIndicator) {
+                loadingIndicator.style.transition = 'opacity 0.3s ease';
+                loadingIndicator.style.opacity = '0';
+                setTimeout(() => {
+                    loadingIndicator.style.display = 'none';
+                    tilesLoaded = true;
+                }, 300);
+            }
+        });
+
+        tileLayer.addTo(trafficMap);
+
+        // Add traffic markers in batches for better performance
+        const countries = dashboardData.trafficByCountry;
+        if (countries && countries.length > 0) {
+            const markerGroup = L.layerGroup();
+
+            countries.forEach(country => {
+                if (country.latitude && country.longitude) {
+                    const radius = Math.min(25, Math.max(8, Math.log10(country.bytes) * 3));
+
+                    const marker = L.circleMarker([country.latitude, country.longitude], {
+                        radius: radius,
+                        fillColor: window.monetxColors?.primary || '#8B5CF6',
+                        color: window.monetxColors?.secondary || '#10B981',
+                        weight: 2,
+                        opacity: 0.9,
+                        fillOpacity: 0.6
+                    });
+
+                    marker.bindPopup(`
+                        <div class="text-sm">
+                            <strong class="text-blue-600">${country.country_name}</strong><br>
+                            <span class="text-gray-600">Traffic: ${country.formatted_bytes}</span><br>
+                            <span class="text-gray-500">Flows: ${country.flows.toLocaleString()}</span>
+                        </div>
+                    `);
+
+                    markerGroup.addLayer(marker);
+                }
+            });
+
+            markerGroup.addTo(trafficMap);
         }
-    });
 
-    tileLayer.addTo(trafficMap);
+        // Fix map size when container is resized or becomes visible
+        const resizeObserver = new ResizeObserver((entries) => {
+            if (trafficMap && entries[0].contentRect.width > 0) {
+                trafficMap.invalidateSize({ animate: false, pan: false });
+            }
+        });
+        resizeObserver.observe(mapContainer);
 
-    // Add traffic markers
-    dashboardData.trafficByCountry.forEach(country => {
-        if (country.latitude && country.longitude) {
-            const radius = Math.min(25, Math.max(8, Math.log10(country.bytes) * 3));
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (trafficMap) trafficMap.invalidateSize({ animate: false });
+            }, 150);
+        });
 
-            const marker = L.circleMarker([country.latitude, country.longitude], {
-                radius: radius,
-                fillColor: window.monetxColors.primary,
-                color: window.monetxColors.secondary,
-                weight: 2,
-                opacity: 0.9,
-                fillOpacity: 0.6
-            }).addTo(trafficMap);
+        // Handle visibility change (tab switching, minimize/restore)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && trafficMap) {
+                setTimeout(() => trafficMap.invalidateSize({ animate: false }), 100);
+            }
+        });
 
-            marker.bindPopup(`
-                <div class="text-sm">
-                    <strong class="text-blue-600">${country.country_name}</strong><br>
-                    <span class="text-gray-600">Traffic: ${country.formatted_bytes}</span><br>
-                    <span class="text-gray-500">Flows: ${country.flows.toLocaleString()}</span>
-                </div>
-            `);
-        }
-    });
+        // Handle window focus (for minimize/restore)
+        window.addEventListener('focus', () => {
+            if (trafficMap) {
+                setTimeout(() => trafficMap.invalidateSize({ animate: false }), 100);
+            }
+        });
+    };
 
-    // Fix map size when container is resized or tab becomes visible
-    const resizeObserver = new ResizeObserver(() => {
-        if (trafficMap) {
-            setTimeout(() => trafficMap.invalidateSize(), 100);
-        }
-    });
-    resizeObserver.observe(mapContainer);
-
-    // Also invalidate on window resize
-    window.addEventListener('resize', () => {
-        if (trafficMap) trafficMap.invalidateSize();
-    });
+    // Use requestIdleCallback if available, otherwise use setTimeout
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(initMap, { timeout: 500 });
+    } else {
+        setTimeout(initMap, 50);
+    }
 }
 
 // Initialize Sparklines for each device

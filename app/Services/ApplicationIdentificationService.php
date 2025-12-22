@@ -480,6 +480,296 @@ class ApplicationIdentificationService
                 '17.0.0.0/8', '63.92.224.0/19', '144.178.0.0/16', '192.35.50.0/24',
             ],
         ],
+
+        // Additional Cloud Providers
+        'DigitalOcean' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#0080FF',
+            'ranges' => [
+                '104.131.0.0/16', '104.236.0.0/16', '138.68.0.0/16', '138.197.0.0/16',
+                '139.59.0.0/16', '142.93.0.0/16', '146.185.128.0/17', '159.65.0.0/16',
+                '159.89.0.0/16', '161.35.0.0/16', '162.243.0.0/16', '167.71.0.0/16',
+                '167.99.0.0/16', '178.62.0.0/16', '178.128.0.0/16', '188.166.0.0/16',
+                '188.226.128.0/17', '192.241.128.0/17', '198.199.64.0/18', '206.189.0.0/16',
+                '207.154.192.0/18', '209.97.128.0/17',
+            ],
+        ],
+        'Linode' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#00A95C',
+            'ranges' => [
+                '45.33.0.0/17', '45.56.64.0/18', '45.79.0.0/17', '50.116.0.0/17',
+                '66.175.208.0/20', '69.164.192.0/19', '72.14.176.0/20', '74.207.224.0/19',
+                '96.126.96.0/19', '97.107.128.0/17', '139.144.0.0/16', '139.162.0.0/16',
+                '162.216.16.0/22', '172.104.0.0/15', '173.255.192.0/18', '176.58.64.0/18',
+                '178.79.128.0/17', '192.155.80.0/20', '194.195.240.0/21', '198.58.96.0/19',
+                '212.71.232.0/21', '213.52.128.0/17',
+            ],
+        ],
+        'Vultr' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#007BFC',
+            'ranges' => [
+                '45.32.0.0/16', '45.63.0.0/17', '45.76.0.0/16', '45.77.0.0/16',
+                '64.156.0.0/16', '64.176.0.0/16', '66.42.32.0/19', '78.141.192.0/18',
+                '95.179.128.0/17', '104.156.224.0/19', '104.207.128.0/18', '108.61.0.0/16',
+                '136.244.64.0/18', '140.82.0.0/17', '149.28.0.0/16', '155.138.128.0/17',
+                '199.247.0.0/17', '207.148.64.0/18', '209.250.224.0/19', '216.128.128.0/17',
+            ],
+        ],
+        'OVH' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#123F6D',
+            'ranges' => [
+                '37.59.0.0/16', '37.187.0.0/16', '46.105.0.0/16', '51.68.0.0/16',
+                '51.75.0.0/16', '51.77.0.0/16', '51.79.0.0/16', '51.81.0.0/16',
+                '51.83.0.0/16', '51.89.0.0/16', '51.91.0.0/16', '51.161.0.0/16',
+                '54.36.0.0/16', '54.37.0.0/16', '54.38.0.0/16', '54.39.0.0/16',
+                '87.98.128.0/17', '91.121.0.0/16', '92.222.0.0/16', '135.125.0.0/16',
+                '137.74.0.0/16', '139.99.0.0/16', '141.94.0.0/16', '141.95.0.0/16',
+                '145.239.0.0/16', '147.135.0.0/16', '149.56.0.0/16', '149.202.0.0/16',
+                '151.80.0.0/16', '164.132.0.0/16', '167.114.0.0/16', '176.31.0.0/16',
+                '178.32.0.0/16', '188.165.0.0/16', '193.70.0.0/16', '198.27.64.0/18',
+                '198.50.128.0/17', '198.100.144.0/20',
+            ],
+        ],
+        'Hetzner' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#D50C2D',
+            'ranges' => [
+                '5.9.0.0/16', '5.75.128.0/17', '23.88.0.0/17', '49.12.0.0/14',
+                '65.21.0.0/16', '65.108.0.0/16', '78.46.0.0/15', '88.99.0.0/16',
+                '88.198.0.0/16', '91.107.128.0/17', '95.216.0.0/15', '116.202.0.0/16',
+                '116.203.0.0/16', '128.140.0.0/17', '135.181.0.0/16', '136.243.0.0/16',
+                '138.201.0.0/16', '142.132.128.0/17', '144.76.0.0/16', '148.251.0.0/16',
+                '157.90.0.0/16', '159.69.0.0/16', '162.55.0.0/16', '167.233.0.0/16',
+                '168.119.0.0/16', '176.9.0.0/16', '178.63.0.0/16', '188.40.0.0/16',
+                '195.201.0.0/16', '213.133.96.0/19', '213.239.192.0/18',
+            ],
+        ],
+        'Alibaba Cloud' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#FF6A00',
+            'ranges' => [
+                '47.74.0.0/15', '47.88.0.0/14', '47.92.0.0/14', '47.96.0.0/11',
+                '101.132.0.0/14', '106.11.0.0/16', '106.14.0.0/15', '112.124.0.0/14',
+                '115.28.0.0/15', '115.124.16.0/20', '116.62.0.0/15', '118.31.0.0/16',
+                '118.178.0.0/16', '118.190.0.0/15', '119.23.0.0/16', '119.38.208.0/20',
+                '120.24.0.0/14', '120.55.0.0/16', '120.76.0.0/14', '121.40.0.0/14',
+                '121.196.0.0/14', '123.56.0.0/14', '139.196.0.0/14', '139.224.0.0/16',
+                '140.205.0.0/16', '182.92.0.0/16',
+            ],
+        ],
+        'Oracle Cloud' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#F80000',
+            'ranges' => [
+                '129.146.0.0/16', '129.148.0.0/15', '129.150.0.0/15', '129.152.0.0/16',
+                '129.154.0.0/15', '129.156.0.0/15', '129.158.0.0/15', '130.35.0.0/16',
+                '132.145.0.0/16', '134.65.0.0/16', '134.70.0.0/16', '140.83.0.0/16',
+                '140.84.0.0/16', '140.91.0.0/16', '141.144.0.0/16', '141.145.0.0/16',
+                '141.147.0.0/16', '144.21.0.0/16', '144.22.0.0/16', '144.24.0.0/15',
+                '146.56.0.0/16', '147.154.0.0/15', '150.136.0.0/13', '152.67.0.0/16',
+                '152.70.0.0/15', '155.248.0.0/15', '158.101.0.0/16', '158.178.0.0/15',
+                '168.138.0.0/15', '192.9.128.0/17', '193.122.0.0/16', '193.123.0.0/16',
+            ],
+        ],
+        'IBM Cloud' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#1261FE',
+            'ranges' => [
+                '50.23.0.0/16', '66.228.118.0/23', '67.228.0.0/16', '75.126.0.0/16',
+                '108.168.128.0/17', '129.33.0.0/16', '129.34.0.0/16', '129.35.0.0/16',
+                '129.36.0.0/16', '150.239.0.0/16', '158.175.0.0/16', '158.176.0.0/15',
+                '159.8.0.0/16', '159.122.0.0/16', '161.156.0.0/16', '169.38.0.0/16',
+                '169.44.0.0/14', '169.48.0.0/14', '169.53.0.0/16', '169.54.0.0/15',
+                '169.56.0.0/14', '169.60.0.0/14', '174.36.0.0/16', '174.37.0.0/16',
+                '208.43.0.0/16',
+            ],
+        ],
+
+        // Additional Popular Services
+        'Telegram' => [
+            'category' => 'Communication',
+            'icon' => 'message-circle',
+            'color' => '#0088CC',
+            'ranges' => [
+                '91.108.4.0/22', '91.108.8.0/21', '91.108.16.0/21', '91.108.56.0/22',
+                '109.239.140.0/24', '149.154.160.0/20', '185.76.151.0/24',
+            ],
+        ],
+        'Signal' => [
+            'category' => 'Communication',
+            'icon' => 'message-circle',
+            'color' => '#3A76F0',
+            'ranges' => [
+                '142.250.0.0/15', '172.217.0.0/16',
+            ],
+        ],
+        'Dropbox' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#0061FF',
+            'ranges' => [
+                '108.160.160.0/20', '162.125.0.0/16', '199.47.216.0/22',
+            ],
+        ],
+        'Box' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#0061D5',
+            'ranges' => [
+                '107.152.24.0/21', '185.166.128.0/22',
+            ],
+        ],
+        'OneDrive' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#0078D4',
+            'ranges' => [
+                '13.107.0.0/16', '52.96.0.0/12',
+            ],
+        ],
+        'iCloud' => [
+            'category' => 'Cloud Services',
+            'icon' => 'cloud',
+            'color' => '#3693F3',
+            'ranges' => [
+                '17.248.0.0/14', '17.252.0.0/16',
+            ],
+        ],
+        'Salesforce' => [
+            'category' => 'Productivity',
+            'icon' => 'briefcase',
+            'color' => '#00A1E0',
+            'ranges' => [
+                '13.108.0.0/14', '96.43.144.0/20', '136.146.0.0/15', '161.71.0.0/17',
+                '182.50.76.0/22', '185.79.140.0/22',
+            ],
+        ],
+        'Atlassian' => [
+            'category' => 'Productivity',
+            'icon' => 'briefcase',
+            'color' => '#0052CC',
+            'ranges' => [
+                '13.52.5.0/25', '13.236.8.0/25', '18.184.99.0/25', '18.234.32.0/25',
+                '18.246.31.0/25', '52.215.192.0/25', '104.192.136.0/21', '185.166.140.0/22',
+            ],
+        ],
+        'Notion' => [
+            'category' => 'Productivity',
+            'icon' => 'briefcase',
+            'color' => '#000000',
+            'ranges' => [
+                '99.84.0.0/16', '143.204.0.0/16',
+            ],
+        ],
+        'Figma' => [
+            'category' => 'Productivity',
+            'icon' => 'edit',
+            'color' => '#F24E1E',
+            'ranges' => [
+                '18.66.0.0/16', '54.230.0.0/16',
+            ],
+        ],
+        'Canva' => [
+            'category' => 'Productivity',
+            'icon' => 'edit',
+            'color' => '#00C4CC',
+            'ranges' => [
+                '13.236.0.0/14', '52.62.0.0/15',
+            ],
+        ],
+        'Adobe' => [
+            'category' => 'Productivity',
+            'icon' => 'edit',
+            'color' => '#FF0000',
+            'ranges' => [
+                '66.117.16.0/20', '66.235.0.0/16', '130.248.0.0/16', '153.32.0.0/14',
+                '185.34.188.0/22', '192.147.117.0/24', '192.150.0.0/16', '192.243.224.0/19',
+                '193.104.215.0/24', '193.169.128.0/17', '208.77.40.0/22',
+            ],
+        ],
+        'Uber' => [
+            'category' => 'E-commerce',
+            'icon' => 'truck',
+            'color' => '#000000',
+            'ranges' => [
+                '35.167.0.0/16', '52.42.0.0/16', '54.191.0.0/16',
+            ],
+        ],
+        'DoorDash' => [
+            'category' => 'E-commerce',
+            'icon' => 'truck',
+            'color' => '#FF3008',
+            'ranges' => [
+                '34.192.0.0/10', '52.0.0.0/11',
+            ],
+        ],
+        'Okta' => [
+            'category' => 'Security',
+            'icon' => 'shield',
+            'color' => '#007DC1',
+            'ranges' => [
+                '75.98.88.0/21', '99.86.0.0/16', '104.98.80.0/20',
+            ],
+        ],
+        'Auth0' => [
+            'category' => 'Security',
+            'icon' => 'shield',
+            'color' => '#EB5424',
+            'ranges' => [
+                '35.167.74.0/24', '52.40.0.0/14',
+            ],
+        ],
+        'Datadog' => [
+            'category' => 'Development',
+            'icon' => 'activity',
+            'color' => '#632CA6',
+            'ranges' => [
+                '3.233.144.0/20', '18.210.0.0/16', '44.232.119.0/26', '44.241.198.0/26',
+            ],
+        ],
+        'Sentry' => [
+            'category' => 'Development',
+            'icon' => 'activity',
+            'color' => '#362D59',
+            'ranges' => [
+                '35.184.0.0/13', '35.192.0.0/14',
+            ],
+        ],
+        'NewRelic' => [
+            'category' => 'Development',
+            'icon' => 'activity',
+            'color' => '#008C99',
+            'ranges' => [
+                '162.247.240.0/22', '185.221.84.0/22',
+            ],
+        ],
+        'Vercel' => [
+            'category' => 'Development',
+            'icon' => 'code',
+            'color' => '#000000',
+            'ranges' => [
+                '76.76.21.0/24', '76.223.0.0/16',
+            ],
+        ],
+        'Netlify' => [
+            'category' => 'Development',
+            'icon' => 'code',
+            'color' => '#00C7B7',
+            'ranges' => [
+                '104.198.14.0/24', '151.101.0.0/16',
+            ],
+        ],
     ];
 
     /**
@@ -589,6 +879,71 @@ class ApplicationIdentificationService
         27015 => ['name' => 'Steam', 'category' => 'Gaming', 'icon' => 'gamepad-2', 'color' => '#1B2838'],
         27016 => ['name' => 'Steam', 'category' => 'Gaming', 'icon' => 'gamepad-2', 'color' => '#1B2838'],
         27017 => ['name' => 'Steam', 'category' => 'Gaming', 'icon' => 'gamepad-2', 'color' => '#1B2838'],
+        19132 => ['name' => 'Minecraft-Bedrock', 'category' => 'Gaming', 'icon' => 'gamepad-2', 'color' => '#62B47A'],
+        19133 => ['name' => 'Minecraft-Bedrock', 'category' => 'Gaming', 'icon' => 'gamepad-2', 'color' => '#62B47A'],
+
+        // Additional Web/API Services
+        3000 => ['name' => 'Dev-Server', 'category' => 'Development', 'icon' => 'code', 'color' => '#181717'],
+        4000 => ['name' => 'Dev-Server', 'category' => 'Development', 'icon' => 'code', 'color' => '#181717'],
+        4200 => ['name' => 'Angular', 'category' => 'Development', 'icon' => 'code', 'color' => '#DD0031'],
+        5000 => ['name' => 'Flask/API', 'category' => 'Development', 'icon' => 'code', 'color' => '#000000'],
+        5173 => ['name' => 'Vite', 'category' => 'Development', 'icon' => 'code', 'color' => '#646CFF'],
+        5500 => ['name' => 'LiveServer', 'category' => 'Development', 'icon' => 'code', 'color' => '#007ACC'],
+        8000 => ['name' => 'Web-Service', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        8001 => ['name' => 'Web-Service', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        8008 => ['name' => 'HTTP-Alt', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        8081 => ['name' => 'HTTP-Proxy', 'category' => 'Network', 'icon' => 'shuffle', 'color' => '#6B7280'],
+        8082 => ['name' => 'HTTP-Proxy', 'category' => 'Network', 'icon' => 'shuffle', 'color' => '#6B7280'],
+        8090 => ['name' => 'Web-Service', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        8181 => ['name' => 'Web-Service', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        8443 => ['name' => 'HTTPS-Alt', 'category' => 'Web', 'icon' => 'lock', 'color' => '#10B981'],
+        8880 => ['name' => 'Web-Service', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        8888 => ['name' => 'HTTP-Proxy', 'category' => 'Network', 'icon' => 'shuffle', 'color' => '#6B7280'],
+        9080 => ['name' => 'WebSphere', 'category' => 'Web', 'icon' => 'globe', 'color' => '#054ADA'],
+        9090 => ['name' => 'Prometheus', 'category' => 'Development', 'icon' => 'activity', 'color' => '#E6522C'],
+        9091 => ['name' => 'Prometheus', 'category' => 'Development', 'icon' => 'activity', 'color' => '#E6522C'],
+        9100 => ['name' => 'Node-Exporter', 'category' => 'Development', 'icon' => 'activity', 'color' => '#E6522C'],
+        9443 => ['name' => 'HTTPS-Alt', 'category' => 'Web', 'icon' => 'lock', 'color' => '#10B981'],
+
+        // Monitoring/Logging
+        3000 => ['name' => 'Grafana', 'category' => 'Development', 'icon' => 'activity', 'color' => '#F46800'],
+        5601 => ['name' => 'Kibana', 'category' => 'Development', 'icon' => 'activity', 'color' => '#005571'],
+        9200 => ['name' => 'Elasticsearch', 'category' => 'Database', 'icon' => 'database', 'color' => '#005571'],
+        9300 => ['name' => 'Elasticsearch', 'category' => 'Database', 'icon' => 'database', 'color' => '#005571'],
+
+        // Message Queues
+        5672 => ['name' => 'RabbitMQ', 'category' => 'Development', 'icon' => 'git-branch', 'color' => '#FF6600'],
+        15672 => ['name' => 'RabbitMQ-Mgmt', 'category' => 'Development', 'icon' => 'git-branch', 'color' => '#FF6600'],
+        9092 => ['name' => 'Kafka', 'category' => 'Development', 'icon' => 'git-branch', 'color' => '#231F20'],
+        2181 => ['name' => 'ZooKeeper', 'category' => 'Development', 'icon' => 'git-branch', 'color' => '#3C4043'],
+        4369 => ['name' => 'EPMD', 'category' => 'Network', 'icon' => 'server', 'color' => '#8B5CF6'],
+
+        // Additional Services
+        111 => ['name' => 'RPC-Portmapper', 'category' => 'Network', 'icon' => 'server', 'color' => '#8B5CF6'],
+        548 => ['name' => 'AFP', 'category' => 'File Transfer', 'icon' => 'folder', 'color' => '#555555'],
+        631 => ['name' => 'IPP', 'category' => 'Network', 'icon' => 'printer', 'color' => '#8B5CF6'],
+        843 => ['name' => 'Flash-Policy', 'category' => 'Web', 'icon' => 'globe', 'color' => '#6366F1'],
+        902 => ['name' => 'VMware', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#607078'],
+        903 => ['name' => 'VMware', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#607078'],
+        1099 => ['name' => 'Java-RMI', 'category' => 'Development', 'icon' => 'code', 'color' => '#007396'],
+        1433 => ['name' => 'MSSQL', 'category' => 'Database', 'icon' => 'database', 'color' => '#CC2927'],
+        1434 => ['name' => 'MSSQL-UDP', 'category' => 'Database', 'icon' => 'database', 'color' => '#CC2927'],
+        1883 => ['name' => 'MQTT', 'category' => 'Network', 'icon' => 'activity', 'color' => '#660066'],
+        8883 => ['name' => 'MQTT-TLS', 'category' => 'Network', 'icon' => 'activity', 'color' => '#660066'],
+        1935 => ['name' => 'RTMP', 'category' => 'Streaming', 'icon' => 'video', 'color' => '#E50914'],
+        3283 => ['name' => 'Apple-Remote', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#555555'],
+        5353 => ['name' => 'mDNS', 'category' => 'Network', 'icon' => 'wifi', 'color' => '#8B5CF6'],
+        5355 => ['name' => 'LLMNR', 'category' => 'Network', 'icon' => 'wifi', 'color' => '#8B5CF6'],
+        5357 => ['name' => 'WSDAPI', 'category' => 'Network', 'icon' => 'server', 'color' => '#8B5CF6'],
+        5938 => ['name' => 'TeamViewer', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#0E8EE9'],
+        6000 => ['name' => 'X11', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#444444'],
+        6001 => ['name' => 'X11', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#444444'],
+        6881 => ['name' => 'BitTorrent', 'category' => 'File Transfer', 'icon' => 'download', 'color' => '#228B22'],
+        7070 => ['name' => 'RTSP', 'category' => 'Streaming', 'icon' => 'video', 'color' => '#E50914'],
+        8291 => ['name' => 'Mikrotik-API', 'category' => 'Network', 'icon' => 'server', 'color' => '#293239'],
+        8728 => ['name' => 'Mikrotik-API', 'category' => 'Network', 'icon' => 'server', 'color' => '#293239'],
+        8729 => ['name' => 'Mikrotik-API-SSL', 'category' => 'Network', 'icon' => 'server', 'color' => '#293239'],
+        10000 => ['name' => 'Webmin', 'category' => 'Remote Access', 'icon' => 'monitor', 'color' => '#5A5A5A'],
     ];
 
     /**

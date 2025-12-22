@@ -66,6 +66,8 @@ class ReportController extends Controller
 
         $topApplications = (clone $query)
             ->whereNotNull('application')
+            ->where('application', '!=', '')
+            ->where('application', '!=', 'Unknown')
             ->selectRaw('application, SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
             ->groupBy('application')
             ->orderByDesc('total_bytes')
@@ -73,6 +75,8 @@ class ReportController extends Controller
             ->get();
 
         $topProtocols = (clone $query)
+            ->whereNotNull('protocol')
+            ->where('protocol', '!=', '')
             ->selectRaw('protocol, SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
             ->groupBy('protocol')
             ->orderByDesc('total_bytes')

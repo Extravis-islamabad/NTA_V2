@@ -149,7 +149,7 @@
     <div x-show="activeSubTab === 'conversations'" x-cloak>
         <div class="mb-3 flex items-center justify-between">
             <p class="text-xs text-gray-500">
-                <span class="text-cyan-400 font-medium">Communication Pairs</span> - Traffic aggregated by source-destination pairs
+                <span class="text-cyan-400 font-medium">Communication Pairs</span> - All traffic between source-destination pairs combined
             </p>
             <span class="text-xs text-gray-500">{{ count($conversations ?? []) }} unique pairs</span>
         </div>
@@ -159,11 +159,11 @@
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Source IP</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Destination IP</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Protocol</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Application</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Duration</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total Traffic</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Packets</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Flow Count</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Flows</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Protocols/Apps</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/5">
@@ -183,6 +183,9 @@
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
                             <div class="flex items-center gap-1 group">
+                                <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
                                 <span class="font-mono text-xs text-white">{{ $conv->destination_ip }}</span>
                                 <button onclick="copyToClipboard('{{ $conv->destination_ip }}')" class="p-1 hover:bg-cyan-500/20 rounded opacity-0 group-hover:opacity-100 transition-opacity" title="Copy IP">
                                     <svg class="w-3 h-3 text-gray-500 hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,18 +194,27 @@
                                 </button>
                             </div>
                         </td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full {{ $conv->protocol === 'TCP' ? 'bg-blue-500/20 text-blue-400' : ($conv->protocol === 'UDP' ? 'bg-green-500/20 text-green-400' : 'bg-indigo-500/20 text-indigo-400') }}">
-                                {{ $conv->protocol }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 whitespace-nowrap">
-                            @if($conv->application)
-                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-cyan-500/20 text-cyan-400">
-                                {{ $conv->application }}
-                            </span>
+                        <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-400">
+                            @if($conv->first_seen && $conv->last_seen)
+                                @php
+                                    $first = \Carbon\Carbon::parse($conv->first_seen);
+                                    $last = \Carbon\Carbon::parse($conv->last_seen);
+                                    $duration = $first->diff($last);
+                                @endphp
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-gray-500">{{ $first->format('H:i:s') }} - {{ $last->format('H:i:s') }}</span>
+                                    <span class="text-[10px] text-cyan-400">
+                                        @if($duration->h > 0)
+                                            {{ $duration->h }}h {{ $duration->i }}m
+                                        @elseif($duration->i > 0)
+                                            {{ $duration->i }}m {{ $duration->s }}s
+                                        @else
+                                            {{ $duration->s }}s
+                                        @endif
+                                    </span>
+                                </div>
                             @else
-                            <span class="text-xs text-gray-500">Unknown</span>
+                                <span class="text-gray-500">-</span>
                             @endif
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-xs font-medium text-white">
@@ -222,8 +234,18 @@
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
                             <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-indigo-500/20 text-indigo-400">
-                                {{ number_format($conv->flow_count) }} flows
+                                {{ number_format($conv->flow_count) }}
                             </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex gap-1">
+                                <span class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-500/20 text-blue-400" title="Protocols used">
+                                    {{ $conv->protocol_count ?? 1 }} proto
+                                </span>
+                                <span class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-cyan-500/20 text-cyan-400" title="Applications detected">
+                                    {{ $conv->app_count ?? 1 }} apps
+                                </span>
+                            </div>
                         </td>
                     </tr>
                     @empty

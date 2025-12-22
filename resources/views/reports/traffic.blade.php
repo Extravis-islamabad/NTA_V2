@@ -576,55 +576,68 @@ document.addEventListener('DOMContentLoaded', function() {
     // Applications Chart - Donut
     const appEl = document.getElementById('applicationsChart');
     if (appEl) {
-        new ApexCharts(appEl, {
-            chart: {
-                type: 'donut',
-                height: 260,
-                fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
-                background: 'transparent',
-                foreColor: '#9ca3af'
-            },
-            theme: chartTheme,
-            series: {!! json_encode($topApplications->pluck('total_bytes')->toArray()) !!},
-            labels: {!! json_encode($topApplications->pluck('application')->toArray()) !!},
-            colors: ['#22d3ee', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#14b8a6', '#f97316', '#6366f1'],
-            plotOptions: {
-                pie: {
-                    donut: {
-                        size: '65%',
-                        labels: {
-                            show: true,
-                            name: { show: true, color: '#fff' },
-                            value: {
-                                show: true,
-                                color: '#9ca3af',
-                                formatter: formatBytes
-                            },
-                            total: {
-                                show: true,
-                                label: 'Total',
-                                color: '#9ca3af',
-                                formatter: function(w) {
-                                    return formatBytes(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
+        try {
+            const appData = @json($topApplications->pluck('total_bytes')->values()->toArray());
+            const appLabels = @json($topApplications->pluck('application')->values()->toArray());
+
+            // Ensure we have valid data
+            if (appData && appData.length > 0 && appLabels && appLabels.length > 0) {
+                new ApexCharts(appEl, {
+                    chart: {
+                        type: 'donut',
+                        height: 260,
+                        fontFamily: 'Figtree, ui-sans-serif, system-ui, sans-serif',
+                        background: 'transparent',
+                        foreColor: '#9ca3af'
+                    },
+                    theme: chartTheme,
+                    series: appData,
+                    labels: appLabels,
+                    colors: ['#22d3ee', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#14b8a6', '#f97316', '#6366f1'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '65%',
+                                labels: {
+                                    show: true,
+                                    name: { show: true, color: '#fff' },
+                                    value: {
+                                        show: true,
+                                        color: '#9ca3af',
+                                        formatter: formatBytes
+                                    },
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        color: '#9ca3af',
+                                        formatter: function(w) {
+                                            return formatBytes(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            },
-            legend: {
-                position: 'right',
-                fontSize: '11px',
-                labels: { colors: '#9ca3af' },
-                markers: { radius: 3 }
-            },
-            dataLabels: { enabled: false },
-            tooltip: {
-                y: { formatter: formatBytes },
-                theme: 'dark'
-            },
-            stroke: { show: false }
-        }).render();
+                    },
+                    legend: {
+                        position: 'right',
+                        fontSize: '11px',
+                        labels: { colors: '#9ca3af' },
+                        markers: { radius: 3 }
+                    },
+                    dataLabels: { enabled: false },
+                    tooltip: {
+                        y: { formatter: formatBytes },
+                        theme: 'dark'
+                    },
+                    stroke: { show: false }
+                }).render();
+            } else {
+                appEl.innerHTML = '<div class="text-center py-8 text-gray-500">No application data to display</div>';
+            }
+        } catch (e) {
+            console.error('Applications chart error:', e);
+            appEl.innerHTML = '<div class="text-center py-8 text-gray-500">Error loading chart</div>';
+        }
     }
     @endif
 

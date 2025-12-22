@@ -521,6 +521,25 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    /* Map tooltip styling */
+    .map-tooltip {
+        background: rgba(17, 24, 39, 0.95) !important;
+        border: 1px solid rgba(139, 92, 246, 0.5) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        padding: 0 !important;
+    }
+    .map-tooltip .leaflet-tooltip-content {
+        margin: 0;
+    }
+    .leaflet-tooltip-top:before {
+        border-top-color: rgba(139, 92, 246, 0.5) !important;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 // Dashboard data from server
@@ -999,7 +1018,8 @@ function initializeMap() {
 
     tileLayer.addTo(trafficMap);
 
-    // Add traffic markers
+    // Add traffic markers with proper colors matching legend
+    // Purple (#8B5CF6) = Traffic Origin, Green/Emerald (#10B981) = Traffic Destination
     const countries = dashboardData.trafficByCountry;
     if (countries && countries.length > 0) {
         markerGroup = L.layerGroup();
@@ -1008,22 +1028,29 @@ function initializeMap() {
             if (country.latitude && country.longitude) {
                 const radius = Math.min(25, Math.max(8, Math.log10(country.bytes) * 3));
 
+                // Use purple fill with green border to show both origin/destination traffic
                 const marker = L.circleMarker([country.latitude, country.longitude], {
                     radius: radius,
-                    fillColor: window.monetxColors?.primary || '#8B5CF6',
-                    color: window.monetxColors?.secondary || '#10B981',
+                    fillColor: '#8B5CF6',  // Purple - matches legend
+                    color: '#10B981',       // Green border - matches legend
                     weight: 2,
                     opacity: 0.9,
-                    fillOpacity: 0.6
+                    fillOpacity: 0.7
                 });
 
-                marker.bindPopup(`
-                    <div class="text-sm">
-                        <strong class="text-blue-600">${country.country_name}</strong><br>
-                        <span class="text-gray-600">Traffic: ${country.formatted_bytes}</span><br>
-                        <span class="text-gray-500">Flows: ${country.flows.toLocaleString()}</span>
+                // Use tooltip for hover display instead of popup (click)
+                marker.bindTooltip(`
+                    <div style="font-size: 12px; padding: 4px 8px; min-width: 120px;">
+                        <div style="font-weight: bold; color: #8B5CF6; margin-bottom: 4px;">${country.country_name}</div>
+                        <div style="color: #374151;">Traffic: <strong>${country.formatted_bytes}</strong></div>
+                        <div style="color: #6B7280;">Flows: ${country.flows.toLocaleString()}</div>
                     </div>
-                `);
+                `, {
+                    permanent: false,
+                    direction: 'top',
+                    offset: [0, -10],
+                    className: 'map-tooltip'
+                });
 
                 markerGroup.addLayer(marker);
             }

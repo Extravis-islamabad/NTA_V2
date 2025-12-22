@@ -127,13 +127,19 @@ class DeviceController extends Controller
             ->latest()
             ->paginate(25);
 
+        // Conversations: Aggregate by source-destination pair only (not by protocol/app)
+        // This shows true conversation pairs with all their traffic combined
         $conversations = $device->flows()
             ->where('created_at', '>=', $this->getTimeRangeStart($timeRange))
-            ->select('source_ip', 'destination_ip', 'protocol', 'application')
+            ->select('source_ip', 'destination_ip')
             ->selectRaw('SUM(bytes) as total_bytes, SUM(packets) as total_packets, COUNT(*) as flow_count')
-            ->groupBy('source_ip', 'destination_ip', 'protocol', 'application')
+            ->selectRaw('COUNT(DISTINCT protocol) as protocol_count')
+            ->selectRaw('COUNT(DISTINCT application) as app_count')
+            ->selectRaw('MIN(created_at) as first_seen')
+            ->selectRaw('MAX(created_at) as last_seen')
+            ->groupBy('source_ip', 'destination_ip')
             ->orderByDesc('total_bytes')
-            ->limit(20)
+            ->limit(25)
             ->get();
 
         return compact('flowDetails', 'conversations');

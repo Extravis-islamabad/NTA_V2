@@ -5,7 +5,7 @@
     <title>Traffic Analysis Report</title>
     <style>
         @page {
-            margin: 0;
+            margin: 0.75in 0.75in 0.75in 1in;
         }
         @page :first {
             margin: 0;
@@ -16,71 +16,94 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 10px;
             line-height: 1.5;
-            color: #1f2937;
-            background: #fff;
+            color: #374151;
+            background: #ffffff;
         }
 
-        /* Cover Page Styles */
+        /* ==================== COVER PAGE ==================== */
         .cover-page {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            min-height: 100%;
-            padding: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
             position: relative;
             page-break-after: always;
         }
-        .cover-header {
-            padding: 60px 50px 40px;
-            text-align: center;
+        .cover-accent-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #22d3ee, #8b5cf6, #22d3ee);
         }
-        .cover-logo {
-            font-size: 42px;
+        .cover-content {
+            padding: 80px 60px;
+        }
+        .cover-logo-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .cover-logo-img {
+            height: 60px;
+            width: auto;
+        }
+        .cover-logo-text {
+            font-size: 48px;
             font-weight: bold;
             color: #22d3ee;
-            letter-spacing: 4px;
-            margin-bottom: 8px;
+            letter-spacing: 6px;
         }
         .cover-tagline {
-            font-size: 11px;
+            font-size: 12px;
             color: #94a3b8;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
+            margin-top: 10px;
         }
-        .cover-main {
-            padding: 60px 50px;
+        .cover-divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #22d3ee, #8b5cf6);
+            margin: 50px auto;
+        }
+        .cover-title-section {
             text-align: center;
+            margin-bottom: 50px;
+        }
+        .cover-report-type {
+            font-size: 11px;
+            color: #22d3ee;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 15px;
         }
         .cover-title {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
             color: #ffffff;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
         }
         .cover-subtitle {
             font-size: 14px;
             color: #94a3b8;
-            margin-bottom: 40px;
+            font-weight: 300;
         }
-        .cover-divider {
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(90deg, #22d3ee, #8b5cf6);
-            margin: 0 auto 40px;
-        }
-        .cover-meta {
+        .cover-meta-card {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            padding: 25px 40px;
-            margin: 40px auto;
-            max-width: 400px;
-            text-align: left;
+            border-radius: 8px;
+            padding: 25px 35px;
+            margin: 50px auto;
+            max-width: 420px;
         }
         .cover-meta-row {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
         .cover-meta-row:last-child {
             border-bottom: none;
@@ -89,17 +112,17 @@
             font-size: 9px;
             color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
         }
         .cover-meta-value {
-            font-size: 12px;
+            font-size: 13px;
             color: #f1f5f9;
-            font-weight: bold;
-            margin-top: 3px;
+            font-weight: 600;
         }
         .cover-footer {
             position: absolute;
-            bottom: 40px;
+            bottom: 50px;
             left: 0;
             right: 0;
             text-align: center;
@@ -108,108 +131,153 @@
             font-size: 9px;
             color: #ef4444;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            padding: 8px 20px;
-            border: 1px solid #ef4444;
+            letter-spacing: 3px;
+            padding: 10px 25px;
+            border: 1px solid rgba(239,68,68,0.5);
             display: inline-block;
+            border-radius: 4px;
         }
 
-        /* Report Content Styles */
-        .header {
-            background-color: #0f172a;
-            color: white;
-            padding: 15px 25px;
-            border-bottom: 3px solid #22d3ee;
+        /* ==================== PAGE HEADER ==================== */
+        .page-header {
+            background: #1a1a2e;
+            padding: 12px 20px;
+            margin: -54px -54px 20px -72px;
+            width: calc(100% + 126px);
+            border-bottom: 2px solid #22d3ee;
         }
         .header-table {
             width: 100%;
         }
-        .logo-text {
-            font-size: 18px;
+        .header-logo {
+            font-size: 16px;
             font-weight: bold;
             color: #22d3ee;
             letter-spacing: 2px;
         }
-        .report-info {
-            text-align: right;
-            font-size: 9px;
-            color: #94a3b8;
+        .header-logo-img {
+            height: 24px;
+            width: auto;
         }
-        .report-info-title {
+        .header-title {
             font-size: 11px;
             color: #ffffff;
-            font-weight: bold;
+            font-weight: 600;
+            text-align: center;
+        }
+        .header-date {
+            font-size: 9px;
+            color: #94a3b8;
+            text-align: right;
         }
 
+        /* ==================== CONTENT AREA ==================== */
         .content {
-            padding: 20px 25px 60px;
+            padding: 0;
         }
-
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
         .section-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
-            color: #0f172a;
-            border-left: 4px solid #22d3ee;
-            padding-left: 12px;
-            margin-bottom: 15px;
+            color: #1a1a2e;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #22d3ee;
+        }
+        .section-title-accent {
+            display: inline-block;
+            width: 40px;
+            height: 3px;
+            background: #22d3ee;
+            margin-bottom: -2px;
         }
 
-        /* Executive Summary Dashboard */
-        .dashboard-grid {
+        /* ==================== EXECUTIVE SUMMARY CARDS ==================== */
+        .summary-grid {
             width: 100%;
             margin-bottom: 20px;
         }
-        .dashboard-card {
+        .summary-card {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border: 1px solid #e2e8f0;
-            padding: 15px;
+            border-radius: 6px;
+            padding: 18px 12px;
             text-align: center;
         }
-        .dashboard-card-accent {
-            border-top: 3px solid #22d3ee;
-        }
-        .dashboard-card-accent-purple {
-            border-top: 3px solid #8b5cf6;
-        }
-        .dashboard-card-accent-emerald {
-            border-top: 3px solid #10b981;
-        }
-        .dashboard-card-accent-amber {
-            border-top: 3px solid #f59e0b;
-        }
-        .dashboard-value {
+        .summary-card-cyan { border-top: 4px solid #22d3ee; }
+        .summary-card-emerald { border-top: 4px solid #10b981; }
+        .summary-card-purple { border-top: 4px solid #8b5cf6; }
+        .summary-card-amber { border-top: 4px solid #f59e0b; }
+        .summary-value {
             font-size: 24px;
             font-weight: bold;
-            color: #0f172a;
-            margin-bottom: 5px;
+            color: #111827;
+            margin-bottom: 4px;
         }
-        .dashboard-value-cyan { color: #0891b2; }
-        .dashboard-value-purple { color: #7c3aed; }
-        .dashboard-value-emerald { color: #059669; }
-        .dashboard-value-amber { color: #d97706; }
-        .dashboard-label {
+        .summary-value-cyan { color: #0891b2; }
+        .summary-value-emerald { color: #059669; }
+        .summary-value-purple { color: #7c3aed; }
+        .summary-value-amber { color: #d97706; }
+        .summary-label {
             font-size: 8px;
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        /* Chart Styles */
+        /* ==================== KEY INSIGHTS ==================== */
+        .insights-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-left: 4px solid #0891b2;
+            border-radius: 6px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+        .insights-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #0c4a6e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .insight-item {
+            font-size: 10px;
+            color: #334155;
+            padding: 5px 0;
+            padding-left: 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+        .insight-item:before {
+            content: "•";
+            color: #0891b2;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        .insight-highlight {
+            font-weight: bold;
+            color: #0891b2;
+        }
+
+        /* ==================== BAR CHARTS ==================== */
         .chart-container {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 15px;
             margin-bottom: 15px;
         }
         .chart-heading {
             font-size: 11px;
             font-weight: bold;
-            color: #0f172a;
+            color: #1a1a2e;
             margin-bottom: 12px;
             padding-bottom: 8px;
             border-bottom: 1px solid #e2e8f0;
@@ -219,111 +287,125 @@
             border-collapse: collapse;
         }
         .chart-table td {
-            padding: 4px 0;
+            padding: 5px 0;
             vertical-align: middle;
         }
         .chart-rank {
             width: 22px;
             height: 22px;
-            background: #22d3ee;
-            color: white;
             font-size: 9px;
             font-weight: bold;
             text-align: center;
             line-height: 22px;
-            border-radius: 4px;
+            border-radius: 50%;
+            color: white;
         }
-        .chart-rank-purple {
-            background: #8b5cf6;
-        }
+        .chart-rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+        .chart-rank-2 { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #374151; }
+        .chart-rank-3 { background: linear-gradient(135deg, #fb923c, #ea580c); color: #ffffff; }
+        .chart-rank-default { background: #6366f1; color: white; }
+        .chart-rank-gray { background: #9ca3af; color: white; }
         .chart-label-cell {
-            width: 80px;
+            width: 90px;
             font-size: 9px;
             color: #374151;
             padding: 0 10px;
             font-weight: 500;
         }
         .chart-bar-cell {
-            width: 140px;
+            width: 130px;
         }
         .chart-bar-bg {
             background: #e2e8f0;
-            height: 14px;
-            border-radius: 2px;
+            height: 16px;
+            border-radius: 3px;
             overflow: hidden;
         }
         .chart-bar-fill {
             background: linear-gradient(90deg, #22d3ee, #0891b2);
-            height: 14px;
+            height: 16px;
         }
         .chart-bar-fill-purple {
             background: linear-gradient(90deg, #a78bfa, #8b5cf6);
         }
         .chart-value-cell {
-            width: 55px;
+            width: 60px;
             font-size: 9px;
-            color: #0f172a;
+            color: #111827;
             font-weight: bold;
             text-align: right;
             padding-left: 10px;
         }
 
-        /* Data Table Styles */
+        /* ==================== DATA TABLES ==================== */
         .data-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 9px;
+            border-radius: 6px;
+            overflow: hidden;
         }
         .data-table th {
-            background: #0f172a;
+            background: #1a1a2e;
             color: white;
-            padding: 10px 8px;
+            padding: 11px 10px;
             text-align: left;
             font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .data-table th.text-right {
-            text-align: right;
-        }
+        .data-table th.text-right { text-align: right; }
+        .data-table th.text-center { text-align: center; }
         .data-table td {
-            padding: 8px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 9px 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table tr:nth-child(odd) td {
+            background: #ffffff;
         }
         .data-table tr:nth-child(even) td {
             background: #f8fafc;
         }
-        .data-table tr:hover td {
-            background: #f1f5f9;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .text-center {
-            text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
 
-        /* Rank Badge */
+        /* ==================== RANK BADGES (Gold/Silver/Bronze) ==================== */
         .rank-badge {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            background: #22d3ee;
-            color: white;
+            width: 22px;
+            height: 22px;
             font-size: 9px;
             font-weight: bold;
             text-align: center;
-            line-height: 20px;
-            border-radius: 4px;
+            line-height: 22px;
+            border-radius: 50%;
         }
-        .rank-badge-2 { background: #10b981; }
-        .rank-badge-3 { background: #8b5cf6; }
-        .rank-badge-4 { background: #f59e0b; }
-        .rank-badge-5 { background: #ec4899; }
-        .rank-badge-default { background: #64748b; }
+        .rank-gold {
+            background: linear-gradient(135deg, #fcd34d, #fbbf24);
+            color: #78350f;
+            box-shadow: 0 1px 2px rgba(251,191,36,0.4);
+        }
+        .rank-silver {
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            color: #374151;
+            box-shadow: 0 1px 2px rgba(156,163,175,0.4);
+        }
+        .rank-bronze {
+            background: linear-gradient(135deg, #fdba74, #fb923c);
+            color: #ffffff;
+            box-shadow: 0 1px 2px rgba(251,146,60,0.4);
+        }
+        .rank-purple {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            color: #ffffff;
+        }
+        .rank-gray {
+            background: #9ca3af;
+            color: #ffffff;
+        }
 
-        /* Progress Bar in Tables */
+        /* ==================== PROGRESS BAR IN TABLES ==================== */
         .progress-container {
             display: inline-block;
             vertical-align: middle;
@@ -331,7 +413,7 @@
         .progress-bg {
             background: #e2e8f0;
             height: 8px;
-            width: 60px;
+            width: 55px;
             display: inline-block;
             vertical-align: middle;
             border-radius: 4px;
@@ -347,34 +429,56 @@
         .progress-text {
             font-size: 9px;
             font-weight: bold;
-            color: #0f172a;
+            color: #111827;
             margin-left: 6px;
         }
 
+        /* ==================== IP ADDRESS STYLING ==================== */
         .ip-code {
-            font-family: 'DejaVu Sans Mono', monospace;
+            font-family: 'DejaVu Sans Mono', Consolas, monospace;
             background: #f1f5f9;
-            padding: 2px 6px;
+            padding: 3px 6px;
             font-size: 8px;
             color: #0891b2;
             border: 1px solid #e2e8f0;
             border-radius: 3px;
         }
 
-        /* Footer */
-        .footer {
+        /* ==================== PAGE FOOTER ==================== */
+        .page-footer {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 12px 25px;
-            background: #0f172a;
+            background: #1a1a2e;
+            padding: 10px 25px;
+            border-top: 1px solid #22d3ee;
+        }
+        .footer-table {
+            width: 100%;
+        }
+        .footer-brand {
             font-size: 8px;
             color: #94a3b8;
         }
-        .footer-brand {
+        .footer-brand strong {
             color: #22d3ee;
-            font-weight: bold;
+        }
+        .footer-center {
+            font-size: 8px;
+            color: #94a3b8;
+            text-align: center;
+        }
+        .footer-right {
+            font-size: 7px;
+            color: #64748b;
+            text-align: right;
+        }
+        .footer-confidential {
+            font-size: 7px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 3px;
         }
 
         .page-break {
@@ -383,26 +487,78 @@
     </style>
 </head>
 <body>
-    <!-- Cover Page -->
+    @php
+        // Logo handling
+        $logoPath = public_path('images/logo.png');
+        $logoExists = file_exists($logoPath);
+        $logoBase64 = $logoExists ? base64_encode(file_get_contents($logoPath)) : '';
+
+        // Calculate average bandwidth properly
+        $durationSeconds = $start->diffInSeconds($end);
+        $avgBandwidthBps = $durationSeconds > 0 ? ($totalBytes * 8) / $durationSeconds : 0;
+
+        // Format bandwidth
+        if ($avgBandwidthBps >= 1000000000) {
+            $avgBandwidthFormatted = round($avgBandwidthBps / 1000000000, 2) . ' Gbps';
+        } elseif ($avgBandwidthBps >= 1000000) {
+            $avgBandwidthFormatted = round($avgBandwidthBps / 1000000, 2) . ' Mbps';
+        } elseif ($avgBandwidthBps >= 1000) {
+            $avgBandwidthFormatted = round($avgBandwidthBps / 1000, 2) . ' Kbps';
+        } else {
+            $avgBandwidthFormatted = round($avgBandwidthBps, 0) . ' bps';
+        }
+
+        // Format total bytes
+        if ($totalBytes >= 1099511627776) {
+            $totalBytesFormatted = round($totalBytes / 1099511627776, 2) . ' TB';
+        } elseif ($totalBytes >= 1073741824) {
+            $totalBytesFormatted = round($totalBytes / 1073741824, 2) . ' GB';
+        } elseif ($totalBytes >= 1048576) {
+            $totalBytesFormatted = round($totalBytes / 1048576, 2) . ' MB';
+        } else {
+            $totalBytesFormatted = round($totalBytes / 1024, 2) . ' KB';
+        }
+
+        // Get top app and protocol for insights
+        $topApp = $topApplications->first();
+        $topProtocol = $topProtocols->first();
+        $topSource = $topSources->first();
+        $topDest = $topDestinations->first();
+    @endphp
+
+    <!-- ==================== COVER PAGE ==================== -->
     <div class="cover-page">
-        <div class="cover-header">
-            <div class="cover-logo">MonetX</div>
-            <div class="cover-tagline">Network Traffic Analyzer</div>
-        </div>
+        <div class="cover-accent-bar"></div>
 
-        <div class="cover-main">
+        <div class="cover-content">
+            <!-- Logo Section -->
+            <div class="cover-logo-section">
+                @if($logoExists)
+                    <img src="data:image/png;base64,{{ $logoBase64 }}" class="cover-logo-img" alt="MonetX">
+                @else
+                    <div class="cover-logo-text">MonetX</div>
+                @endif
+                <div class="cover-tagline">Network Traffic Analyzer</div>
+            </div>
+
             <div class="cover-divider"></div>
-            <div class="cover-title">Traffic Analysis Report</div>
-            <div class="cover-subtitle">Comprehensive Network Traffic & Protocol Analysis</div>
 
-            <div class="cover-meta">
+            <!-- Title Section -->
+            <div class="cover-title-section">
+                <div class="cover-report-type">Network Analysis Report</div>
+                <div class="cover-title">Traffic Analysis</div>
+                <div class="cover-subtitle">Comprehensive Network Traffic & Protocol Analysis</div>
+            </div>
+
+            <!-- Metadata Card -->
+            <div class="cover-meta-card">
                 <div class="cover-meta-row">
                     <div class="cover-meta-label">Report Period</div>
-                    <div class="cover-meta-value">{{ $start->format('M d, Y H:i') }} - {{ $end->format('M d, Y H:i') }}</div>
+                    <div class="cover-meta-value">{{ $start->format('M d, Y H:i') }} — {{ $end->format('M d, Y H:i') }}</div>
                 </div>
                 @if($selectedDevice)
                 <div class="cover-meta-row">
-                    <div class="cover-meta-label">Device</div>
+                    <div class="cover-meta-label">Scope</div>
                     <div class="cover-meta-value">{{ $selectedDevice->name }} ({{ $selectedDevice->ip_address }})</div>
                 </div>
                 @else
@@ -415,92 +571,125 @@
                     <div class="cover-meta-label">Generated</div>
                     <div class="cover-meta-value">{{ now()->format('F d, Y \a\t H:i:s') }}</div>
                 </div>
+                <div class="cover-meta-row">
+                    <div class="cover-meta-label">Reference ID</div>
+                    <div class="cover-meta-value">RPT-{{ now()->format('Y-md') }}-{{ strtoupper(substr(md5(now()), 0, 6)) }}</div>
+                </div>
             </div>
         </div>
 
+        <!-- Confidentiality Footer -->
         <div class="cover-footer">
-            <div class="cover-confidential">Confidential - Internal Use Only</div>
+            <div class="cover-confidential">Confidential — Internal Use Only</div>
         </div>
     </div>
 
-    <!-- Report Header -->
-    <div class="header">
+    <!-- ==================== PAGE 1: EXECUTIVE SUMMARY ==================== -->
+    <div class="page-header">
         <table class="header-table" cellpadding="0" cellspacing="0">
             <tr>
-                <td width="50%" style="vertical-align: middle;">
-                    <div class="logo-text">MonetX</div>
+                <td width="30%">
+                    @if($logoExists)
+                        <img src="data:image/png;base64,{{ $logoBase64 }}" class="header-logo-img" alt="MonetX">
+                    @else
+                        <span class="header-logo">MonetX</span>
+                    @endif
                 </td>
-                <td width="50%" style="vertical-align: middle;">
-                    <div class="report-info">
-                        <div class="report-info-title">Traffic Analysis Report</div>
-                        {{ $start->format('M d') }} - {{ $end->format('M d, Y') }}
-                        @if($selectedDevice) | {{ $selectedDevice->name }} @endif
-                    </div>
+                <td width="40%">
+                    <div class="header-title">Traffic Analysis Report</div>
+                </td>
+                <td width="30%">
+                    <div class="header-date">{{ $start->format('M d') }} – {{ $end->format('M d, Y') }}</div>
                 </td>
             </tr>
         </table>
     </div>
 
     <div class="content">
-        <!-- Executive Summary Dashboard -->
+        <!-- Executive Summary Section -->
         <div class="section">
             <div class="section-title">Executive Summary</div>
-            <table class="dashboard-grid" cellpadding="0" cellspacing="8">
+
+            <!-- Metric Cards -->
+            <table class="summary-grid" cellpadding="0" cellspacing="8">
                 <tr>
                     <td width="25%">
-                        <div class="dashboard-card dashboard-card-accent">
-                            <div class="dashboard-value dashboard-value-cyan">{{ number_format($totalFlows) }}</div>
-                            <div class="dashboard-label">Total Flows Analyzed</div>
+                        <div class="summary-card summary-card-cyan">
+                            <div class="summary-value summary-value-cyan">{{ number_format($totalFlows) }}</div>
+                            <div class="summary-label">Total Flows</div>
                         </div>
                     </td>
                     <td width="25%">
-                        <div class="dashboard-card dashboard-card-accent-emerald">
-                            <div class="dashboard-value dashboard-value-emerald">
-                                @php
-                                    if ($totalBytes >= 1099511627776) {
-                                        echo round($totalBytes / 1099511627776, 2) . ' TB';
-                                    } elseif ($totalBytes >= 1073741824) {
-                                        echo round($totalBytes / 1073741824, 2) . ' GB';
-                                    } elseif ($totalBytes >= 1048576) {
-                                        echo round($totalBytes / 1048576, 2) . ' MB';
-                                    } else {
-                                        echo round($totalBytes / 1024, 2) . ' KB';
-                                    }
-                                @endphp
-                            </div>
-                            <div class="dashboard-label">Total Traffic Volume</div>
+                        <div class="summary-card summary-card-emerald">
+                            <div class="summary-value summary-value-emerald">{{ $totalBytesFormatted }}</div>
+                            <div class="summary-label">Total Traffic</div>
                         </div>
                     </td>
                     <td width="25%">
-                        <div class="dashboard-card dashboard-card-accent-purple">
-                            <div class="dashboard-value dashboard-value-purple">{{ number_format($totalPackets) }}</div>
-                            <div class="dashboard-label">Total Packets</div>
+                        <div class="summary-card summary-card-purple">
+                            <div class="summary-value summary-value-purple">{{ number_format($totalPackets) }}</div>
+                            <div class="summary-label">Total Packets</div>
                         </div>
                     </td>
                     <td width="25%">
-                        <div class="dashboard-card dashboard-card-accent-amber">
-                            <div class="dashboard-value dashboard-value-amber">
-                                @php
-                                    if ($avgBandwidth >= 1000000000) {
-                                        echo round($avgBandwidth / 1000000000, 2) . ' Gbps';
-                                    } elseif ($avgBandwidth >= 1000000) {
-                                        echo round($avgBandwidth / 1000000, 2) . ' Mbps';
-                                    } elseif ($avgBandwidth >= 1000) {
-                                        echo round($avgBandwidth / 1000, 2) . ' Kbps';
-                                    } else {
-                                        echo round($avgBandwidth, 2) . ' bps';
-                                    }
-                                @endphp
-                            </div>
-                            <div class="dashboard-label">Average Bandwidth</div>
+                        <div class="summary-card summary-card-amber">
+                            <div class="summary-value summary-value-amber">{{ $avgBandwidthFormatted }}</div>
+                            <div class="summary-label">Avg Bandwidth</div>
                         </div>
                     </td>
                 </tr>
             </table>
         </div>
 
+        <!-- Key Insights Section -->
+        <div class="insights-box">
+            <div class="insights-title">Key Findings</div>
+            @if($topApp)
+            <div class="insight-item">
+                Primary application: <span class="insight-highlight">{{ $topApp->application }}</span> generated
+                @php
+                    $appBytes = $topApp->total_bytes;
+                    if ($appBytes >= 1073741824) echo round($appBytes / 1073741824, 2) . ' GB';
+                    elseif ($appBytes >= 1048576) echo round($appBytes / 1048576, 2) . ' MB';
+                    else echo round($appBytes / 1024, 2) . ' KB';
+                @endphp
+                ({{ $totalBytes > 0 ? number_format(($topApp->total_bytes / $totalBytes) * 100, 1) : 0 }}% of total traffic)
+            </div>
+            @endif
+            @if($topProtocol)
+            <div class="insight-item">
+                Dominant protocol: <span class="insight-highlight">{{ strtoupper($topProtocol->protocol) }}</span> accounted for {{ $totalBytes > 0 ? number_format(($topProtocol->total_bytes / $totalBytes) * 100, 1) : 0 }}% of all traffic
+            </div>
+            @endif
+            @if($topSource)
+            <div class="insight-item">
+                Highest traffic source: <span class="insight-highlight">{{ $topSource->source_ip }}</span> transferred
+                @php
+                    $srcBytes = $topSource->total_bytes;
+                    if ($srcBytes >= 1073741824) echo round($srcBytes / 1073741824, 2) . ' GB';
+                    elseif ($srcBytes >= 1048576) echo round($srcBytes / 1048576, 2) . ' MB';
+                    else echo round($srcBytes / 1024, 2) . ' KB';
+                @endphp
+            </div>
+            @endif
+            @if($topDest)
+            <div class="insight-item">
+                Top destination: <span class="insight-highlight">{{ $topDest->destination_ip }}</span> received
+                @php
+                    $dstBytes = $topDest->total_bytes;
+                    if ($dstBytes >= 1073741824) echo round($dstBytes / 1073741824, 2) . ' GB';
+                    elseif ($dstBytes >= 1048576) echo round($dstBytes / 1048576, 2) . ' MB';
+                    else echo round($dstBytes / 1024, 2) . ' KB';
+                @endphp
+            </div>
+            @endif
+            <div class="insight-item">
+                Total of <span class="insight-highlight">{{ $topApplications->count() }}</span> unique applications identified during the reporting period
+            </div>
+        </div>
+
         <!-- Visual Charts Row -->
-        <table width="100%" cellpadding="0" cellspacing="0">
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 15px;">
             <tr>
                 <td width="48%" style="vertical-align: top;">
                     @if($topApplications->isNotEmpty())
@@ -510,8 +699,16 @@
                         <table class="chart-table">
                             @foreach($topApplications->take(6) as $index => $app)
                             <tr>
-                                <td width="25">
-                                    <div class="chart-rank">{{ $index + 1 }}</div>
+                                <td width="28">
+                                    @php
+                                        $rankClass = match($index) {
+                                            0 => 'chart-rank chart-rank-1',
+                                            1 => 'chart-rank chart-rank-2',
+                                            2 => 'chart-rank chart-rank-3',
+                                            default => $index < 10 ? 'chart-rank chart-rank-default' : 'chart-rank chart-rank-gray'
+                                        };
+                                    @endphp
+                                    <div class="{{ $rankClass }}">{{ $index + 1 }}</div>
                                 </td>
                                 <td class="chart-label-cell">{{ Str::limit($app->application, 12) }}</td>
                                 <td class="chart-bar-cell">
@@ -542,8 +739,16 @@
                         <table class="chart-table">
                             @foreach($topProtocols->take(6) as $index => $protocol)
                             <tr>
-                                <td width="25">
-                                    <div class="chart-rank chart-rank-purple">{{ $index + 1 }}</div>
+                                <td width="28">
+                                    @php
+                                        $rankClass = match($index) {
+                                            0 => 'chart-rank chart-rank-1',
+                                            1 => 'chart-rank chart-rank-2',
+                                            2 => 'chart-rank chart-rank-3',
+                                            default => $index < 10 ? 'chart-rank chart-rank-default' : 'chart-rank chart-rank-gray'
+                                        };
+                                    @endphp
+                                    <div class="{{ $rankClass }}">{{ $index + 1 }}</div>
                                 </td>
                                 <td class="chart-label-cell">{{ strtoupper($protocol->protocol) }}</td>
                                 <td class="chart-bar-cell">
@@ -568,7 +773,7 @@
             </tr>
         </table>
 
-        <!-- Top Applications Table -->
+        <!-- Application Analysis Table -->
         <div class="section">
             <div class="section-title">Application Analysis</div>
             @if($topApplications->isEmpty())
@@ -577,19 +782,27 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">#</th>
-                            <th style="width: 25%;">Application</th>
+                            <th style="width: 6%;" class="text-center">Rank</th>
+                            <th style="width: 24%;">Application</th>
                             <th style="width: 12%;" class="text-right">Flows</th>
-                            <th style="width: 15%;" class="text-right">Traffic</th>
-                            <th style="width: 15%;" class="text-right">Packets</th>
-                            <th style="width: 28%;">Share of Total</th>
+                            <th style="width: 14%;" class="text-right">Traffic</th>
+                            <th style="width: 14%;" class="text-right">Packets</th>
+                            <th style="width: 30%;">Share of Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($topApplications as $index => $app)
                         <tr>
-                            <td>
-                                <span class="rank-badge {{ $index < 5 ? ($index == 0 ? '' : 'rank-badge-' . ($index + 1)) : 'rank-badge-default' }}">{{ $index + 1 }}</span>
+                            <td class="text-center">
+                                @php
+                                    $badgeClass = match($index) {
+                                        0 => 'rank-badge rank-gold',
+                                        1 => 'rank-badge rank-silver',
+                                        2 => 'rank-badge rank-bronze',
+                                        default => $index < 10 ? 'rank-badge rank-purple' : 'rank-badge rank-gray'
+                                    };
+                                @endphp
+                                <span class="{{ $badgeClass }}">{{ $index + 1 }}</span>
                             </td>
                             <td><strong>{{ $app->application }}</strong></td>
                             <td class="text-right">{{ number_format($app->flow_count) }}</td>
@@ -614,7 +827,7 @@
             @endif
         </div>
 
-        <!-- Protocol Table -->
+        <!-- Protocol Analysis Table -->
         <div class="section">
             <div class="section-title">Protocol Analysis</div>
             @if($topProtocols->isEmpty())
@@ -623,19 +836,27 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">#</th>
-                            <th style="width: 25%;">Protocol</th>
+                            <th style="width: 6%;" class="text-center">Rank</th>
+                            <th style="width: 24%;">Protocol</th>
                             <th style="width: 12%;" class="text-right">Flows</th>
-                            <th style="width: 15%;" class="text-right">Traffic</th>
-                            <th style="width: 15%;" class="text-right">Packets</th>
-                            <th style="width: 28%;">Share of Total</th>
+                            <th style="width: 14%;" class="text-right">Traffic</th>
+                            <th style="width: 14%;" class="text-right">Packets</th>
+                            <th style="width: 30%;">Share of Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($topProtocols as $index => $protocol)
                         <tr>
-                            <td>
-                                <span class="rank-badge {{ $index < 5 ? ($index == 0 ? '' : 'rank-badge-' . ($index + 1)) : 'rank-badge-default' }}">{{ $index + 1 }}</span>
+                            <td class="text-center">
+                                @php
+                                    $badgeClass = match($index) {
+                                        0 => 'rank-badge rank-gold',
+                                        1 => 'rank-badge rank-silver',
+                                        2 => 'rank-badge rank-bronze',
+                                        default => $index < 10 ? 'rank-badge rank-purple' : 'rank-badge rank-gray'
+                                    };
+                                @endphp
+                                <span class="{{ $badgeClass }}">{{ $index + 1 }}</span>
                             </td>
                             <td><strong>{{ strtoupper($protocol->protocol) }}</strong></td>
                             <td class="text-right">{{ number_format($protocol->flow_count) }}</td>
@@ -660,45 +881,57 @@
             @endif
         </div>
 
-        <!-- Page Break for Network Analysis -->
+        <!-- Page Break -->
         <div class="page-break"></div>
 
-        <!-- Repeated Header for Page 2 -->
-        <div class="header" style="margin: -20px -25px 20px; width: calc(100% + 50px);">
+        <!-- Page Header for Page 2 -->
+        <div class="page-header">
             <table class="header-table" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="50%" style="vertical-align: middle;">
-                        <div class="logo-text">MonetX</div>
+                    <td width="30%">
+                        @if($logoExists)
+                            <img src="data:image/png;base64,{{ $logoBase64 }}" class="header-logo-img" alt="MonetX">
+                        @else
+                            <span class="header-logo">MonetX</span>
+                        @endif
                     </td>
-                    <td width="50%" style="vertical-align: middle;">
-                        <div class="report-info">
-                            <div class="report-info-title">Traffic Analysis Report - Endpoints</div>
-                            {{ $start->format('M d') }} - {{ $end->format('M d, Y') }}
-                        </div>
+                    <td width="40%">
+                        <div class="header-title">Endpoint Analysis</div>
+                    </td>
+                    <td width="30%">
+                        <div class="header-date">{{ $start->format('M d') }} – {{ $end->format('M d, Y') }}</div>
                     </td>
                 </tr>
             </table>
         </div>
 
-        <!-- Top Sources -->
+        <!-- Top Sources Table -->
         <div class="section">
             <div class="section-title">Top Source IP Addresses</div>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">#</th>
-                        <th style="width: 25%;">Source IP</th>
+                        <th style="width: 6%;" class="text-center">Rank</th>
+                        <th style="width: 24%;">Source IP</th>
                         <th style="width: 12%;" class="text-right">Flows</th>
-                        <th style="width: 15%;" class="text-right">Traffic</th>
-                        <th style="width: 15%;" class="text-right">Packets</th>
-                        <th style="width: 28%;">Share of Total</th>
+                        <th style="width: 14%;" class="text-right">Traffic</th>
+                        <th style="width: 14%;" class="text-right">Packets</th>
+                        <th style="width: 30%;">Share of Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($topSources as $index => $source)
                     <tr>
-                        <td>
-                            <span class="rank-badge {{ $index < 5 ? ($index == 0 ? '' : 'rank-badge-' . ($index + 1)) : 'rank-badge-default' }}">{{ $index + 1 }}</span>
+                        <td class="text-center">
+                            @php
+                                $badgeClass = match($index) {
+                                    0 => 'rank-badge rank-gold',
+                                    1 => 'rank-badge rank-silver',
+                                    2 => 'rank-badge rank-bronze',
+                                    default => $index < 10 ? 'rank-badge rank-purple' : 'rank-badge rank-gray'
+                                };
+                            @endphp
+                            <span class="{{ $badgeClass }}">{{ $index + 1 }}</span>
                         </td>
                         <td><span class="ip-code">{{ $source->source_ip }}</span></td>
                         <td class="text-right">{{ number_format($source->flow_count) }}</td>
@@ -722,25 +955,33 @@
             </table>
         </div>
 
-        <!-- Top Destinations -->
+        <!-- Top Destinations Table -->
         <div class="section">
             <div class="section-title">Top Destination IP Addresses</div>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">#</th>
-                        <th style="width: 25%;">Destination IP</th>
+                        <th style="width: 6%;" class="text-center">Rank</th>
+                        <th style="width: 24%;">Destination IP</th>
                         <th style="width: 12%;" class="text-right">Flows</th>
-                        <th style="width: 15%;" class="text-right">Traffic</th>
-                        <th style="width: 15%;" class="text-right">Packets</th>
-                        <th style="width: 28%;">Share of Total</th>
+                        <th style="width: 14%;" class="text-right">Traffic</th>
+                        <th style="width: 14%;" class="text-right">Packets</th>
+                        <th style="width: 30%;">Share of Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($topDestinations as $index => $dest)
                     <tr>
-                        <td>
-                            <span class="rank-badge {{ $index < 5 ? ($index == 0 ? '' : 'rank-badge-' . ($index + 1)) : 'rank-badge-default' }}">{{ $index + 1 }}</span>
+                        <td class="text-center">
+                            @php
+                                $badgeClass = match($index) {
+                                    0 => 'rank-badge rank-gold',
+                                    1 => 'rank-badge rank-silver',
+                                    2 => 'rank-badge rank-bronze',
+                                    default => $index < 10 ? 'rank-badge rank-purple' : 'rank-badge rank-gray'
+                                };
+                            @endphp
+                            <span class="{{ $badgeClass }}">{{ $index + 1 }}</span>
                         </td>
                         <td><span class="ip-code">{{ $dest->destination_ip }}</span></td>
                         <td class="text-right">{{ number_format($dest->flow_count) }}</td>
@@ -765,20 +1006,22 @@
         </div>
     </div>
 
-    <div class="footer">
-        <table width="100%" cellpadding="0" cellspacing="0">
+    <!-- Page Footer -->
+    <div class="page-footer">
+        <table class="footer-table" cellpadding="0" cellspacing="0">
             <tr>
                 <td width="33%">
-                    <span class="footer-brand">MonetX</span> Network Traffic Analyzer
+                    <div class="footer-brand"><strong>MonetX</strong> Network Traffic Analyzer</div>
                 </td>
-                <td width="34%" style="text-align: center;">
-                    Generated: {{ now()->format('F d, Y H:i:s') }}
+                <td width="34%">
+                    <div class="footer-center">Generated: {{ now()->format('M d, Y H:i') }}</div>
                 </td>
-                <td width="33%" style="text-align: right;">
-                    Confidential - Internal Use Only
+                <td width="33%">
+                    <div class="footer-right">Report ID: RPT-{{ now()->format('Ymd-His') }}</div>
                 </td>
             </tr>
         </table>
+        <div class="footer-confidential">Confidential — Internal Use Only</div>
     </div>
 </body>
 </html>

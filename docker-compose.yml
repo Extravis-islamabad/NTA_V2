@@ -44,8 +44,11 @@ services:
       - DB_DATABASE=${DB_DATABASE:-netflow_traffic_analyzer}
       - DB_USERNAME=${DB_USERNAME:-netflow_user}
       - DB_PASSWORD=${DB_PASSWORD:?Database password is required}
-      - CACHE_DRIVER=file
-      - SESSION_DRIVER=file
+      - CACHE_STORE=database
+      - SESSION_DRIVER=database
+      - ADMIN_NAME=${ADMIN_NAME:-Administrator}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@netflow.local}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?Admin password is required}
       - QUEUE_CONNECTION=database
       - NETFLOW_PORT=${NETFLOW_PORT:-2055}
       - MAXMIND_LICENSE_KEY=${MAXMIND_LICENSE_KEY:-}

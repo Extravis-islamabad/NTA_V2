@@ -26,12 +26,16 @@ DB_DATABASE=${DB_DATABASE:-netflow_traffic_analyzer}
 DB_USERNAME=${DB_USERNAME:-netflow_user}
 DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD environment variable is required}
 
-SESSION_DRIVER=file
+SESSION_DRIVER=database
 SESSION_LIFETIME=120
 QUEUE_CONNECTION=database
-CACHE_STORE=file
+CACHE_STORE=database
 
 NETFLOW_PORT=${NETFLOW_PORT:-2055}
+
+ADMIN_NAME=${ADMIN_NAME:-Administrator}
+ADMIN_EMAIL=${ADMIN_EMAIL:-admin@netflow.local}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
 EOF
     chown www-data:www-data /var/www/html/.env
 fi
@@ -66,6 +70,12 @@ fi
 # Run migrations
 echo "Running migrations..."
 php artisan migrate --force
+
+# Create admin user if password is set
+if [ -n "${ADMIN_PASSWORD}" ]; then
+    echo "Running database seeder (creating admin user if needed)..."
+    php artisan db:seed --force
+fi
 
 # Cache configuration
 echo "Caching configuration..."

@@ -305,7 +305,19 @@ document.addEventListener('DOMContentLoaded', function() {
             stroke: { curve: 'smooth', width: [2, 2] },
             legend: { position: 'top', horizontalAlign: 'right', fontSize: '11px', labels: { colors: '#9ca3af' } },
             grid: { borderColor: 'rgba(255, 255, 255, 0.1)' },
-            tooltip: { theme: 'dark', shared: true }
+            tooltip: {
+                theme: 'dark',
+                shared: true,
+                y: {
+                    formatter: function(value, { seriesIndex }) {
+                        if (seriesIndex === 0) {
+                            return formatBytes(value);
+                        } else {
+                            return value >= 1000 ? (value/1000).toFixed(1) + 'K' : value;
+                        }
+                    }
+                }
+            }
         }).render();
     } else {
         document.getElementById('trafficTimeChart').innerHTML = '<div class="flex items-center justify-center h-full text-gray-500"><p>No traffic data for this time range</p></div>';

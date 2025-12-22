@@ -36,7 +36,7 @@ class DashboardController extends Controller
             'total_devices' => Device::count(),
             'online_devices' => Device::where('status', 'online')->count(),
             'offline_devices' => Device::where('status', 'offline')->count(),
-            'total_flows' => Device::sum('flow_count'),
+            'total_flows' => Flow::where('created_at', '>=', $timeStart)->count(),
             'active_alarms' => Alarm::where('status', 'active')->count(),
             'total_bandwidth' => $totalBandwidth['total_bandwidth'] ?? '0 B',
             'total_bandwidth_in' => $totalBandwidth['total_in'] ?? '0 B',

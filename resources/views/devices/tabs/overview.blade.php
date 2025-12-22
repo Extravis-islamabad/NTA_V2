@@ -305,6 +305,27 @@ document.addEventListener('DOMContentLoaded', function() {
             stroke: { curve: 'smooth', width: [2, 2] },
             legend: { position: 'top', horizontalAlign: 'right', fontSize: '11px', labels: { colors: '#9ca3af' } },
             grid: { borderColor: 'rgba(255, 255, 255, 0.1)' },
+            dataLabels: {
+                enabled: true,
+                formatter: function(value, { seriesIndex }) {
+                    if (seriesIndex === 0) {
+                        return formatBytes(value);
+                    } else {
+                        return value >= 1000 ? (value/1000).toFixed(0) + 'K' : value;
+                    }
+                },
+                style: { fontSize: '9px', fontWeight: 600 },
+                background: {
+                    enabled: true,
+                    foreColor: '#fff',
+                    borderRadius: 3,
+                    padding: 4,
+                    opacity: 0.9,
+                    borderWidth: 0
+                },
+                offsetY: -5
+            },
+            markers: { size: 0 },
             tooltip: {
                 theme: 'dark',
                 shared: true,

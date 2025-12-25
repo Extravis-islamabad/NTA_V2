@@ -267,21 +267,21 @@ class SNMPService
         switch ($device->snmp_version) {
             case 'v1':
                 return [
-                    'version' => SNMP::VERSION_1,
+                    'version' => 'v1',
                     'host' => $target,
                     'community' => $device->snmp_community
                 ];
 
             case 'v2c':
                 return [
-                    'version' => SNMP::VERSION_2c,
+                    'version' => 'v2c',
                     'host' => $target,
                     'community' => $device->snmp_community
                 ];
 
             case 'v3':
                 return [
-                    'version' => SNMP::VERSION_3,
+                    'version' => 'v3',
                     'host' => $target,
                     'username' => $device->snmp_username,
                     'security_level' => $device->snmp_security_level,
@@ -302,7 +302,7 @@ class SNMPService
     private function snmpGet(array $session, string $oid): ?string
     {
         try {
-            if ($session['version'] === SNMP::VERSION_3) {
+            if ($session['version'] === 'v3') {
                 $result = @snmp3_get(
                     $session['host'],
                     $session['username'],
@@ -343,7 +343,7 @@ class SNMPService
     private function snmpWalk(array $session, string $oid): array
     {
         try {
-            if ($session['version'] === SNMP::VERSION_3) {
+            if ($session['version'] === 'v3') {
                 $result = @snmp3_walk(
                     $session['host'],
                     $session['username'],

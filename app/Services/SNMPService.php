@@ -462,23 +462,17 @@ class SNMPService
 
     /**
      * Get interface type name from IANA ifType
+     * Maps to database enum: ethernet, fiber, wireless, virtual
      */
     private function getInterfaceTypeName(int $type): string
     {
-        $types = [
-            1 => 'other',
-            6 => 'ethernetCsmacd',
-            7 => 'iso88023Csmacd',
-            23 => 'ppp',
-            24 => 'softwareLoopback',
-            53 => 'propVirtual',
-            131 => 'tunnel',
-            135 => 'l2vlan',
-            136 => 'l3ipvlan',
-            161 => 'ieee8023adLag',
-        ];
-
-        return $types[$type] ?? "type-{$type}";
+        // Map IANA ifType to our database enum values
+        return match ($type) {
+            6, 7, 62, 117, 161 => 'ethernet',  // ethernetCsmacd, iso88023Csmacd, fastEther, gigabitEthernet, ieee8023adLag
+            37, 69, 70 => 'fiber',              // sonet, opticalChannel, opticalTransport
+            71, 188 => 'wireless',              // ieee80211, radioMAC
+            default => 'virtual',               // loopback, tunnel, vlan, etc.
+        };
     }
 
     /**

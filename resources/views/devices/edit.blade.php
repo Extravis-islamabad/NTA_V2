@@ -399,9 +399,16 @@ async function testSnmpConnection() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text.includes('<!') ? `Server error (${response.status})` : text);
+        }
+
         const data = await response.json();
 
         if (data.success) {
@@ -423,9 +430,16 @@ async function pollSnmpDevice() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text.includes('<!') ? `Server error (${response.status})` : text);
+        }
+
         const data = await response.json();
 
         if (data.success) {

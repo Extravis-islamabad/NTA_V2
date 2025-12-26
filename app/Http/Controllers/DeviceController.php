@@ -526,8 +526,15 @@ class DeviceController extends Controller
     // SNMP Methods
     public function testSnmpConnection(Device $device)
     {
-        $result = $this->snmpService->testConnection($device);
-        return response()->json($result);
+        try {
+            $result = $this->snmpService->testConnection($device);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function pollSnmpDevice(Device $device)
